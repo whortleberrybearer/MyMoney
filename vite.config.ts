@@ -29,4 +29,15 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./tests/unit/setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      include: ["src/**/*.ts", "src/**/*.tsx"],
+      exclude: ["src/components/ui/**"],
+    },
+  },
 }));
