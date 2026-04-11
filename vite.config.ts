@@ -38,6 +38,8 @@ export default defineConfig(async () => ({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./tests/unit/setup.ts"],
+    include: ["./tests/unit/**/*.{test,spec}.{ts,tsx}"],
+    exclude: ["./tests/e2e/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
