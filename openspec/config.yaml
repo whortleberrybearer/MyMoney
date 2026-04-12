@@ -1,0 +1,74 @@
+schema: spec-driven
+
+context: |
+  My Money - Personal Finance Desktop Application
+
+  A self-contained, fully local personal finance app for managing multiple bank
+  accounts across different institutions. No external hosting, no subscriptions,
+  no data leaving the machine. Single-user, multiple profiles (personal, joint,
+  children's accounts).
+
+  ## Tech Stack
+  - App shell: Tauri
+  - Frontend: React + TypeScript
+  - UI components: shadcn/ui (components are copied into the project, not installed as a dep)
+  - Styling: Tailwind CSS
+  - Database: SQLite via Tauri plugin, managed with Drizzle ORM
+  - CSV parsing: Papa Parse (runs in the frontend; parsed data is handed to Tauri commands)
+  - Charts: Recharts
+
+  ## Architecture
+  - React handles all UI rendering and user interaction
+  - All business logic (running balance, rules engines, duplicate detection) lives in
+    Tauri commands — NOT in React components
+  - Drizzle ORM manages all DB access — no raw SQL in the frontend
+  - SQLite file lives in the user's application data directory
+
+  ## Key Conventions
+  - Amounts: always a signed real (positive = credit, negative = debit).
+    SUM(amount) always yields correct balance — no conditional debit/credit logic.
+  - Booleans: stored as integer 0/1 (SQLite has no native boolean)
+  - Dates: stored as ISO text strings (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)
+  - Deletion: always soft-delete. Accounts use is_active, transactions use is_void.
+    Nothing is ever hard deleted.
+  - Running balance: stored on each transaction row (not calculated on the fly)
+  - Transaction ownership: account_id and pot_id are mutually exclusive on the
+    transaction table — enforced at the application layer, not the DB layer
+  - Tags: normalised reference table + junction tables (account_tag, pot_tag).
+    Never free text.
+
+rules:
+  proposal:
+    - Reference the relevant feature ID(s) from the spec (F-01 through F-13)
+    - Flag any dependency features that must be completed first
+    - Call out any schema changes required and whether a Drizzle migration is needed
+
+  specs:
+    - Use Given/When/Then format for all scenarios
+    - Reference the feature ID in the spec title (e.g. "[F-04] CSV Import")
+    - For any flow involving multiple steps or systems, include a flow diagram (Mermaid preferred) 
+      showing the sequence of actors, events, and decisions
+    - For any UI-facing feature, include a UI mockup using ASCII or Mermaid showing layout, key 
+      controls, and the shadcn/ui component(s) to use (e.g. DataTable, Dialog, Sheet, Command, Select,
+      Combobox, Badge, Form)
+    - Duplicate detection specs must explicitly state: duplicates are never auto-skipped or
+      auto-imported — always held as is_pending for user review
+
+  design:
+    - Separate concerns clearly: frontend (React), command layer (Tauri), schema (Drizzle)
+    - For any feature touching the transaction table, confirm amount sign convention is respected
+      (positive = credit, negative = debit)
+    - For any new UI screen, include a component hierarchy diagram showing parent/child component
+      relationships and the shadcn/ui primitives used at each level
+    - For any async import flow, include a sequence diagram showing the steps between Papa Parse, Tauri
+      commands, rules engines, and the DB
+    - Identify whether a Drizzle migration file is required
+
+  tasks:
+    - Break tasks into chunks of max 2–3 hours of focused work
+    - Each task must specify its layer: frontend (React), command (Tauri), or schema (Drizzle migration)
+    - Business logic tasks must be placed in Tauri commands, not React components
+    - If a task touches the transaction table, confirm amount sign convention is respected
+    - If a task introduces a new boolean column, use integer 0/1
+    - If a task introduces a new date column, use ISO text format
+    - Reference the feature ID in the task title (e.g. "[F-04] Parse CSV with Papa Parse")
