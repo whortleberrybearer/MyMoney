@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "pretest:e2e": "npm run tauri -- build --no-bundle --ci",
     "test:e2e": "wdio run wdio.conf.ts"
   },
   "dependencies": {
