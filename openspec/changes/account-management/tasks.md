@@ -25,29 +25,29 @@
 
 ## 4. Accounts Screen — List View
 
-- [ ] 4.1 Add an Accounts tab/section to `DashboardShell` replacing the "No data yet" placeholder; add the necessary navigation control
-- [ ] 4.2 Create `AccountsScreen` component that fetches and renders the accounts list via `list_accounts`
-- [ ] 4.3 Build the accounts table with columns: Institution, Name, Type, Currency, Opening Balance, and a row actions menu (Edit, Deactivate/Reactivate, Delete)
-- [ ] 4.4 Add the "Show inactive" `Switch` toggle; inactive accounts shown when toggle is on, rendered with muted/greyed styling
-- [ ] 4.5 Add the "+ Add Account" button that opens the account form Sheet
+- [x] 4.1 Add an Accounts tab/section to `DashboardShell` replacing the "No data yet" placeholder; add the necessary navigation control
+- [x] 4.2 Create `AccountsScreen` component that fetches and renders the accounts list via `list_accounts`
+- [x] 4.3 Build the accounts table with columns: Institution, Name, Type, Currency, Opening Balance, and a row actions menu (Edit, Deactivate/Reactivate, Delete)
+- [x] 4.4 Add the "Show inactive" `Switch` toggle; inactive accounts shown when toggle is on, rendered with muted/greyed styling
+- [x] 4.5 Add the "+ Add Account" button that opens the account form Sheet
 
 ## 5. Institution Management Dialog
 
-- [ ] 5.1 Create `InstitutionManagementDialog` component displaying all institutions in a list with Edit and Delete buttons per row
-- [ ] 5.2 Implement inline "Add Institution" row with a text input and save/cancel controls; call `create_institution` on save
-- [ ] 5.3 Implement inline edit row for renaming; call `update_institution` on save
-- [ ] 5.4 Implement delete with `AlertDialog` confirmation; call `delete_institution` on confirm; show an error message if the institution has linked accounts
+- [x] 5.1 Create `InstitutionManagementDialog` component displaying all institutions in a list with Edit and Delete buttons per row
+- [x] 5.2 Implement inline "Add Institution" row with a text input and save/cancel controls; call `create_institution` on save
+- [x] 5.3 Implement inline edit row for renaming; call `update_institution` on save
+- [x] 5.4 Implement delete with `AlertDialog` confirmation; call `delete_institution` on confirm; show an error message if the institution has linked accounts
 
 ## 6. Account Create/Edit Form (Sheet)
 
-- [ ] 6.1 Create `AccountFormSheet` component with controlled inputs for all fields: Name, Institution (Select), Account Type (Select), Currency (Select), Opening Balance (number Input), Opening Date (date Input), Tag (Select, optional), Notes (Textarea, optional)
-- [ ] 6.2 Pre-populate Currency with the app's default currency setting when opening in create mode
-- [ ] 6.3 Pre-populate all fields with existing values when opening in edit mode
-- [ ] 6.4 Add a "Manage" link next to the Institution select that opens `InstitutionManagementDialog` without closing the Sheet; refresh the institution list after the dialog closes
-- [ ] 6.5 Implement form validation: required-field errors for Name, Institution, Account Type, Currency, Opening Balance, Opening Date; duplicate-name error from command response
-- [ ] 6.6 Wire Save button to `create_account` (create mode) or `update_account` (edit mode); close Sheet and refresh accounts list on success
+- [x] 6.1 Create `AccountFormSheet` component with controlled inputs for all fields: Name, Institution (Select), Account Type (Select), Currency (Select), Opening Balance (number Input), Opening Date (date Input), Tag (Select, optional), Notes (Textarea, optional)
+- [x] 6.2 Pre-populate Currency with the app's default currency setting when opening in create mode
+- [x] 6.3 Pre-populate all fields with existing values when opening in edit mode
+- [x] 6.4 Add a "Manage" link next to the Institution select that opens `InstitutionManagementDialog` without closing the Sheet; refresh the institution list after the dialog closes
+- [x] 6.5 Implement form validation: required-field errors for Name, Institution, Account Type, Currency, Opening Balance, Opening Date; duplicate-name error from command response
+- [x] 6.6 Wire Save button to `create_account` (create mode) or `update_account` (edit mode); close Sheet and refresh accounts list on success
 
 ## 7. Delete and Deactivate Actions
 
-- [ ] 7.1 Implement account delete flow: show `AlertDialog` with account name; call `delete_account` on confirm; refresh accounts list
-- [ ] 7.2 Implement deactivate/reactivate flow: call `set_account_active` with toggled value; refresh accounts list; no confirmation required
+- [x] 7.1 Implement account delete flow: show `AlertDialog` with account name; call `delete_account` on confirm; refresh accounts list
+- [x] 7.2 Implement deactivate/reactivate flow: call `set_account_active` with toggled value; refresh accounts list; no confirmation required

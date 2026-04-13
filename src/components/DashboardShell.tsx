@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AccountsScreen } from "./AccountsScreen";
 
 interface DashboardShellProps {
   onNavigateToSettings: () => void;
@@ -19,9 +20,7 @@ export function DashboardShell({ onNavigateToSettings }: DashboardShellProps) {
           <Settings className="h-5 w-5" />
         </Button>
       </header>
-      <main className="flex flex-1 items-center justify-center text-muted-foreground">
-        No data yet
-      </main>
+      <AccountsScreen />
     </div>
   );
 }
