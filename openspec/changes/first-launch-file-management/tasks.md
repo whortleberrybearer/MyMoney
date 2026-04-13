@@ -39,5 +39,5 @@
 
 ## 7. Tests
 
-- [ ] 7.1 Unit test `pruneBackups` — verify that files beyond the 2 most recent are deleted and the correct files are kept
-- [ ] 7.2 Unit test `useStartupRouting` — verify routing to `welcome` (no stored path), `file-not-found` (path stored, file missing), and `dashboard` (path stored, file exists)
+- [x] 7.1 Unit test `pruneBackups` — verify that files beyond the 2 most recent are deleted and the correct files are kept
+- [x] 7.2 Unit test `useStartupRouting` — verify routing to `welcome` (no stored path), `file-not-found` (path stored, file missing), and `dashboard` (path stored, file exists)
