@@ -25,3 +25,6 @@ dist-ssr
 
 # Driver used for testing
 msedgedriver.exe
+
+# Claude files
+.claude/settings.local.json
