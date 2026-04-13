@@ -5,6 +5,7 @@ import { runStartupBackup } from "@/lib/file-backup";
 import { DashboardShell } from "@/components/DashboardShell";
 import { FileNotFoundScreen } from "@/components/FileNotFoundScreen";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { MigrationErrorScreen } from "@/components/MigrationErrorScreen";
 import { SettingsScreen } from "@/components/SettingsScreen";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
 import "./App.css";
@@ -38,7 +39,7 @@ function AppScreens() {
   }
 
   async function handleOpenFile() {
-    const filePath = await openExistingFile();
+    const filePath = await openExistingFile(navigate);
     if (filePath) {
       navigate({ screen: "dashboard", filePath });
     }
@@ -65,6 +66,15 @@ function AppScreens() {
         />
       );
 
+    case "migration-error":
+      return (
+        <MigrationErrorScreen
+          filePath={current.filePath}
+          error={current.error}
+          onReturnToStart={() => navigate({ screen: "welcome" })}
+        />
+      );
+
     case "dashboard":
       return (
         <DashboardShell
@@ -82,7 +92,7 @@ function AppScreens() {
             navigate({ screen: "dashboard", filePath: current.filePath })
           }
           onSwitchFile={async () => {
-            const filePath = await openExistingFile();
+            const filePath = await openExistingFile(navigate);
             if (filePath) {
               navigate({ screen: "dashboard", filePath });
             }

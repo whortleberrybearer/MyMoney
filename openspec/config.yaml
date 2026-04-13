@@ -51,8 +51,8 @@ rules:
     - For any UI-facing feature, include a UI mockup using ASCII or Mermaid showing layout, key 
       controls, and the shadcn/ui component(s) to use (e.g. DataTable, Dialog, Sheet, Command, Select,
       Combobox, Badge, Form)
-    - Duplicate detection specs must explicitly state: duplicates are never auto-skipped or
-      auto-imported — always held as is_pending for user review
+    - "Duplicate detection specs must explicitly state: duplicates are never auto-skipped or\
+      \ auto-imported — always held as is_pending for user review"
 
   design:
     - Separate concerns clearly: frontend (React), command layer (Tauri), schema (Drizzle)

@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
-import { saveFilePath } from "./app-context";
+import { AppScreen, saveFilePath } from "./app-context";
+import { openDb } from "./db";
 
 const PFDATA_FILTER = { name: "My Money Data File", extensions: ["pfdata"] };
 
@@ -25,10 +26,14 @@ export async function createNewFile(): Promise<string | null> {
 }
 
 /**
- * Opens a native open dialog filtered to `.pfdata` files, persists the
- * chosen path, and returns it. Returns null if the user cancels.
+ * Opens a native open dialog filtered to `.pfdata` files, runs Drizzle
+ * migrations against the selected file, persists the path, and returns it.
+ * Returns null if the user cancels or if migration fails (in which case
+ * `navigate` is called with the migration-error screen).
  */
-export async function openExistingFile(): Promise<string | null> {
+export async function openExistingFile(
+  navigate: (screen: AppScreen) => void,
+): Promise<string | null> {
   const filePath = await open({
     multiple: false,
     filters: [PFDATA_FILTER],
@@ -37,5 +42,17 @@ export async function openExistingFile(): Promise<string | null> {
   if (!filePath) return null;
 
   saveFilePath(filePath);
+
+  try {
+    await openDb(filePath);
+  } catch (err) {
+    navigate({
+      screen: "migration-error",
+      filePath,
+      error: String(err),
+    });
+    return null;
+  }
+
   return filePath;
 }
