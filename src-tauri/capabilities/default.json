@@ -12,6 +12,10 @@
     "fs:allow-read-dir",
     "fs:allow-remove",
     "fs:allow-exists",
-    "fs:allow-write-file"
+    "fs:allow-write-file",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "sql:allow-close"
   ]
 }

@@ -64,14 +64,24 @@ async function runMigrations(tauriDb: Database): Promise<void> {
 let instance: AppDb | null = null;
 
 function toSqliteUri(filePath: string): string {
-  // Convert absolute OS path to a sqlite:/// URI so tauri-plugin-sql opens
-  // the correct file regardless of platform.
-  const normalised = filePath.replace(/\\/g, "/");
-  // Unix:    "/home/user/file.pfdata"  → "sqlite:///home/user/file.pfdata"
-  // Windows: "C:/Users/file.pfdata"   → "sqlite:///C:/Users/file.pfdata"
-  return normalised.startsWith("/")
-    ? `sqlite://${normalised}`
-    : `sqlite:///${normalised}`;
+  // tauri-plugin-sql expects connection strings like:
+  // - sqlite:test.db
+  // - sqlite:/absolute/unix/path.db
+  // - sqlite:C:/absolute/windows/path.db
+  //
+  // Using file-style URLs (sqlite:///...) can end up producing a path with a
+  // leading slash on Windows ("/C:/...") which SQLite cannot open.
+
+  const trimmed = filePath.trim();
+
+  // Tauri dialogs typically return plain absolute paths, but be defensive.
+  // Windows extended-length prefix: \\?\C:\path\to\file
+  const withoutExtendedPrefix = trimmed.startsWith("\\\\?\\")
+    ? trimmed.slice(4)
+    : trimmed;
+
+  const normalised = withoutExtendedPrefix.replace(/\\/g, "/");
+  return `sqlite:${normalised}`;
 }
 
 export async function openDb(filePath: string): Promise<void> {
