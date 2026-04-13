@@ -18,9 +18,9 @@
 
 ## 4. File Backup Utilities
 
-- [ ] 4.1 Implement `createBackup(filePath)` — copies the file to `{filePath}.{YYYY-MM-DD}.bak` in the same directory (overwrites if today's backup already exists)
-- [ ] 4.2 Implement `pruneBackups(filePath)` — lists all files in the parent directory matching `{basename}.*.bak`, sorts them lexicographically descending, and deletes all but the 2 most recent
-- [ ] 4.3 Implement `runStartupBackup(filePath)` — calls `createBackup` then `pruneBackups`, catches and logs any errors without throwing
+- [x] 4.1 Implement `createBackup(filePath)` — copies the file to `{filePath}.{YYYY-MM-DD}.bak` in the same directory (overwrites if today's backup already exists)
+- [x] 4.2 Implement `pruneBackups(filePath)` — lists all files in the parent directory matching `{basename}.*.bak`, sorts them lexicographically descending, and deletes all but the 2 most recent
+- [x] 4.3 Implement `runStartupBackup(filePath)` — calls `createBackup` then `pruneBackups`, catches and logs any errors without throwing
 
 ## 5. UI Screens
 
