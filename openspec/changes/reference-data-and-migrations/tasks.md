@@ -1,10 +1,10 @@
 ## 1. Schema — Define reference tables in Drizzle
 
-- [ ] 1.1 [schema] Define `account_type` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique), `asset_liability` (text, not null)
-- [ ] 1.2 [schema] Define `transaction_type` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique)
-- [ ] 1.3 [schema] Define `tag` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique)
-- [ ] 1.4 [schema] Define `category` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique), `is_system` (integer, not null, default 0), `sort_order` (integer, not null)
-- [ ] 1.5 [schema] Define `institution` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique)
+- [x] 1.1 [schema] Define `account_type` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique), `asset_liability` (text, not null)
+- [x] 1.2 [schema] Define `transaction_type` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique)
+- [x] 1.3 [schema] Define `tag` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique)
+- [x] 1.4 [schema] Define `category` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique), `is_system` (integer, not null, default 0), `sort_order` (integer, not null)
+- [x] 1.5 [schema] Define `institution` table in `src/lib/db/schema.ts` with columns: `id` (integer PK autoincrement), `name` (text, not null, unique)
 
 ## 2. Schema — Generate and edit migration
 
