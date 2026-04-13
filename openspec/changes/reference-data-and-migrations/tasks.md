@@ -22,9 +22,9 @@
 
 ## 4. Frontend — Migration-error screen
 
-- [ ] 4.1 [frontend] Add `{ screen: "migration-error"; filePath: string; error: string }` to the `AppScreen` union in `src/lib/app-context.tsx`
-- [ ] 4.2 [frontend] Create `src/components/MigrationErrorScreen.tsx` — displays the error message and a "Return to start" button that navigates to `{ screen: "welcome" }`
-- [ ] 4.3 [frontend] Wire `MigrationErrorScreen` into `App.tsx` so it renders when `current.screen === "migration-error"`
+- [x] 4.1 [frontend] Add `{ screen: "migration-error"; filePath: string; error: string }` to the `AppScreen` union in `src/lib/app-context.tsx`
+- [x] 4.2 [frontend] Create `src/components/MigrationErrorScreen.tsx` — displays the error message and a "Return to start" button that navigates to `{ screen: "welcome" }`
+- [x] 4.3 [frontend] Wire `MigrationErrorScreen` into `App.tsx` so it renders when `current.screen === "migration-error"`
 
 ## 5. Frontend — Hook migrations into file-open flows
 

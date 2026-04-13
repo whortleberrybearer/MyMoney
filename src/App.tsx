@@ -5,6 +5,7 @@ import { runStartupBackup } from "@/lib/file-backup";
 import { DashboardShell } from "@/components/DashboardShell";
 import { FileNotFoundScreen } from "@/components/FileNotFoundScreen";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { MigrationErrorScreen } from "@/components/MigrationErrorScreen";
 import { SettingsScreen } from "@/components/SettingsScreen";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
 import "./App.css";
@@ -62,6 +63,15 @@ function AppScreens() {
           missingPath={current.missingPath}
           onOpenFile={handleOpenFile}
           onCreateFile={handleCreateFile}
+        />
+      );
+
+    case "migration-error":
+      return (
+        <MigrationErrorScreen
+          filePath={current.filePath}
+          error={current.error}
+          onReturnToStart={() => navigate({ screen: "welcome" })}
         />
       );
 

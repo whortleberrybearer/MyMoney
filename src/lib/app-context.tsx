@@ -15,6 +15,7 @@ export type AppScreen =
   | { screen: "loading" }
   | { screen: "welcome" }
   | { screen: "file-not-found"; missingPath: string }
+  | { screen: "migration-error"; filePath: string; error: string }
   | { screen: "dashboard"; filePath: string }
   | { screen: "settings"; filePath: string };
 
