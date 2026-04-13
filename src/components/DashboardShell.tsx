@@ -1,6 +1,7 @@
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AccountsScreen } from "./AccountsScreen";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 interface DashboardShellProps {
   onNavigateToSettings: () => void;
@@ -20,7 +21,9 @@ export function DashboardShell({ onNavigateToSettings }: DashboardShellProps) {
           <Settings className="h-5 w-5" />
         </Button>
       </header>
-      <AccountsScreen />
+      <ErrorBoundary>
+        <AccountsScreen />
+      </ErrorBoundary>
     </div>
   );
 }

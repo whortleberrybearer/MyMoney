@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { SQL, and, asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { account, accountTag, accountType, institution, tag } from "./db/schema";
 
@@ -33,21 +33,27 @@ export type UpdateAccountInput = CreateAccountInput & { id: number };
 
 export async function listAccounts(showInactive: boolean): Promise<AccountRow[]> {
   const db = getDb();
+  // Explicit SQL aliases are required for every column whose raw SQL name would
+  // collide with another column in the result set.  The Tauri SQL plugin returns
+  // rows as IndexMap<String, Value>, which collapses duplicate column names (last
+  // value wins).  Without aliases, "name" and "id" each appear multiple times
+  // (from account, institution, account_type, and tag), causing wrong values to
+  // be passed to Drizzle's index-based mapResultRow.
   const rows = await db
     .select({
       id: account.id,
       name: account.name,
       institutionId: account.institutionId,
-      institutionName: institution.name,
+      institutionName: sql<string>`${institution.name}`.as("institutionName") as SQL<string>,
       accountTypeId: account.accountTypeId,
-      accountTypeName: accountType.name,
+      accountTypeName: sql<string>`${accountType.name}`.as("accountTypeName") as SQL<string>,
       currency: account.currency,
       openingBalance: account.openingBalance,
       openingDate: account.openingDate,
       notes: account.notes,
       isActive: account.isActive,
-      tagId: tag.id,
-      tagName: tag.name,
+      tagId: sql<number | null>`${tag.id}`.as("tagId") as SQL<number | null>,
+      tagName: sql<string | null>`${tag.name}`.as("tagName") as SQL<string | null>,
     })
     .from(account)
     .leftJoin(institution, eq(account.institutionId, institution.id))
