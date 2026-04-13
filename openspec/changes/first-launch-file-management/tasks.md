@@ -3,7 +3,7 @@
 - [x] 1.1 Add `tauri-plugin-dialog` and `tauri-plugin-fs` crates to `src-tauri/Cargo.toml`
 - [x] 1.2 Register `tauri_plugin_dialog` and `tauri_plugin_fs` in `src-tauri/src/lib.rs`
 - [x] 1.3 Declare required permissions in the Tauri capability file (`dialog:allow-open`, `dialog:allow-save`, `fs:allow-copy-file`, `fs:allow-read-dir`, `fs:allow-remove-file`)
-- [ ] 1.4 Add `@tauri-apps/plugin-dialog` and `@tauri-apps/plugin-fs` to `package.json` and install
+- [x] 1.4 Add `@tauri-apps/plugin-dialog` and `@tauri-apps/plugin-fs` to `package.json` and install
 
 ## 2. App Routing State Machine
 
