@@ -13,8 +13,8 @@
 
 ## 3. File Selection Utilities
 
-- [ ] 3.1 Implement `createNewFile()` — opens a native save dialog defaulting to `my-money.pfdata` filtered to `.pfdata`, creates the file, writes the chosen path to `localStorage.lastOpenedFilePath`, and returns the path
-- [ ] 3.2 Implement `openExistingFile()` — opens a native open dialog filtered to `.pfdata`, writes the chosen path to `localStorage.lastOpenedFilePath`, and returns the path; returns `null` if cancelled
+- [x] 3.1 Implement `createNewFile()` — opens a native save dialog defaulting to `my-money.pfdata` filtered to `.pfdata`, creates the file, writes the chosen path to `localStorage.lastOpenedFilePath`, and returns the path
+- [x] 3.2 Implement `openExistingFile()` — opens a native open dialog filtered to `.pfdata`, writes the chosen path to `localStorage.lastOpenedFilePath`, and returns the path; returns `null` if cancelled
 
 ## 4. File Backup Utilities
 
