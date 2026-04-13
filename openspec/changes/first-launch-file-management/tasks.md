@@ -7,9 +7,9 @@
 
 ## 2. App Routing State Machine
 
-- [ ] 2.1 Define `AppScreen` discriminated union type with states: `loading`, `welcome`, `file-not-found`, `dashboard`, `settings`
-- [ ] 2.2 Create `AppContext` providing the current screen, the missing file path (for the error screen), and a `navigate(screen)` function
-- [ ] 2.3 Implement `useStartupRouting` hook: reads `localStorage.lastOpenedFilePath`, checks if the file exists via `tauri-plugin-fs`, and sets the initial screen to `welcome`, `file-not-found`, or `dashboard` accordingly
+- [x] 2.1 Define `AppScreen` discriminated union type with states: `loading`, `welcome`, `file-not-found`, `dashboard`, `settings`
+- [x] 2.2 Create `AppContext` providing the current screen, the missing file path (for the error screen), and a `navigate(screen)` function
+- [x] 2.3 Implement `useStartupRouting` hook: reads `localStorage.lastOpenedFilePath`, checks if the file exists via `tauri-plugin-fs`, and sets the initial screen to `welcome`, `file-not-found`, or `dashboard` accordingly
 
 ## 3. File Selection Utilities
 
