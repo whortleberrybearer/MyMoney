@@ -24,11 +24,11 @@
 
 ## 5. UI Screens
 
-- [ ] 5.1 Create `LoadingScreen` component — full-screen loading indicator, no other content
-- [ ] 5.2 Create `WelcomeScreen` component — app title/branding, "Create new data file" button, "Open existing data file" button
-- [ ] 5.3 Create `FileNotFoundScreen` component — error heading, displays the full missing file path, "Open data file" button, "Create new data file" button
-- [ ] 5.4 Create `DashboardShell` component — empty main content area, navigation control (e.g. settings icon/button) that routes to the settings screen
-- [ ] 5.5 Create `SettingsScreen` component — displays current file path, "Switch data file" button, back navigation to dashboard
+- [x] 5.1 Create `LoadingScreen` component — full-screen loading indicator, no other content
+- [x] 5.2 Create `WelcomeScreen` component — app title/branding, "Create new data file" button, "Open existing data file" button
+- [x] 5.3 Create `FileNotFoundScreen` component — error heading, displays the full missing file path, "Open data file" button, "Create new data file" button
+- [x] 5.4 Create `DashboardShell` component — empty main content area, navigation control (e.g. settings icon/button) that routes to the settings screen
+- [x] 5.5 Create `SettingsScreen` component — displays current file path, "Switch data file" button, back navigation to dashboard
 
 ## 6. App Wiring
 
