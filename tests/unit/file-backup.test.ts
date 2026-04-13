@@ -1,72 +1,36 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { pruneBackups } from "@/lib/file-backup";
+import { runStartupBackup } from "@/lib/file-backup";
 
-// Mock tauri-plugin-fs
-vi.mock("@tauri-apps/plugin-fs", () => ({
-  copyFile: vi.fn(),
-  readDir: vi.fn(),
-  remove: vi.fn(),
+// Mock the Tauri core invoke
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn(),
 }));
 
-import { readDir, remove } from "@tauri-apps/plugin-fs";
-
-const mockReadDir = vi.mocked(readDir);
-const mockRemove = vi.mocked(remove);
+import { invoke } from "@tauri-apps/api/core";
+const mockInvoke = vi.mocked(invoke);
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("pruneBackups", () => {
-  it("deletes backups beyond the 2 most recent", async () => {
-    mockReadDir.mockResolvedValue([
-      { name: "my-money.pfdata.2026-01-01.bak" },
-      { name: "my-money.pfdata.2026-01-02.bak" },
-      { name: "my-money.pfdata.2026-01-03.bak" },
-      { name: "my-money.pfdata.2026-01-04.bak" },
-      { name: "my-money.pfdata" }, // the data file itself — should be ignored
-      { name: "other-file.txt" },  // unrelated file — should be ignored
-    ] as never);
+describe("runStartupBackup", () => {
+  it("calls run_startup_backup with filePath and today's date-stamped backupPath", async () => {
+    mockInvoke.mockResolvedValue(undefined);
 
-    await pruneBackups("C:/data/my-money.pfdata");
+    const today = new Date().toISOString().slice(0, 10);
+    await runStartupBackup("C:/data/my-money.pfdata");
 
-    // Most recent two are kept: 2026-01-04 and 2026-01-03
-    // Oldest two should be deleted: 2026-01-01 and 2026-01-02
-    expect(mockRemove).toHaveBeenCalledTimes(2);
-    expect(mockRemove).toHaveBeenCalledWith(
-      "C:/data/my-money.pfdata.2026-01-01.bak"
-    );
-    expect(mockRemove).toHaveBeenCalledWith(
-      "C:/data/my-money.pfdata.2026-01-02.bak"
-    );
+    expect(mockInvoke).toHaveBeenCalledWith("run_startup_backup", {
+      filePath: "C:/data/my-money.pfdata",
+      backupPath: `C:/data/my-money.pfdata.${today}.bak`,
+    });
   });
 
-  it("does not delete anything when 2 or fewer backups exist", async () => {
-    mockReadDir.mockResolvedValue([
-      { name: "my-money.pfdata.2026-01-03.bak" },
-      { name: "my-money.pfdata.2026-01-04.bak" },
-    ] as never);
+  it("does not throw when the Rust command fails", async () => {
+    mockInvoke.mockRejectedValue(new Error("permission denied"));
 
-    await pruneBackups("C:/data/my-money.pfdata");
-
-    expect(mockRemove).not.toHaveBeenCalled();
-  });
-
-  it("does not delete anything when only 1 backup exists", async () => {
-    mockReadDir.mockResolvedValue([
-      { name: "my-money.pfdata.2026-01-04.bak" },
-    ] as never);
-
-    await pruneBackups("C:/data/my-money.pfdata");
-
-    expect(mockRemove).not.toHaveBeenCalled();
-  });
-
-  it("does not delete anything when no backups exist", async () => {
-    mockReadDir.mockResolvedValue([] as never);
-
-    await pruneBackups("C:/data/my-money.pfdata");
-
-    expect(mockRemove).not.toHaveBeenCalled();
+    await expect(
+      runStartupBackup("C:/data/my-money.pfdata")
+    ).resolves.toBeUndefined();
   });
 });

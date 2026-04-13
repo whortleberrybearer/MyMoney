@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { AppProvider, useApp } from "@/lib/app-context";
 
-// Mock tauri-plugin-fs
-vi.mock("@tauri-apps/plugin-fs", () => ({
-  exists: vi.fn(),
+// Mock @tauri-apps/api/core (used by app-context for file_exists invoke)
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn(),
 }));
 
-import { exists } from "@tauri-apps/plugin-fs";
-const mockExists = vi.mocked(exists);
+import { invoke } from "@tauri-apps/api/core";
+const mockInvoke = vi.mocked(invoke);
 
 // Consumer component that renders the current screen name for assertions
 function ScreenDisplay() {
@@ -36,7 +36,7 @@ beforeEach(() => {
 
 describe("useStartupRouting", () => {
   it("routes to welcome when no file path is stored", async () => {
-    // localStorage is empty — no lastOpenedFilePath
+    // localStorage is empty — no lastOpenedFilePath, invoke should not be called
     render(
       <AppProvider>
         <ScreenDisplay />
@@ -46,11 +46,12 @@ describe("useStartupRouting", () => {
     await waitFor(() => {
       expect(screen.getByTestId("screen").textContent).toBe("welcome");
     });
+    expect(mockInvoke).not.toHaveBeenCalled();
   });
 
   it("routes to dashboard when stored file path exists", async () => {
-    localStorage.setItem("lastOpenedFilePath", "C:/data/my-money.pfdata");
-    mockExists.mockResolvedValue(true);
+    localStorageMock.setItem("lastOpenedFilePath", "C:/data/my-money.pfdata");
+    mockInvoke.mockResolvedValue(true); // file_exists returns true
 
     render(
       <AppProvider>
@@ -61,11 +62,12 @@ describe("useStartupRouting", () => {
     await waitFor(() => {
       expect(screen.getByTestId("screen").textContent).toBe("dashboard");
     });
+    expect(mockInvoke).toHaveBeenCalledWith("file_exists", { path: "C:/data/my-money.pfdata" });
   });
 
   it("routes to file-not-found when stored file path does not exist", async () => {
-    localStorage.setItem("lastOpenedFilePath", "C:/data/my-money.pfdata");
-    mockExists.mockResolvedValue(false);
+    localStorageMock.setItem("lastOpenedFilePath", "C:/data/my-money.pfdata");
+    mockInvoke.mockResolvedValue(false); // file_exists returns false
 
     render(
       <AppProvider>

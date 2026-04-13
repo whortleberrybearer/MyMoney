@@ -1,5 +1,5 @@
+import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
-import { writeFile } from "@tauri-apps/plugin-fs";
 import { saveFilePath } from "./app-context";
 
 const PFDATA_FILTER = { name: "My Money Data File", extensions: ["pfdata"] };
@@ -18,7 +18,7 @@ export async function createNewFile(): Promise<string | null> {
   if (!filePath) return null;
 
   // Create an empty file at the chosen path.
-  await writeFile(filePath, new Uint8Array());
+  await invoke("create_empty_file", { path: filePath });
 
   saveFilePath(filePath);
   return filePath;
