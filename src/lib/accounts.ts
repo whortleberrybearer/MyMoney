@@ -1,6 +1,12 @@
-import { SQL, and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { account, accountTag, accountType, institution, tag } from "./db/schema";
+import {
+  account,
+  accountTag,
+  accountType,
+  institution,
+  tag,
+} from "./db/schema";
 
 export type AccountRow = {
   id: number;
@@ -31,7 +37,9 @@ export type CreateAccountInput = {
 
 export type UpdateAccountInput = CreateAccountInput & { id: number };
 
-export async function listAccounts(showInactive: boolean): Promise<AccountRow[]> {
+export async function listAccounts(
+  showInactive: boolean,
+): Promise<AccountRow[]> {
   const db = getDb();
   // Explicit SQL aliases are required for every column whose raw SQL name would
   // collide with another column in the result set.  The Tauri SQL plugin returns
@@ -44,16 +52,16 @@ export async function listAccounts(showInactive: boolean): Promise<AccountRow[]>
       id: account.id,
       name: account.name,
       institutionId: account.institutionId,
-      institutionName: sql<string>`${institution.name}`.as("institutionName") as SQL<string>,
+      institutionName: sql<string>`${institution.name}`.as("institutionName"),
       accountTypeId: account.accountTypeId,
-      accountTypeName: sql<string>`${accountType.name}`.as("accountTypeName") as SQL<string>,
+      accountTypeName: sql<string>`${accountType.name}`.as("accountTypeName"),
       currency: account.currency,
       openingBalance: account.openingBalance,
       openingDate: account.openingDate,
       notes: account.notes,
       isActive: account.isActive,
-      tagId: sql<number | null>`${tag.id}`.as("tagId") as SQL<number | null>,
-      tagName: sql<string | null>`${tag.name}`.as("tagName") as SQL<string | null>,
+      tagId: sql<number | null>`${tag.id}`.as("tagId"),
+      tagName: sql<string | null>`${tag.name}`.as("tagName"),
     })
     .from(account)
     .leftJoin(institution, eq(account.institutionId, institution.id))
@@ -111,7 +119,9 @@ export async function createAccount(input: CreateAccountInput): Promise<void> {
       .orderBy(desc(account.id))
       .limit(1);
     if (inserted[0]) {
-      await db.insert(accountTag).values({ accountId: inserted[0].id, tagId: input.tagId });
+      await db
+        .insert(accountTag)
+        .values({ accountId: inserted[0].id, tagId: input.tagId });
     }
   }
 }
@@ -149,11 +159,16 @@ export async function updateAccount(input: UpdateAccountInput): Promise<void> {
 
   await db.delete(accountTag).where(eq(accountTag.accountId, input.id));
   if (input.tagId !== undefined) {
-    await db.insert(accountTag).values({ accountId: input.id, tagId: input.tagId });
+    await db
+      .insert(accountTag)
+      .values({ accountId: input.id, tagId: input.tagId });
   }
 }
 
-export async function setAccountActive(accountId: number, isActive: boolean): Promise<void> {
+export async function setAccountActive(
+  accountId: number,
+  isActive: boolean,
+): Promise<void> {
   const db = getDb();
   await db
     .update(account)
