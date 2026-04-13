@@ -32,10 +32,10 @@
 
 ## 6. App Wiring
 
-- [ ] 6.1 Update `App.tsx` to wrap the app in `AppContext`, call `useStartupRouting` on mount, and render the correct screen based on current state
-- [ ] 6.2 Wire "Create new data file" and "Open existing data file" buttons in `WelcomeScreen` and `FileNotFoundScreen` to `createNewFile()` and `openExistingFile()` respectively, navigating to dashboard on success
-- [ ] 6.3 After a successful startup open of an existing file, call `runStartupBackup(filePath)` asynchronously (non-blocking)
-- [ ] 6.4 Wire "Switch data file" on `SettingsScreen` to `openExistingFile()`, navigating to dashboard on success
+- [x] 6.1 Update `App.tsx` to wrap the app in `AppContext`, call `useStartupRouting` on mount, and render the correct screen based on current state
+- [x] 6.2 Wire "Create new data file" and "Open existing data file" buttons in `WelcomeScreen` and `FileNotFoundScreen` to `createNewFile()` and `openExistingFile()` respectively, navigating to dashboard on success
+- [x] 6.3 After a successful startup open of an existing file, call `runStartupBackup(filePath)` asynchronously (non-blocking)
+- [x] 6.4 Wire "Switch data file" on `SettingsScreen` to `openExistingFile()`, navigating to dashboard on success
 
 ## 7. Tests
 
