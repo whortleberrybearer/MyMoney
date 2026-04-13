@@ -7,6 +7,12 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
+// Mock @/lib/db so openDb doesn't try to connect to a real SQLite file
+vi.mock("@/lib/db", () => ({
+  openDb: vi.fn().mockResolvedValue(undefined),
+  getDb: vi.fn(),
+}));
+
 import { invoke } from "@tauri-apps/api/core";
 const mockInvoke = vi.mocked(invoke);
 

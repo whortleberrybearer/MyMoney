@@ -55,7 +55,7 @@ const EMPTY_FORM: FormState = {
   currency: DEFAULT_CURRENCY,
   openingBalance: "0",
   openingDate: "",
-  tagId: "",
+  tagId: "none",
   notes: "",
 };
 
@@ -81,7 +81,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
           currency: editAccount.currency,
           openingBalance: String(editAccount.openingBalance),
           openingDate: editAccount.openingDate,
-          tagId: editAccount.tagId != null ? String(editAccount.tagId) : "",
+          tagId: editAccount.tagId != null ? String(editAccount.tagId) : "none",
           notes: editAccount.notes ?? "",
         });
       } else {
@@ -135,7 +135,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
         openingBalance: Number(form.openingBalance),
         openingDate: form.openingDate,
         notes: form.notes || undefined,
-        tagId: form.tagId ? Number(form.tagId) : undefined,
+        tagId: form.tagId && form.tagId !== "none" ? Number(form.tagId) : undefined,
       };
       if (editAccount) {
         await updateAccount({ ...payload, id: editAccount.id });
@@ -187,7 +187,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
                 </button>
               </div>
               <Select
-                value={form.institutionId}
+                value={form.institutionId || undefined}
                 onValueChange={(v) => set("institutionId", v)}
               >
                 <SelectTrigger id="acc-institution" aria-invalid={!!errors.institutionId}>
@@ -209,7 +209,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="acc-type">Account Type *</Label>
               <Select
-                value={form.accountTypeId}
+                value={form.accountTypeId || undefined}
                 onValueChange={(v) => set("accountTypeId", v)}
               >
                 <SelectTrigger id="acc-type" aria-invalid={!!errors.accountTypeId}>
@@ -283,7 +283,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
               <Label htmlFor="acc-tag">Tag</Label>
               <Select
                 value={form.tagId}
-                onValueChange={(v) => set("tagId", v === "none" ? "" : v)}
+                onValueChange={(v) => set("tagId", v)}
               >
                 <SelectTrigger id="acc-tag">
                   <SelectValue placeholder="No tag" />
