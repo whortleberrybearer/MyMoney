@@ -4,24 +4,24 @@
 - [x] 1.2 Add `account_tag` junction table definition to `src/lib/db/schema.ts` with columns: account_id (FK), tag_id (FK), composite PK
 - [x] 1.3 Run `drizzle-kit generate` to produce the `0001_*.sql` migration file
 - [x] 1.4 Add the new migration SQL to the inlined migrations array in `src/lib/db/index.ts`
-- [ ] 1.5 Verify the app starts and migration `0001` runs without errors on a fresh database
+- [x] 1.5 Verify the app starts and migration `0001` runs without errors on a fresh database
 
 ## 2. Tauri Commands — Institution CRUD
 
-- [ ] 2.1 Implement `list_institutions` command returning all institution rows ordered by name
-- [ ] 2.2 Implement `create_institution` command with unique-name validation (case-insensitive); return the new row
-- [ ] 2.3 Implement `update_institution` command with unique-name validation excluding the updated row; return the updated row
-- [ ] 2.4 Implement `delete_institution` command that checks for linked accounts and returns an error if any exist; otherwise deletes the row
-- [ ] 2.5 Register all institution commands in the Tauri `invoke_handler`
+- [x] 2.1 Implement `list_institutions` command returning all institution rows ordered by name
+- [x] 2.2 Implement `create_institution` command with unique-name validation (case-insensitive); return the new row
+- [x] 2.3 Implement `update_institution` command with unique-name validation excluding the updated row; return the updated row
+- [x] 2.4 Implement `delete_institution` command that checks for linked accounts and returns an error if any exist; otherwise deletes the row
+- [x] 2.5 Register all institution commands in the Tauri `invoke_handler`
 
 ## 3. Tauri Commands — Account CRUD
 
-- [ ] 3.1 Implement `list_accounts` command accepting a `show_inactive: bool` parameter; returns accounts with `is_deleted = 0`, filtered by `is_active` when `show_inactive` is false; join institution, account_type, and first tag
-- [ ] 3.2 Implement `create_account` command with unique-name validation (excluding deleted accounts); inserts into `account` and optionally `account_tag`; return the new row
-- [ ] 3.3 Implement `update_account` command updating all account fields; replace `account_tag` entry if tag changed; return the updated row
-- [ ] 3.4 Implement `set_account_active` command accepting `account_id` and `is_active: bool`; sets `is_active` on the row
-- [ ] 3.5 Implement `delete_account` command that sets `is_deleted = 1` (soft-delete) on the account and removes its `account_tag` rows
-- [ ] 3.6 Register all account commands in the Tauri `invoke_handler`
+- [x] 3.1 Implement `list_accounts` command accepting a `show_inactive: bool` parameter; returns accounts with `is_deleted = 0`, filtered by `is_active` when `show_inactive` is false; join institution, account_type, and first tag
+- [x] 3.2 Implement `create_account` command with unique-name validation (excluding deleted accounts); inserts into `account` and optionally `account_tag`; return the new row
+- [x] 3.3 Implement `update_account` command updating all account fields; replace `account_tag` entry if tag changed; return the updated row
+- [x] 3.4 Implement `set_account_active` command accepting `account_id` and `is_active: bool`; sets `is_active` on the row
+- [x] 3.5 Implement `delete_account` command that sets `is_deleted = 1` (soft-delete) on the account and removes its `account_tag` rows
+- [x] 3.6 Register all account commands in the Tauri `invoke_handler`
 
 ## 4. Accounts Screen — List View
 
