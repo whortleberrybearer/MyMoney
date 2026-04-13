@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { openDb } from "./db";
 import {
   createContext,
   useCallback,
@@ -62,7 +63,19 @@ function useStartupRouting(
         if (cancelled) return;
 
         if (fileExists) {
-          setCurrent({ screen: "dashboard", filePath: storedPath });
+          try {
+            await openDb(storedPath);
+          } catch (err) {
+            if (!cancelled) {
+              setCurrent({
+                screen: "migration-error",
+                filePath: storedPath,
+                error: String(err),
+              });
+            }
+            return;
+          }
+          if (!cancelled) setCurrent({ screen: "dashboard", filePath: storedPath });
         } else {
           setCurrent({ screen: "file-not-found", missingPath: storedPath });
         }

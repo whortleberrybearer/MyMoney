@@ -28,5 +28,5 @@
 
 ## 5. Frontend — Hook migrations into file-open flows
 
-- [ ] 5.1 [frontend] Update `useStartupRouting` in `src/lib/app-context.tsx`: after confirming a file exists, call `openDb(storedPath)` before navigating to `dashboard`; on error, navigate to `{ screen: "migration-error", filePath: storedPath, error: String(err) }`
-- [ ] 5.2 [frontend] Update `openExistingFile` in `src/lib/file-selection.ts`: after `saveFilePath()`, call `openDb(filePath)` and return the file path on success; on error, navigate to the migration-error screen (accept `navigate` as a parameter or use a shared helper)
+- [x] 5.1 [frontend] Update `useStartupRouting` in `src/lib/app-context.tsx`: after confirming a file exists, call `openDb(storedPath)` before navigating to `dashboard`; on error, navigate to `{ screen: "migration-error", filePath: storedPath, error: String(err) }`
+- [x] 5.2 [frontend] Update `openExistingFile` in `src/lib/file-selection.ts`: after `saveFilePath()`, call `openDb(filePath)` and return the file path on success; on error, navigate to the migration-error screen (accept `navigate` as a parameter or use a shared helper)

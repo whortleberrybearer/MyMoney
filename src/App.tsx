@@ -39,7 +39,7 @@ function AppScreens() {
   }
 
   async function handleOpenFile() {
-    const filePath = await openExistingFile();
+    const filePath = await openExistingFile(navigate);
     if (filePath) {
       navigate({ screen: "dashboard", filePath });
     }
@@ -92,7 +92,7 @@ function AppScreens() {
             navigate({ screen: "dashboard", filePath: current.filePath })
           }
           onSwitchFile={async () => {
-            const filePath = await openExistingFile();
+            const filePath = await openExistingFile(navigate);
             if (filePath) {
               navigate({ screen: "dashboard", filePath });
             }
