@@ -10,7 +10,8 @@
     "dialog:allow-save",
     "fs:allow-copy-file",
     "fs:allow-read-dir",
-    "fs:allow-remove-file",
-    "fs:allow-exists"
+    "fs:allow-remove",
+    "fs:allow-exists",
+    "fs:allow-write-file"
   ]
 }
