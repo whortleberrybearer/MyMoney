@@ -16,7 +16,7 @@
 
 ## 3. Frontend — DB adapter and singleton
 
-- [ ] 3.1 [frontend] Create `src/lib/db/adapter.ts` — a minimal Drizzle SQLite adapter that wraps `@tauri-apps/plugin-sql` `Database` instance, implementing `execute()` and `select()` methods compatible with Drizzle's driver interface
+- [x] 3.1 [frontend] Create `src/lib/db/adapter.ts` — a minimal Drizzle SQLite adapter that wraps `@tauri-apps/plugin-sql` `Database` instance, implementing `execute()` and `select()` methods compatible with Drizzle's driver interface
 - [ ] 3.2 [frontend] Create `src/lib/db/index.ts` with `openDb(filePath: string): Promise<void>` — opens the SQLite file via `Database.load()`, wraps it with the adapter, runs `migrate(db, migrations)`, and stores the Drizzle instance in module scope; throws on migration failure
 - [ ] 3.3 [frontend] Export `getDb(): DrizzleInstance` from `src/lib/db/index.ts` — returns the active instance or throws if `openDb` has not been called
 
