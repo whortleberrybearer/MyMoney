@@ -1,9 +1,9 @@
 ## 1. Database Schema and Migration
 
-- [ ] 1.1 Add `account` table definition to `src/lib/db/schema.ts` with columns: id, name, institution_id (FK), account_type_id (FK), currency, opening_balance, opening_date, notes, is_active, is_deleted
-- [ ] 1.2 Add `account_tag` junction table definition to `src/lib/db/schema.ts` with columns: account_id (FK), tag_id (FK), composite PK
-- [ ] 1.3 Run `drizzle-kit generate` to produce the `0001_*.sql` migration file
-- [ ] 1.4 Add the new migration SQL to the inlined migrations array in `src/lib/db/index.ts`
+- [x] 1.1 Add `account` table definition to `src/lib/db/schema.ts` with columns: id, name, institution_id (FK), account_type_id (FK), currency, opening_balance, opening_date, notes, is_active, is_deleted
+- [x] 1.2 Add `account_tag` junction table definition to `src/lib/db/schema.ts` with columns: account_id (FK), tag_id (FK), composite PK
+- [x] 1.3 Run `drizzle-kit generate` to produce the `0001_*.sql` migration file
+- [x] 1.4 Add the new migration SQL to the inlined migrations array in `src/lib/db/index.ts`
 - [ ] 1.5 Verify the app starts and migration `0001` runs without errors on a fresh database
 
 ## 2. Tauri Commands — Institution CRUD

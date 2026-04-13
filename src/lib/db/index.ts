@@ -1,6 +1,7 @@
 import Database from "@tauri-apps/plugin-sql";
 import { AppDb, createDrizzleDb } from "./adapter";
 import migration0000 from "./migrations/0000_pale_fixer.sql?raw";
+import migration0001 from "./migrations/0001_cynical_the_watchers.sql?raw";
 
 // ---------------------------------------------------------------------------
 // Inline migration list
@@ -12,6 +13,11 @@ const MIGRATIONS: Array<{ when: number; hash: string; sql: string }> = [
     when: 1776074975325,
     hash: "c5fdc7022fb3dec0e2643dbc3c557a758409c77b8f4e0531c0a78922dd2d5547",
     sql: migration0000,
+  },
+  {
+    when: 1776087770466,
+    hash: "97e00de2da80748e035e69300efa2d9cf731fbe777f10735fabfbd2969b36235",
+    sql: migration0001,
   },
 ];
 
