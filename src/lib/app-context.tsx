@@ -1,4 +1,4 @@
-import { exists } from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 import {
   createContext,
   useCallback,
@@ -48,21 +48,26 @@ function useStartupRouting(
     let cancelled = false;
 
     async function route() {
-      const storedPath = localStorage.getItem(LAST_OPENED_KEY);
+      try {
+        const storedPath = localStorage.getItem(LAST_OPENED_KEY);
 
-      if (!storedPath) {
+        if (!storedPath) {
+          if (!cancelled) setCurrent({ screen: "welcome" });
+          return;
+        }
+
+        const fileExists = await invoke<boolean>("file_exists", { path: storedPath });
+
+        if (cancelled) return;
+
+        if (fileExists) {
+          setCurrent({ screen: "dashboard", filePath: storedPath });
+        } else {
+          setCurrent({ screen: "file-not-found", missingPath: storedPath });
+        }
+      } catch (err) {
+        console.error("[startup] routing error:", err);
         if (!cancelled) setCurrent({ screen: "welcome" });
-        return;
-      }
-
-      const fileExists = await exists(storedPath);
-
-      if (cancelled) return;
-
-      if (fileExists) {
-        setCurrent({ screen: "dashboard", filePath: storedPath });
-      } else {
-        setCurrent({ screen: "file-not-found", missingPath: storedPath });
       }
     }
 
