@@ -8,11 +8,11 @@
 
 ## 2. Schema — Generate and edit migration
 
-- [ ] 2.1 [schema] Run `drizzle-kit generate` to produce the initial migration SQL file in `src/lib/db/migrations/`
-- [ ] 2.2 [schema] Append `INSERT OR IGNORE INTO account_type (name, asset_liability) VALUES …` for all 6 account_type seed rows to the migration file
-- [ ] 2.3 [schema] Append `INSERT OR IGNORE INTO transaction_type (name) VALUES …` for all 3 transaction_type seed rows to the migration file
-- [ ] 2.4 [schema] Append `INSERT OR IGNORE INTO tag (name) VALUES …` for both tag seed rows to the migration file
-- [ ] 2.5 [schema] Append `INSERT OR IGNORE INTO category (name, is_system, sort_order) VALUES …` for all 30 category seed rows to the migration file (Uncategorised: is_system=1, sort_order=999; all others: is_system=0)
+- [x] 2.1 [schema] Run `drizzle-kit generate` to produce the initial migration SQL file in `src/lib/db/migrations/`
+- [x] 2.2 [schema] Append `INSERT OR IGNORE INTO account_type (name, asset_liability) VALUES …` for all 6 account_type seed rows to the migration file
+- [x] 2.3 [schema] Append `INSERT OR IGNORE INTO transaction_type (name) VALUES …` for all 3 transaction_type seed rows to the migration file
+- [x] 2.4 [schema] Append `INSERT OR IGNORE INTO tag (name) VALUES …` for both tag seed rows to the migration file
+- [x] 2.5 [schema] Append `INSERT OR IGNORE INTO category (name, is_system, sort_order) VALUES …` for all 30 category seed rows to the migration file (Uncategorised: is_system=1, sort_order=999; all others: is_system=0)
 
 ## 3. Frontend — DB adapter and singleton
 
