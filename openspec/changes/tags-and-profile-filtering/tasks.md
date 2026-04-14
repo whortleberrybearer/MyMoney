@@ -24,7 +24,7 @@
 ## 5. ProfileSelector Component
 
 - [x] 5.1 Create `src/components/ProfileSelector.tsx` — a controlled `Select` that accepts `tags: Tag[]`, `value: number | null` (null = "All"), and `onChange: (tagId: number | null) => void`; renders "All" as the first option followed by one option per tag
-- [ ] 5.2 Add tests for `ProfileSelector` covering: renders "All" plus one item per tag, selecting a tag calls `onChange` with the tag id, selecting "All" calls `onChange` with null
+- [x] 5.2 Add tests for `ProfileSelector` covering: renders "All" plus one item per tag, selecting a tag calls `onChange` with the tag id, selecting "All" calls `onChange` with null
 
 ## 6. DashboardShell — Host Profile State and Render ProfileSelector
 
