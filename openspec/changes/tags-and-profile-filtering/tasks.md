@@ -12,7 +12,7 @@
 
 ## 3. TagCombobox Component
 
-- [ ] 3.1 Create `src/components/TagCombobox.tsx` — a controlled combobox that accepts `tags: Tag[]`, `value: number | null`, `onChange: (tagId: number | null) => void`, and `onTagCreated: (tag: Tag) => void`; renders a `Popover` + `Command` with filtered tag options and a "Create `<name>`" item when no match exists
+- [x] 3.1 Create `src/components/TagCombobox.tsx` — a controlled combobox that accepts `tags: Tag[]`, `value: number | null`, `onChange: (tagId: number | null) => void`, and `onTagCreated: (tag: Tag) => void`; renders a `Popover` + `Command` with filtered tag options and a "Create `<name>`" item when no match exists
 - [ ] 3.2 Add tests for `TagCombobox` covering: renders existing tags in the list, filters options as the user types, selecting an existing tag calls `onChange` with the tag id, selecting "Create" calls `createTag` then `onTagCreated` and `onChange`, clearing the selection calls `onChange` with null
 
 ## 4. Account Form — Replace Tag Dropdown with TagCombobox
