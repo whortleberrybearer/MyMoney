@@ -30,8 +30,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountFormSheet } from "./AccountFormSheet";
+import { Tag } from "@/lib/reference-data";
 
-export function AccountsScreen() {
+interface AccountsScreenProps {
+  tagId?: number | null;
+  onTagCreated?: (tag: Tag) => void;
+}
+
+export function AccountsScreen({ tagId = null, onTagCreated }: AccountsScreenProps = {}) {
   const [accounts, setAccounts] = useState<AccountRow[]>([]);
   const [showInactive, setShowInactive] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -40,10 +46,10 @@ export function AccountsScreen() {
 
   useEffect(() => {
     load();
-  }, [showInactive]);
+  }, [showInactive, tagId]);
 
   async function load() {
-    setAccounts(await listAccounts(showInactive));
+    setAccounts(await listAccounts(showInactive, tagId));
   }
 
   function openCreate() {
@@ -159,6 +165,7 @@ export function AccountsScreen() {
         onOpenChange={setFormOpen}
         editAccount={editTarget}
         onSaved={load}
+        onTagCreated={onTagCreated}
       />
 
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
