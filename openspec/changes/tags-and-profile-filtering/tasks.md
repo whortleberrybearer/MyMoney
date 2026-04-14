@@ -42,6 +42,6 @@
 
 ## 8. Integration and Regression Tests
 
-- [ ] 8.1 Add an integration test covering the full profile filter flow: seed "Personal" and "Joint" tags and two accounts (one per tag), select "Personal" profile, verify only the Personal account is shown
-- [ ] 8.2 Add an integration test for inline tag creation flow: open account form, type a new tag name, confirm creation, verify tag appears in the profile selector and is saved to the DB
-- [ ] 8.3 Verify existing account management tests still pass (no regression from `listAccounts` signature change)
+- [x] 8.1 Add an integration test covering the full profile filter flow: seed "Personal" and "Joint" tags and two accounts (one per tag), select "Personal" profile, verify only the Personal account is shown
+- [x] 8.2 Add an integration test for inline tag creation flow: open account form, type a new tag name, confirm creation, verify tag appears in the profile selector and is saved to the DB
+- [x] 8.3 Verify existing account management tests still pass (no regression from `listAccounts` signature change)
