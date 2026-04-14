@@ -1,3 +1,5 @@
+## MODIFIED Requirements
+
 ### Requirement: Dashboard shell is displayed after a file is loaded
 
 The app SHALL display the dashboard shell as the main screen once a data file has been successfully opened. The dashboard shell SHALL include:
@@ -42,6 +44,8 @@ The dashboard shell SHALL include a means for the user to navigate to the settin
 - **THEN** the settings screen is displayed
 
 ---
+
+## ADDED Requirements
 
 ### Requirement: [F-05] Dashboard shell hosts the profile selector state
 

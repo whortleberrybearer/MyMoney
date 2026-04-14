@@ -13,6 +13,7 @@ vi.mock("@/lib/institutions", () => ({ listInstitutions: vi.fn() }));
 vi.mock("@/lib/reference-data", () => ({
   listAccountTypes: vi.fn(),
   listTags: vi.fn(),
+  createTag: vi.fn(),
   CURRENCIES: ["GBP", "USD", "EUR"],
   DEFAULT_CURRENCY: "GBP",
 }));
@@ -22,6 +23,7 @@ const mockUpdate = vi.mocked(accountsLib.updateAccount);
 const mockListInstitutions = vi.mocked(institutionsLib.listInstitutions);
 const mockListAccountTypes = vi.mocked(refData.listAccountTypes);
 const mockListTags = vi.mocked(refData.listTags);
+const mockCreateTag = vi.mocked(refData.createTag);
 
 const INSTITUTIONS: institutionsLib.Institution[] = [
   { id: 1, name: "Barclays" },
@@ -220,6 +222,76 @@ describe("AccountFormSheet — edit mode", () => {
           openingBalance: 5000,
         }),
       );
+    });
+  });
+});
+
+describe("AccountFormSheet — tag combobox", () => {
+  it("renders the tag combobox in create mode showing 'No tag'", async () => {
+    renderSheet();
+    await waitFor(() => screen.getByLabelText(/^tag$/i));
+    const combobox = screen.getByLabelText(/^tag$/i);
+    expect(combobox).toHaveTextContent("No tag");
+  });
+
+  it("renders the tag combobox pre-populated with the account's tag in edit mode", async () => {
+    renderSheet({ editAccount: EDIT_ACCOUNT }); // EDIT_ACCOUNT has tagId=1 (Personal)
+    await waitFor(() => screen.getByLabelText(/^tag$/i));
+    const combobox = screen.getByLabelText(/^tag$/i);
+    expect(combobox).toHaveTextContent("Personal");
+  });
+
+  it("saves the account with the correct tagId after a new tag is created inline", async () => {
+    const newTag: refData.Tag = { id: 3, name: "Family" };
+    mockCreateTag.mockResolvedValue(newTag);
+
+    renderSheet({ editAccount: EDIT_ACCOUNT });
+    await waitFor(() => screen.getByLabelText(/^tag$/i));
+
+    // Open the combobox
+    fireEvent.click(screen.getByLabelText(/^tag$/i));
+
+    // Type a new tag name
+    const input = await screen.findByPlaceholderText(/search or create tag/i);
+    fireEvent.change(input, { target: { value: "Family" } });
+
+    // Click Create
+    await waitFor(() => screen.getByText(/create "family"/i));
+    fireEvent.click(screen.getByText(/create "family"/i));
+
+    // Wait for tag creation
+    await waitFor(() => expect(mockCreateTag).toHaveBeenCalledWith("Family"));
+
+    // Save the form
+    fireEvent.change(screen.getByLabelText(/name \*/i), {
+      target: { value: "My ISA" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /save/i }));
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 10, tagId: 3 }),
+      );
+    });
+  });
+
+  it("calls onTagCreated callback when a new tag is created", async () => {
+    const newTag: refData.Tag = { id: 3, name: "Family" };
+    mockCreateTag.mockResolvedValue(newTag);
+    const onTagCreated = vi.fn();
+
+    renderSheet({ onTagCreated });
+    await waitFor(() => screen.getByLabelText(/^tag$/i));
+
+    fireEvent.click(screen.getByLabelText(/^tag$/i));
+    const input = await screen.findByPlaceholderText(/search or create tag/i);
+    fireEvent.change(input, { target: { value: "Family" } });
+
+    await waitFor(() => screen.getByText(/create "family"/i));
+    fireEvent.click(screen.getByText(/create "family"/i));
+
+    await waitFor(() => {
+      expect(onTagCreated).toHaveBeenCalledWith(newTag);
     });
   });
 });

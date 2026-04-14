@@ -76,7 +76,7 @@ describe("AccountsScreen", () => {
 
   it("calls listAccounts with showInactive=false on initial render", async () => {
     render(<AccountsScreen />);
-    await waitFor(() => expect(mockListAccounts).toHaveBeenCalledWith(false));
+    await waitFor(() => expect(mockListAccounts).toHaveBeenCalledWith(false, null));
   });
 
   it("calls listAccounts with showInactive=true when the inactive toggle is switched on", async () => {
@@ -86,7 +86,7 @@ describe("AccountsScreen", () => {
 
     fireEvent.click(screen.getByRole("switch"));
 
-    await waitFor(() => expect(mockListAccounts).toHaveBeenCalledWith(true));
+    await waitFor(() => expect(mockListAccounts).toHaveBeenCalledWith(true, null));
   });
 
   it("renders inactive accounts with reduced opacity", async () => {
@@ -148,6 +148,49 @@ describe("AccountsScreen", () => {
     await waitFor(() => {
       expect(mockSetAccountActive).toHaveBeenCalledWith(1, false);
       expect(mockListAccounts).toHaveBeenCalledTimes(2);
+    });
+  });
+});
+
+describe("AccountsScreen — tagId prop", () => {
+  it("passes tagId to listAccounts on initial render", async () => {
+    render(<AccountsScreen tagId={1} />);
+    await waitFor(() =>
+      expect(mockListAccounts).toHaveBeenCalledWith(false, 1),
+    );
+  });
+
+  it("passes null tagId to listAccounts when not provided", async () => {
+    render(<AccountsScreen />);
+    await waitFor(() =>
+      expect(mockListAccounts).toHaveBeenCalledWith(false, null),
+    );
+  });
+
+  it("re-fetches accounts when tagId prop changes", async () => {
+    const { rerender } = render(<AccountsScreen tagId={null} />);
+    await waitFor(() => expect(mockListAccounts).toHaveBeenCalledTimes(1));
+    expect(mockListAccounts).toHaveBeenLastCalledWith(false, null);
+
+    rerender(<AccountsScreen tagId={1} />);
+    await waitFor(() => expect(mockListAccounts).toHaveBeenCalledTimes(2));
+    expect(mockListAccounts).toHaveBeenLastCalledWith(false, 1);
+  });
+
+  it("shows only accounts returned for the selected tagId", async () => {
+    const taggedAccount: accountsLib.AccountRow = {
+      ...ACTIVE_ACCOUNT,
+      id: 3,
+      name: "Personal Savings",
+      tagId: 1,
+      tagName: "Personal",
+    };
+    mockListAccounts.mockResolvedValue([taggedAccount]);
+
+    render(<AccountsScreen tagId={1} />);
+    await waitFor(() => {
+      expect(screen.getByText("Personal Savings")).toBeInTheDocument();
+      expect(screen.queryByText("Current Account")).not.toBeInTheDocument();
     });
   });
 });

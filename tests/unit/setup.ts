@@ -26,6 +26,11 @@ Object.defineProperty(window, "matchMedia", {
 // Radix UI portals use scrollIntoView which jsdom does not implement.
 window.HTMLElement.prototype.scrollIntoView = () => {};
 
+// Radix UI Select uses pointer capture APIs that jsdom does not implement.
+window.HTMLElement.prototype.hasPointerCapture = () => false;
+window.HTMLElement.prototype.setPointerCapture = () => {};
+window.HTMLElement.prototype.releasePointerCapture = () => {};
+
 // Suppress noisy Radix "act(...)" warnings in test output.
 // (These are expected when async state updates happen outside act boundaries.)
 const originalConsoleError = console.error;

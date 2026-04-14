@@ -10,29 +10,7 @@
  */
 
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
-import BetterSQLite from "better-sqlite3";
-import { existsSync, unlinkSync } from "fs";
-import { join } from "path";
-import { tmpdir } from "os";
-
-// ---------------------------------------------------------------------------
-// Test database helpers
-// ---------------------------------------------------------------------------
-
-const TEST_DB_PATH = join(tmpdir(), "my-money-e2e.pfdata");
-
-/**
- * Create (or recreate) the test SQLite database file.
- *
- * Note: the app applies migrations on startup (from an inlined migration list
- * in `src/lib/db/index.ts`). If we also apply the raw SQL migrations here, the
- * app will attempt to run `CREATE TABLE ...` a second time and fail.
- */
-function createTestDb() {
-  if (existsSync(TEST_DB_PATH)) unlinkSync(TEST_DB_PATH);
-  const sqlite = new BetterSQLite(TEST_DB_PATH);
-  sqlite.close();
-}
+import { initializeAppWithFreshDb } from "./e2e-app";
 
 // ---------------------------------------------------------------------------
 // Navigation helpers
@@ -43,15 +21,8 @@ function createTestDb() {
  * Recreates the database first so each call starts from a clean state.
  */
 async function loadDashboard() {
-  createTestDb();
-  // Forward slashes so toSqliteUri() in db/index.ts works correctly on Windows
-  const dbPath = TEST_DB_PATH.replace(/\\/g, "/");
-  await browser.execute((path: string) => {
-    localStorage.setItem("lastOpenedFilePath", path);
-  }, dbPath);
-  await browser.refresh();
   // The AccountsScreen "Add Account" button signals the dashboard is ready
-  await (await find("button*=Add Account")).waitForExist({ timeout: 20_000 });
+  await initializeAppWithFreshDb();
 }
 
 /** Open the AccountFormSheet and navigate to the institution management dialog. */
