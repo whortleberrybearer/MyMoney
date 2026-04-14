@@ -25,7 +25,13 @@ interface TagComboboxProps {
   onTagCreated: (tag: Tag) => void;
 }
 
-export function TagCombobox({ id, tags, value, onChange, onTagCreated }: TagComboboxProps) {
+export function TagCombobox({
+  id,
+  tags,
+  value,
+  onChange,
+  onTagCreated,
+}: TagComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
@@ -76,13 +82,21 @@ export function TagCombobox({ id, tags, value, onChange, onTagCreated }: TagComb
             aria-label={id ? undefined : "Select or create tag"}
             className="w-full justify-between font-normal"
           >
-            <span className={cn("truncate", !selectedTag && "text-muted-foreground")}>
+            <span
+              className={cn(
+                "truncate",
+                !selectedTag && "text-muted-foreground",
+              )}
+            >
               {selectedTag ? selectedTag.name : "No tag"}
             </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <PopoverContent
+          className="w-[--radix-popover-trigger-width] p-0"
+          align="start"
+        >
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search or create tag..."
@@ -97,7 +111,11 @@ export function TagCombobox({ id, tags, value, onChange, onTagCreated }: TagComb
                 {selectedTag && (
                   <CommandItem
                     value="__clear__"
-                    onSelect={() => { onChange(null); setOpen(false); setQuery(""); }}
+                    onSelect={() => {
+                      onChange(null);
+                      setOpen(false);
+                      setQuery("");
+                    }}
                   >
                     <span className="text-muted-foreground">No tag</span>
                     {value === null && <Check className="ml-auto h-4 w-4" />}
@@ -120,7 +138,9 @@ export function TagCombobox({ id, tags, value, onChange, onTagCreated }: TagComb
                     disabled={creating}
                   >
                     <Plus className="h-4 w-4 opacity-60" />
-                    {creating ? `Creating "${query.trim()}"…` : `Create "${query.trim()}"`}
+                    {creating
+                      ? `Creating "${query.trim()}"…`
+                      : `Create "${query.trim()}"`}
                   </CommandItem>
                 )}
               </CommandGroup>

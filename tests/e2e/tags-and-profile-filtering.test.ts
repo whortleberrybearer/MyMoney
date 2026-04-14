@@ -10,25 +10,7 @@
  */
 
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
-import BetterSQLite from "better-sqlite3";
-import { randomUUID } from "crypto";
-import { join } from "path";
-import { tmpdir } from "os";
-
-// ---------------------------------------------------------------------------
-// Test database helpers
-// ---------------------------------------------------------------------------
-
-function createTestDbPath() {
-  return join(tmpdir(), `my-money-e2e-tags-${process.pid}-${randomUUID()}.pfdata`);
-}
-
-function createTestDb() {
-  const dbPath = createTestDbPath();
-  const sqlite = new BetterSQLite(dbPath);
-  sqlite.close();
-  return dbPath;
-}
+import { initializeAppWithFreshDb } from "./e2e-app";
 
 // ---------------------------------------------------------------------------
 // Navigation helpers
@@ -38,32 +20,26 @@ async function waitForCommandItemText(
   predicate: (text: string) => boolean,
   options: { timeout: number; timeoutMsg: string },
 ) {
-  await browser.waitUntil(
-    async () => {
-      const items = await findAll('[data-slot="command-item"]');
-      for (let i = 0; i < items.length; i++) {
-        if (predicate(await items[i].getText())) return true;
-      }
-      return false;
-    },
-    options,
-  );
+  await browser.waitUntil(async () => {
+    const items = await findAll('[data-slot="command-item"]');
+    for (let i = 0; i < items.length; i++) {
+      if (predicate(await items[i].getText())) return true;
+    }
+    return false;
+  }, options);
 }
 
 async function waitForNoCommandItemText(
   predicate: (text: string) => boolean,
   options: { timeout: number; timeoutMsg: string },
 ) {
-  await browser.waitUntil(
-    async () => {
-      const items = await findAll('[data-slot="command-item"]');
-      for (let i = 0; i < items.length; i++) {
-        if (predicate(await items[i].getText())) return false;
-      }
-      return true;
-    },
-    options,
-  );
+  await browser.waitUntil(async () => {
+    const items = await findAll('[data-slot="command-item"]');
+    for (let i = 0; i < items.length; i++) {
+      if (predicate(await items[i].getText())) return false;
+    }
+    return true;
+  }, options);
 }
 
 async function clickCommandItemByText(
@@ -84,13 +60,7 @@ async function clickCommandItemByText(
 }
 
 async function loadDashboard() {
-  const dbPath = createTestDb();
-  const normalizedDbPath = dbPath.replace(/\\/g, "/");
-  await browser.execute((path: string) => {
-    localStorage.setItem("lastOpenedFilePath", path);
-  }, normalizedDbPath);
-  await browser.refresh();
-  await (await find("button*=Add Account")).waitForExist({ timeout: 20_000 });
+  await initializeAppWithFreshDb();
 }
 
 /**
@@ -99,7 +69,9 @@ async function loadDashboard() {
  */
 async function selectOption(triggerId: string, optionText: string) {
   await (await find(`#${triggerId}`)).click();
-  await (await find('[data-slot="select-content"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="select-content"]')
+  ).waitForExist({ timeout: 5_000 });
   const options = await findAll('[data-slot="select-item"]');
   for (let i = 0; i < options.length; i++) {
     const opt = options[i];
@@ -119,7 +91,9 @@ async function selectProfileFilter(optionText: string) {
   const trigger = await find('[aria-label="Profile selector"]');
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
-  await (await find('[data-slot="select-content"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="select-content"]')
+  ).waitForExist({ timeout: 5_000 });
   const options = await findAll('[data-slot="select-item"]');
   for (let i = 0; i < options.length; i++) {
     const opt = options[i];
@@ -139,12 +113,14 @@ async function selectTagInCombobox(tagName: string) {
   const trigger = await find("#acc-tag");
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
-  await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="command-list"]')
+  ).waitForExist({ timeout: 5_000 });
 
-  await clickCommandItemByText(
-    (text) => text.trim() === tagName,
-    { timeout: 5_000, timeoutMsg: `Tag "${tagName}" not found in combobox` },
-  );
+  await clickCommandItemByText((text) => text.trim() === tagName, {
+    timeout: 5_000,
+    timeoutMsg: `Tag "${tagName}" not found in combobox`,
+  });
 }
 
 /**
@@ -155,17 +131,19 @@ async function createTagViaCombobox(tagName: string) {
   const trigger = await find("#acc-tag");
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
-  await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="command-list"]')
+  ).waitForExist({ timeout: 5_000 });
 
   const input = await find('input[data-slot="command-input"]');
   await input.waitForDisplayed({ timeout: 5_000 });
   await input.setValue(tagName);
 
   const createLabel = `Create "${tagName}"`;
-  await clickCommandItemByText(
-    (text) => text.includes(createLabel),
-    { timeout: 10_000, timeoutMsg: `Create option not shown for tag "${tagName}"` },
-  );
+  await clickCommandItemByText((text) => text.includes(createLabel), {
+    timeout: 10_000,
+    timeoutMsg: `Create option not shown for tag "${tagName}"`,
+  });
 
   // Popover closes after creation; verify the trigger now shows the new tag name
   await trigger.waitForExist({ timeout: 5_000 });
@@ -187,14 +165,20 @@ describe("Tags and profile filtering", () => {
     before(async () => {
       // Create an institution so the account form can be submitted
       await (await find("button*=Add Account")).click();
-      await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
+      await (
+        await find('[data-slot="sheet-title"]')
+      ).waitForDisplayed({ timeout: 5_000 });
 
       await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
       await (await find("button*=Manage")).click();
-      await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+      await (
+        await find('[data-slot="dialog-title"]')
+      ).waitForExist({ timeout: 5_000 });
 
       await (await find("button*=Add Institution")).click();
-      await (await find("input[placeholder='Institution name']")).setValue("Tag Bank");
+      await (
+        await find("input[placeholder='Institution name']")
+      ).setValue("Tag Bank");
       await (await find("button[aria-label='Save']")).click();
       await (await find("span=Tag Bank")).waitForExist({ timeout: 5_000 });
 
@@ -216,16 +200,18 @@ describe("Tags and profile filtering", () => {
       await tagTrigger.waitForClickable({ timeout: 5_000 });
       await tagTrigger.click();
 
-      await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
+      await (
+        await find('[data-slot="command-list"]')
+      ).waitForExist({ timeout: 5_000 });
 
-      await waitForCommandItemText(
-        (text) => text.trim() === "Personal",
-        { timeout: 10_000, timeoutMsg: "Seeded tag Personal not shown in combobox" },
-      );
-      await waitForCommandItemText(
-        (text) => text.trim() === "Joint",
-        { timeout: 10_000, timeoutMsg: "Seeded tag Joint not shown in combobox" },
-      );
+      await waitForCommandItemText((text) => text.trim() === "Personal", {
+        timeout: 10_000,
+        timeoutMsg: "Seeded tag Personal not shown in combobox",
+      });
+      await waitForCommandItemText((text) => text.trim() === "Joint", {
+        timeout: 10_000,
+        timeoutMsg: "Seeded tag Joint not shown in combobox",
+      });
 
       // Close the combobox by pressing Escape
       await browser.keys(["Escape"]);
@@ -263,12 +249,18 @@ describe("Tags and profile filtering", () => {
     before(async () => {
       // Set up institution
       await (await find("button*=Add Account")).click();
-      await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
+      await (
+        await find('[data-slot="sheet-title"]')
+      ).waitForDisplayed({ timeout: 5_000 });
       await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
       await (await find("button*=Manage")).click();
-      await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+      await (
+        await find('[data-slot="dialog-title"]')
+      ).waitForExist({ timeout: 5_000 });
       await (await find("button*=Add Institution")).click();
-      await (await find("input[placeholder='Institution name']")).setValue("Filter Bank");
+      await (
+        await find("input[placeholder='Institution name']")
+      ).setValue("Filter Bank");
       await (await find("button[aria-label='Save']")).click();
       await (await find("span=Filter Bank")).waitForExist({ timeout: 5_000 });
       const dialog = await find('[data-slot="dialog-content"]');
@@ -282,11 +274,15 @@ describe("Tags and profile filtering", () => {
       await (await find("#acc-opening-date")).setValue("2024-01-01");
       await selectTagInCombobox("Personal");
       await (await find("button=Save")).click();
-      await (await find("td*=Personal Account")).waitForExist({ timeout: 10_000 });
+      await (
+        await find("td*=Personal Account")
+      ).waitForExist({ timeout: 10_000 });
 
       // Create "Joint Account" with Joint tag
       await (await find("button*=Add Account")).click();
-      await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
+      await (
+        await find('[data-slot="sheet-title"]')
+      ).waitForDisplayed({ timeout: 5_000 });
       await (await find("#acc-name")).setValue("Joint Account");
       await selectOption("acc-institution", "Filter Bank");
       await selectOption("acc-type", "Current");
@@ -306,8 +302,12 @@ describe("Tags and profile filtering", () => {
     it("shows only the Personal account when 'Personal' profile is selected", async () => {
       await selectProfileFilter("Personal");
 
-      await (await find("td*=Personal Account")).waitForExist({ timeout: 5_000 });
-      expect(await (await find("td*=Personal Account")).isDisplayed()).toBe(true);
+      await (
+        await find("td*=Personal Account")
+      ).waitForExist({ timeout: 5_000 });
+      expect(await (await find("td*=Personal Account")).isDisplayed()).toBe(
+        true,
+      );
 
       const jointCell = await find("td*=Joint Account");
       await jointCell.waitForExist({ reverse: true, timeout: 5_000 });
@@ -326,9 +326,13 @@ describe("Tags and profile filtering", () => {
     it("restores both accounts when 'All' is selected", async () => {
       await selectProfileFilter("All");
 
-      await (await find("td*=Personal Account")).waitForExist({ timeout: 5_000 });
+      await (
+        await find("td*=Personal Account")
+      ).waitForExist({ timeout: 5_000 });
       await (await find("td*=Joint Account")).waitForExist({ timeout: 5_000 });
-      expect(await (await find("td*=Personal Account")).isDisplayed()).toBe(true);
+      expect(await (await find("td*=Personal Account")).isDisplayed()).toBe(
+        true,
+      );
       expect(await (await find("td*=Joint Account")).isDisplayed()).toBe(true);
     });
   });
@@ -342,14 +346,22 @@ describe("Tags and profile filtering", () => {
     before(async () => {
       // Set up institution
       await (await find("button*=Add Account")).click();
-      await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
+      await (
+        await find('[data-slot="sheet-title"]')
+      ).waitForDisplayed({ timeout: 5_000 });
       await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
       await (await find("button*=Manage")).click();
-      await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+      await (
+        await find('[data-slot="dialog-title"]')
+      ).waitForExist({ timeout: 5_000 });
       await (await find("button*=Add Institution")).click();
-      await (await find("input[placeholder='Institution name']")).setValue("Create Tag Bank");
+      await (
+        await find("input[placeholder='Institution name']")
+      ).setValue("Create Tag Bank");
       await (await find("button[aria-label='Save']")).click();
-      await (await find("span=Create Tag Bank")).waitForExist({ timeout: 5_000 });
+      await (
+        await find("span=Create Tag Bank")
+      ).waitForExist({ timeout: 5_000 });
       const dialog = await find('[data-slot="dialog-content"]');
       await (await dialog.$("button=Close")).click();
       await dialog.waitForExist({ reverse: true, timeout: 10_000 });
@@ -359,7 +371,9 @@ describe("Tags and profile filtering", () => {
       const tagTrigger = await find("#acc-tag");
       await tagTrigger.waitForClickable({ timeout: 5_000 });
       await tagTrigger.click();
-      await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
+      await (
+        await find('[data-slot="command-list"]')
+      ).waitForExist({ timeout: 5_000 });
 
       const input = await find('input[data-slot="command-input"]');
       await input.waitForDisplayed({ timeout: 5_000 });
@@ -377,7 +391,9 @@ describe("Tags and profile filtering", () => {
       const tagTrigger = await find("#acc-tag");
       await tagTrigger.waitForClickable({ timeout: 5_000 });
       await tagTrigger.click();
-      await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
+      await (
+        await find('[data-slot="command-list"]')
+      ).waitForExist({ timeout: 5_000 });
 
       const input = await find('input[data-slot="command-input"]');
       await input.waitForDisplayed({ timeout: 5_000 });
@@ -385,7 +401,10 @@ describe("Tags and profile filtering", () => {
 
       await waitForNoCommandItemText(
         (text) => text.includes('Create "Personal"'),
-        { timeout: 10_000, timeoutMsg: "Create option unexpectedly shown for Personal" },
+        {
+          timeout: 10_000,
+          timeoutMsg: "Create option unexpectedly shown for Personal",
+        },
       );
 
       await browser.keys(["Escape"]);
@@ -417,7 +436,9 @@ describe("Tags and profile filtering", () => {
       const trigger = await find('[aria-label="Profile selector"]');
       await trigger.waitForClickable({ timeout: 5_000 });
       await trigger.click();
-      await (await find('[data-slot="select-content"]')).waitForExist({ timeout: 5_000 });
+      await (
+        await find('[data-slot="select-content"]')
+      ).waitForExist({ timeout: 5_000 });
 
       await browser.waitUntil(
         async () => {
@@ -427,7 +448,10 @@ describe("Tags and profile filtering", () => {
           }
           return false;
         },
-        { timeout: 10_000, timeoutMsg: "Business tag not shown in profile selector" },
+        {
+          timeout: 10_000,
+          timeoutMsg: "Business tag not shown in profile selector",
+        },
       );
 
       // Close the selector by pressing Escape
@@ -437,8 +461,12 @@ describe("Tags and profile filtering", () => {
     it("filters to the new account when 'Business' profile is selected", async () => {
       await selectProfileFilter("Business");
 
-      await (await find("td*=Business Expenses")).waitForExist({ timeout: 5_000 });
-      expect(await (await find("td*=Business Expenses")).isDisplayed()).toBe(true);
+      await (
+        await find("td*=Business Expenses")
+      ).waitForExist({ timeout: 5_000 });
+      expect(await (await find("td*=Business Expenses")).isDisplayed()).toBe(
+        true,
+      );
     });
   });
 });
