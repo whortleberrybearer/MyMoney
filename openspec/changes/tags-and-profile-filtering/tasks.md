@@ -32,7 +32,7 @@
 - [x] 6.2 Add `selectedTagId: number | null` state (default `null`) to `DashboardShell`; pass it and its setter to `ProfileSelector` and as a prop to `AccountsScreen`
 - [x] 6.3 Render `<ProfileSelector>` in the `DashboardShell` header between the app name and the settings button
 - [x] 6.4 Add a `handleTagCreated` callback in `DashboardShell` that re-fetches the tag list and passes it down as `onTagCreated` to `AccountFormSheet` (via `AccountsScreen`)
-- [ ] 6.5 Add tests for `DashboardShell` covering: profile selector is rendered in the header, tag list is loaded on mount and passed to `ProfileSelector`, tag list refreshes after `handleTagCreated` is called
+- [x] 6.5 Add tests for `DashboardShell` covering: profile selector is rendered in the header, tag list is loaded on mount and passed to `ProfileSelector`, tag list refreshes after `handleTagCreated` is called
 
 ## 7. AccountsScreen — Accept and Apply Tag Filter
 
