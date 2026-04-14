@@ -88,6 +88,29 @@ async function selectOption(triggerId: string, optionText: string) {
   throw new Error(`Select option "${optionText}" not found in listbox`);
 }
 
+async function openRowActionsMenu() {
+  const trigger = await find("button[aria-label='Row actions']");
+  await trigger.waitForClickable({ timeout: 5_000 });
+  await trigger.click();
+
+  const menu = await find('[data-slot="dropdown-menu-content"]');
+  await menu.waitForDisplayed({ timeout: 5_000 });
+  return menu;
+}
+
+async function clickRowActionsItem(label: string) {
+  const menu = await openRowActionsMenu();
+  const items = await menu.$$('[data-slot="dropdown-menu-item"]');
+  for (const item of items) {
+    if ((await item.getText()).trim() === label) {
+      await item.waitForClickable({ timeout: 5_000 });
+      await item.click();
+      return;
+    }
+  }
+  throw new Error(`Row actions item "${label}" not found`);
+}
+
 // ---------------------------------------------------------------------------
 // Suite
 // ---------------------------------------------------------------------------
@@ -217,7 +240,9 @@ describe("Account Management", () => {
       // Create an institution via the UI so it is available in the form's dropdown
       await openInstitutionDialog();
       await (await find("button*=Add Institution")).click();
-      await (await find("input[placeholder='Institution name']")).setValue("My Bank");
+      await (
+        await find("input[placeholder='Institution name']")
+      ).setValue("My Bank");
       await (await find("button[aria-label='Save']")).click();
       await (await find("span=My Bank")).waitForExist({ timeout: 5_000 });
       // Close the institution dialog (keep the account sheet open)
@@ -237,8 +262,12 @@ describe("Account Management", () => {
       const sheet = await find('[data-slot="sheet-content"]');
       const nameErr = await sheet.$("p=Name is required");
       await nameErr.waitForDisplayed({ timeout: 3_000 });
-      expect(await (await sheet.$("p=Institution is required")).isDisplayed()).toBe(true);
-      expect(await (await sheet.$("p=Account type is required")).isDisplayed()).toBe(true);
+      expect(
+        await (await sheet.$("p=Institution is required")).isDisplayed(),
+      ).toBe(true);
+      expect(
+        await (await sheet.$("p=Account type is required")).isDisplayed(),
+      ).toBe(true);
     });
 
     it("creates an account with all required fields and shows it in the list", async () => {
@@ -265,6 +294,49 @@ describe("Account Management", () => {
     it("shows the account type badge", async () => {
       const badge = await find('[data-slot="badge"]=Current');
       expect(await badge.isDisplayed()).toBe(true);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Account row actions (requires the account created above to exist)
+  // -------------------------------------------------------------------------
+  describe("Account row actions", () => {
+    it("deactivates the account and shows empty active list", async () => {
+      await clickRowActionsItem("Deactivate");
+
+      const emptyMsg = await find(
+        "div=No active accounts. Add one to get started.",
+      );
+      await emptyMsg.waitForDisplayed({ timeout: 5_000 });
+      expect(await emptyMsg.isDisplayed()).toBe(true);
+    });
+
+    it("shows the deactivated account when the inactive toggle is on", async () => {
+      const toggle = await find("[role='switch']");
+      await toggle.waitForClickable({ timeout: 5_000 });
+      await toggle.click();
+      const accountCell = await find("td*=My Current Account");
+      await accountCell.waitForExist({ timeout: 5_000 });
+      expect(await accountCell.isDisplayed()).toBe(true);
+    });
+
+    it("opens the delete confirmation dialog", async () => {
+      await clickRowActionsItem("Delete");
+
+      const confirmationTitle = await find('[data-slot="alert-dialog-title"]');
+      await confirmationTitle.waitForDisplayed({ timeout: 3_000 });
+      expect(await confirmationTitle.getText()).toBe("Delete account?");
+    });
+
+    it("deletes the account after confirmation", async () => {
+      const confirm = await find('[data-slot="alert-dialog-action"]');
+      await confirm.waitForClickable({ timeout: 5_000 });
+      await confirm.click();
+
+      await (await find("td*=My Current Account")).waitForExist({
+        reverse: true,
+        timeout: 5_000,
+      });
     });
   });
 });
