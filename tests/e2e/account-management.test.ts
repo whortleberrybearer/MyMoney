@@ -156,7 +156,9 @@ describe("Account Management", () => {
 
       await (await find('[data-slot="alert-dialog-action"]')).click();
 
-      await (await find("span=Renamed Bank")).waitForExist({
+      await (
+        await find("span=Renamed Bank")
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
@@ -168,6 +170,23 @@ describe("Account Management", () => {
       await browser.pause(400);
       await browser.keys("Escape");
       await browser.pause(400);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Account list — empty state
+  // -------------------------------------------------------------------------
+  describe("Account list (empty database)", () => {
+    it("shows the empty-state message when no active accounts exist", async () => {
+      const msg = await find(
+        "div*=No active accounts. Add one to get started.",
+      );
+      await msg.waitForDisplayed({ timeout: 5_000 });
+    });
+
+    it("shows the inactive-accounts toggle", async () => {
+      const toggle = await find("[role='switch']");
+      expect(await toggle.isDisplayed()).toBe(true);
     });
   });
 });
