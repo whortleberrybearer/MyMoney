@@ -19,7 +19,7 @@
 
 - [x] 4.1 Update `src/components/AccountFormSheet.tsx` to replace the tag `<Select>` with `<TagCombobox>`; wire `value`, `onChange`, and `onTagCreated` (the callback should propagate up to `DashboardShell` for profile selector refresh)
 - [x] 4.2 Add an `onTagCreated?: (tag: Tag) => void` prop to `AccountFormSheet` and thread it through to `TagCombobox`
-- [ ] 4.3 Add tests for `AccountFormSheet` covering: tag combobox renders in create mode, tag combobox is pre-populated in edit mode with the account's existing tag, saving the form with a newly created tag persists the correct `tagId`
+- [x] 4.3 Add tests for `AccountFormSheet` covering: tag combobox renders in create mode, tag combobox is pre-populated in edit mode with the account's existing tag, saving the form with a newly created tag persists the correct `tagId`
 
 ## 5. ProfileSelector Component
 
