@@ -37,8 +37,16 @@ export type CreateAccountInput = {
 
 export type UpdateAccountInput = CreateAccountInput & { id: number };
 
+/**
+ * Lists accounts filtered by active state and optionally by tag.
+ *
+ * @param showInactive - When false, only accounts with is_active=1 are returned.
+ * @param tagId - When provided, only accounts linked to this tag via account_tag are returned.
+ *                When null/undefined, all accounts are returned regardless of tag.
+ */
 export async function listAccounts(
   showInactive: boolean,
+  tagId?: number | null,
 ): Promise<AccountRow[]> {
   const db = getDb();
   // Explicit SQL aliases are required for every column whose raw SQL name would
@@ -72,6 +80,7 @@ export async function listAccounts(
       and(
         eq(account.isDeleted, 0),
         showInactive ? undefined : eq(account.isActive, 1),
+        tagId != null ? eq(accountTag.tagId, tagId) : undefined,
       ),
     )
     .orderBy(asc(institution.name), asc(account.name));
