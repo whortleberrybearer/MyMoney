@@ -59,7 +59,9 @@ async function openInstitutionDialog() {
   await (await find("button*=Add Account")).click();
   await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
   await (await find("button*=Manage")).click();
-  await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="dialog-title"]')
+  ).waitForExist({ timeout: 5_000 });
 }
 
 /**
@@ -98,7 +100,67 @@ describe("Account Management", () => {
       expect(await title.getText()).toBe("Manage Institutions");
     });
 
+    it("shows an empty list on a fresh database", async () => {
+      // The seed data does not include institutions — the list should be empty
+      const addBtn = await find("button*=Add Institution");
+      expect(await addBtn.isDisplayed()).toBe(true);
+    });
 
+    it("creates a new institution and shows it in the list", async () => {
+      await (await find("button*=Add Institution")).click();
+      const input = await find("input[placeholder='Institution name']");
+      await input.waitForDisplayed({ timeout: 3_000 });
+      await input.setValue("Test Bank");
+      await (await find("button[aria-label='Save']")).click();
+
+      const item = await find("span=Test Bank");
+      await item.waitForExist({ timeout: 5_000 });
+      expect(await item.isDisplayed()).toBe(true);
+    });
+
+    it("shows a validation error when saving an empty name", async () => {
+      await (await find("button*=Add Institution")).click();
+      await (await find("button[aria-label='Save']")).click();
+      // Avoid `*=...` here: WDIO treats it as "partial link text".
+      const err = await find("p=Name is required");
+      await err.waitForExist({ timeout: 3_000 });
+      expect(await err.isDisplayed()).toBe(true);
+      // Cancel the empty row
+      await (await find("button[aria-label='Cancel']")).click();
+    });
+
+    it("renames an institution", async () => {
+      const editBtn = await find("button[aria-label='Edit']");
+      await editBtn.waitForClickable({ timeout: 5_000 });
+      await editBtn.click();
+
+      const input = await find("input[value='Test Bank']");
+      await input.waitForDisplayed({ timeout: 3_000 });
+      await input.clearValue();
+      await input.setValue("Renamed Bank");
+      await (await find("button[aria-label='Save']")).click();
+
+      const renamed = await find("span=Renamed Bank");
+      await renamed.waitForExist({ timeout: 5_000 });
+      expect(await renamed.isDisplayed()).toBe(true);
+    });
+
+    it("shows a delete confirmation and removes the institution", async () => {
+      const deleteBtn = await find("button[aria-label='Delete']");
+      await deleteBtn.waitForClickable({ timeout: 5_000 });
+      await deleteBtn.click();
+
+      const confirmationTitle = await find('[data-slot="alert-dialog-title"]');
+      await confirmationTitle.waitForDisplayed({ timeout: 3_000 });
+      expect(await confirmationTitle.getText()).toBe("Delete institution?");
+
+      await (await find('[data-slot="alert-dialog-action"]')).click();
+
+      await (await find("span=Renamed Bank")).waitForExist({
+        reverse: true,
+        timeout: 5_000,
+      });
+    });
 
     after(async () => {
       // Close institution dialog and the account form sheet with Escape
@@ -108,5 +170,4 @@ describe("Account Management", () => {
       await browser.pause(400);
     });
   });
-
 });
