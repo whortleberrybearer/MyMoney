@@ -38,7 +38,7 @@
 
 - [x] 7.1 Update `src/components/AccountsScreen.tsx` to accept a `tagId: number | null` prop and an `onTagCreated: (tag: Tag) => void` prop; pass `tagId` to `listAccounts` and `onTagCreated` through to `AccountFormSheet`
 - [x] 7.2 Re-fetch accounts when `tagId` changes (add it to the `useEffect` dependency array)
-- [ ] 7.3 Add tests for `AccountsScreen` covering: account list re-fetches when `tagId` prop changes, only accounts matching the `tagId` are displayed when a profile is active
+- [x] 7.3 Add tests for `AccountsScreen` covering: account list re-fetches when `tagId` prop changes, only accounts matching the `tagId` are displayed when a profile is active
 
 ## 8. Integration and Regression Tests
 
