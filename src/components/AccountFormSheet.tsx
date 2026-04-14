@@ -9,6 +9,7 @@ import {
   listTags,
   Tag,
 } from "@/lib/reference-data";
+import { TagCombobox } from "@/components/TagCombobox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +34,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   editAccount?: AccountRow;
   onSaved: () => void;
+  onTagCreated?: (tag: Tag) => void;
 }
 
 type FormState = {
@@ -42,7 +44,6 @@ type FormState = {
   currency: string;
   openingBalance: string;
   openingDate: string;
-  tagId: string;
   notes: string;
 };
 
@@ -55,12 +56,12 @@ const EMPTY_FORM: FormState = {
   currency: DEFAULT_CURRENCY,
   openingBalance: "0",
   openingDate: "",
-  tagId: "none",
   notes: "",
 };
 
-export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: Props) {
+export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onTagCreated }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -81,11 +82,12 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
           currency: editAccount.currency,
           openingBalance: String(editAccount.openingBalance),
           openingDate: editAccount.openingDate,
-          tagId: editAccount.tagId != null ? String(editAccount.tagId) : "none",
           notes: editAccount.notes ?? "",
         });
+        setSelectedTagId(editAccount.tagId ?? null);
       } else {
         setForm(EMPTY_FORM);
+        setSelectedTagId(null);
       }
       setErrors({});
       setSaveError("");
@@ -135,7 +137,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
         openingBalance: Number(form.openingBalance),
         openingDate: form.openingDate,
         notes: form.notes || undefined,
-        tagId: form.tagId && form.tagId !== "none" ? Number(form.tagId) : undefined,
+        tagId: selectedTagId ?? undefined,
       };
       if (editAccount) {
         await updateAccount({ ...payload, id: editAccount.id });
@@ -281,22 +283,16 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved }: P
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="acc-tag">Tag</Label>
-              <Select
-                value={form.tagId}
-                onValueChange={(v) => set("tagId", v)}
-              >
-                <SelectTrigger id="acc-tag">
-                  <SelectValue placeholder="No tag" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No tag</SelectItem>
-                  {tags.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
-                      {t.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <TagCombobox
+                id="acc-tag"
+                tags={tags}
+                value={selectedTagId}
+                onChange={setSelectedTagId}
+                onTagCreated={(newTag) => {
+                  setTags((prev) => [...prev, newTag].sort((a, b) => a.name.localeCompare(b.name)));
+                  onTagCreated?.(newTag);
+                }}
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">

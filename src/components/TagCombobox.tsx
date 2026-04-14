@@ -18,13 +18,14 @@ import {
 } from "@/components/ui/popover";
 
 interface TagComboboxProps {
+  id?: string;
   tags: Tag[];
   value: number | null;
   onChange: (tagId: number | null) => void;
   onTagCreated: (tag: Tag) => void;
 }
 
-export function TagCombobox({ tags, value, onChange, onTagCreated }: TagComboboxProps) {
+export function TagCombobox({ id, tags, value, onChange, onTagCreated }: TagComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
@@ -73,10 +74,11 @@ export function TagCombobox({ tags, value, onChange, onTagCreated }: TagCombobox
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
+            id={id}
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label="Select or create tag"
+            aria-label={id ? undefined : "Select or create tag"}
             className="w-full justify-between font-normal"
           >
             <span className={cn("truncate", !selectedTag && "text-muted-foreground")}>
