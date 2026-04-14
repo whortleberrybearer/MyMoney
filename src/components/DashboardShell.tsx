@@ -1,17 +1,40 @@
+import { useEffect, useState } from "react";
 import { Settings } from "lucide-react";
+import { listTags, Tag } from "@/lib/reference-data";
 import { Button } from "@/components/ui/button";
 import { AccountsScreen } from "./AccountsScreen";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { ProfileSelector } from "./ProfileSelector";
 
 interface DashboardShellProps {
   onNavigateToSettings: () => void;
 }
 
 export function DashboardShell({ onNavigateToSettings }: DashboardShellProps) {
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
+
+  useEffect(() => {
+    loadTags();
+  }, []);
+
+  async function loadTags() {
+    setTags(await listTags());
+  }
+
+  function handleTagCreated(newTag: Tag) {
+    setTags((prev) => [...prev, newTag].sort((a, b) => a.name.localeCompare(b.name)));
+  }
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex items-center justify-between border-b px-6 py-3">
         <span className="font-semibold">My Money</span>
+        <ProfileSelector
+          tags={tags}
+          value={selectedTagId}
+          onChange={setSelectedTagId}
+        />
         <Button
           variant="ghost"
           size="icon"
@@ -22,7 +45,10 @@ export function DashboardShell({ onNavigateToSettings }: DashboardShellProps) {
         </Button>
       </header>
       <ErrorBoundary>
-        <AccountsScreen />
+        <AccountsScreen
+          tagId={selectedTagId}
+          onTagCreated={handleTagCreated}
+        />
       </ErrorBoundary>
     </div>
   );
