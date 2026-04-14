@@ -333,7 +333,9 @@ describe("Account Management", () => {
       await confirm.waitForClickable({ timeout: 5_000 });
       await confirm.click();
 
-      await (await find("td*=My Current Account")).waitForExist({
+      await (
+        await find("td*=My Current Account")
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
