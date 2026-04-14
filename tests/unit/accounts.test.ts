@@ -9,6 +9,7 @@ import {
 } from "@/lib/accounts";
 import { createTestDb } from "./db-helper";
 import { account, accountTag, institution } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 vi.mock("@/lib/db", () => ({ getDb: vi.fn() }));
 const mockGetDb = vi.mocked(dbModule.getDb);
@@ -99,6 +100,71 @@ describe("listAccounts", () => {
     const [row] = await listAccounts(false);
     expect(row.institutionName).toBe("NatWest");
     expect(row.accountTypeName).toBe("Current");
+  });
+
+  it("returns all accounts when tagId is null", async () => {
+    const db = mockGetDb();
+    mockGetDb.mockReturnValue(db as ReturnType<typeof dbModule.getDb>);
+
+    const inst = await seedInstitution(db);
+    await db.insert(account).values([
+      { ...BASE_ACCOUNT, institutionId: inst.id, name: "Tagged" },
+      { ...BASE_ACCOUNT, institutionId: inst.id, name: "Untagged" },
+    ]);
+    const [tagged] = await db
+      .select({ id: account.id })
+      .from(account)
+      .where(eq(account.name, "Tagged"));
+    await db.insert(accountTag).values({ accountId: tagged.id, tagId: 1 }); // Personal seed tag
+
+    const rows = await listAccounts(false, null);
+    expect(rows).toHaveLength(2);
+  });
+
+  it("returns only accounts matching tagId when tagId is set", async () => {
+    const db = mockGetDb();
+    mockGetDb.mockReturnValue(db as ReturnType<typeof dbModule.getDb>);
+
+    const inst = await seedInstitution(db);
+    await db.insert(account).values([
+      { ...BASE_ACCOUNT, institutionId: inst.id, name: "Personal Acc" },
+      { ...BASE_ACCOUNT, institutionId: inst.id, name: "Joint Acc" },
+      { ...BASE_ACCOUNT, institutionId: inst.id, name: "Untagged Acc" },
+    ]);
+    const [personalAcc] = await db
+      .select({ id: account.id })
+      .from(account)
+      .where(eq(account.name, "Personal Acc"));
+    const [jointAcc] = await db
+      .select({ id: account.id })
+      .from(account)
+      .where(eq(account.name, "Joint Acc"));
+    await db.insert(accountTag).values({ accountId: personalAcc.id, tagId: 1 }); // Personal
+    await db.insert(accountTag).values({ accountId: jointAcc.id, tagId: 2 });    // Joint
+
+    const rows = await listAccounts(false, 1);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].name).toBe("Personal Acc");
+    expect(rows[0].tagId).toBe(1);
+  });
+
+  it("applies tagId filter and showInactive=false together", async () => {
+    const db = mockGetDb();
+    mockGetDb.mockReturnValue(db as ReturnType<typeof dbModule.getDb>);
+
+    const inst = await seedInstitution(db);
+    await db.insert(account).values([
+      { ...BASE_ACCOUNT, institutionId: inst.id, name: "Active Tagged", isActive: 1 },
+      { ...BASE_ACCOUNT, institutionId: inst.id, name: "Inactive Tagged", isActive: 0 },
+    ]);
+    const accs = await db.select({ id: account.id }).from(account);
+    for (const acc of accs) {
+      await db.insert(accountTag).values({ accountId: acc.id, tagId: 1 }); // Personal
+    }
+
+    const result = await listAccounts(false, 1);
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe("Active Tagged");
   });
 });
 
