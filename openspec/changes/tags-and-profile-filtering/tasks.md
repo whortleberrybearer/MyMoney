@@ -7,8 +7,8 @@
 
 ## 2. shadcn/ui — Add Popover and Command Components
 
-- [ ] 2.1 Copy the `popover` component from the shadcn/ui source into `src/components/ui/popover.tsx` (required by the combobox pattern)
-- [ ] 2.2 Copy the `command` component from the shadcn/ui source into `src/components/ui/command.tsx` (required by the combobox pattern)
+- [x] 2.1 Copy the `popover` component from the shadcn/ui source into `src/components/ui/popover.tsx` (required by the combobox pattern)
+- [x] 2.2 Copy the `command` component from the shadcn/ui source into `src/components/ui/command.tsx` (required by the combobox pattern)
 
 ## 3. TagCombobox Component
 
