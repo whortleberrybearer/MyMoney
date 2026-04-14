@@ -11,7 +11,7 @@
 
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
 import BetterSQLite from "better-sqlite3";
-import { existsSync, unlinkSync } from "fs";
+import { randomUUID } from "crypto";
 import { join } from "path";
 import { tmpdir } from "os";
 
@@ -19,24 +19,76 @@ import { tmpdir } from "os";
 // Test database helpers
 // ---------------------------------------------------------------------------
 
-const TEST_DB_PATH = join(tmpdir(), "my-money-e2e-tags.pfdata");
+function createTestDbPath() {
+  return join(tmpdir(), `my-money-e2e-tags-${process.pid}-${randomUUID()}.pfdata`);
+}
 
 function createTestDb() {
-  if (existsSync(TEST_DB_PATH)) unlinkSync(TEST_DB_PATH);
-  const sqlite = new BetterSQLite(TEST_DB_PATH);
+  const dbPath = createTestDbPath();
+  const sqlite = new BetterSQLite(dbPath);
   sqlite.close();
+  return dbPath;
 }
 
 // ---------------------------------------------------------------------------
 // Navigation helpers
 // ---------------------------------------------------------------------------
 
+async function waitForCommandItemText(
+  predicate: (text: string) => boolean,
+  options: { timeout: number; timeoutMsg: string },
+) {
+  await browser.waitUntil(
+    async () => {
+      const items = await findAll('[data-slot="command-item"]');
+      for (let i = 0; i < items.length; i++) {
+        if (predicate(await items[i].getText())) return true;
+      }
+      return false;
+    },
+    options,
+  );
+}
+
+async function waitForNoCommandItemText(
+  predicate: (text: string) => boolean,
+  options: { timeout: number; timeoutMsg: string },
+) {
+  await browser.waitUntil(
+    async () => {
+      const items = await findAll('[data-slot="command-item"]');
+      for (let i = 0; i < items.length; i++) {
+        if (predicate(await items[i].getText())) return false;
+      }
+      return true;
+    },
+    options,
+  );
+}
+
+async function clickCommandItemByText(
+  predicate: (text: string) => boolean,
+  options: { timeout: number; timeoutMsg: string },
+) {
+  await waitForCommandItemText(predicate, options);
+  const items = await findAll('[data-slot="command-item"]');
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (predicate(await item.getText())) {
+      await item.waitForClickable({ timeout: 5_000 });
+      await item.click();
+      return;
+    }
+  }
+  throw new Error(options.timeoutMsg);
+}
+
 async function loadDashboard() {
-  createTestDb();
-  const dbPath = TEST_DB_PATH.replace(/\\/g, "/");
+  const dbPath = createTestDb();
+  const normalizedDbPath = dbPath.replace(/\\/g, "/");
   await browser.execute((path: string) => {
     localStorage.setItem("lastOpenedFilePath", path);
-  }, dbPath);
+  }, normalizedDbPath);
   await browser.refresh();
   await (await find("button*=Add Account")).waitForExist({ timeout: 20_000 });
 }
@@ -47,15 +99,16 @@ async function loadDashboard() {
  */
 async function selectOption(triggerId: string, optionText: string) {
   await (await find(`#${triggerId}`)).click();
-  await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
-  const options = await findAll('[role="option"]');
-  for (const opt of options) {
+  await (await find('[data-slot="select-content"]')).waitForExist({ timeout: 5_000 });
+  const options = await findAll('[data-slot="select-item"]');
+  for (let i = 0; i < options.length; i++) {
+    const opt = options[i];
     if ((await opt.getText()).includes(optionText)) {
       await opt.click();
       return;
     }
   }
-  throw new Error(`Select option "${optionText}" not found in listbox`);
+  throw new Error(`Select option "${optionText}" not found`);
 }
 
 /**
@@ -66,9 +119,10 @@ async function selectProfileFilter(optionText: string) {
   const trigger = await find('[aria-label="Profile selector"]');
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
-  await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
-  const options = await findAll('[role="option"]');
-  for (const opt of options) {
+  await (await find('[data-slot="select-content"]')).waitForExist({ timeout: 5_000 });
+  const options = await findAll('[data-slot="select-item"]');
+  for (let i = 0; i < options.length; i++) {
+    const opt = options[i];
     if ((await opt.getText()).trim() === optionText) {
       await opt.click();
       return;
@@ -85,15 +139,12 @@ async function selectTagInCombobox(tagName: string) {
   const trigger = await find("#acc-tag");
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
-  await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
-  const options = await findAll('[role="option"]');
-  for (const opt of options) {
-    if ((await opt.getText()).trim() === tagName) {
-      await opt.click();
-      return;
-    }
-  }
-  throw new Error(`Tag "${tagName}" not found in combobox`);
+  await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
+
+  await clickCommandItemByText(
+    (text) => text.trim() === tagName,
+    { timeout: 5_000, timeoutMsg: `Tag "${tagName}" not found in combobox` },
+  );
 }
 
 /**
@@ -104,16 +155,17 @@ async function createTagViaCombobox(tagName: string) {
   const trigger = await find("#acc-tag");
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
-  await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
+  await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
 
-  const input = await find('input[placeholder="Search or create tag..."]');
+  const input = await find('input[data-slot="command-input"]');
   await input.waitForDisplayed({ timeout: 5_000 });
   await input.setValue(tagName);
 
-  const createItem = await find(`*=Create "${tagName}"`);
-  await createItem.waitForExist({ timeout: 5_000 });
-  await createItem.waitForClickable({ timeout: 5_000 });
-  await createItem.click();
+  const createLabel = `Create "${tagName}"`;
+  await clickCommandItemByText(
+    (text) => text.includes(createLabel),
+    { timeout: 10_000, timeoutMsg: `Create option not shown for tag "${tagName}"` },
+  );
 
   // Popover closes after creation; verify the trigger now shows the new tag name
   await trigger.waitForExist({ timeout: 5_000 });
@@ -164,12 +216,16 @@ describe("Tags and profile filtering", () => {
       await tagTrigger.waitForClickable({ timeout: 5_000 });
       await tagTrigger.click();
 
-      await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
+      await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
 
-      const options = await findAll('[role="option"]');
-      const optionTexts = await Promise.all(options.map((o) => o.getText()));
-      expect(optionTexts.some((t) => t.trim() === "Personal")).toBe(true);
-      expect(optionTexts.some((t) => t.trim() === "Joint")).toBe(true);
+      await waitForCommandItemText(
+        (text) => text.trim() === "Personal",
+        { timeout: 10_000, timeoutMsg: "Seeded tag Personal not shown in combobox" },
+      );
+      await waitForCommandItemText(
+        (text) => text.trim() === "Joint",
+        { timeout: 10_000, timeoutMsg: "Seeded tag Joint not shown in combobox" },
+      );
 
       // Close the combobox by pressing Escape
       await browser.keys(["Escape"]);
@@ -303,15 +359,16 @@ describe("Tags and profile filtering", () => {
       const tagTrigger = await find("#acc-tag");
       await tagTrigger.waitForClickable({ timeout: 5_000 });
       await tagTrigger.click();
-      await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
+      await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
 
-      const input = await find('input[placeholder="Search or create tag..."]');
+      const input = await find('input[data-slot="command-input"]');
       await input.waitForDisplayed({ timeout: 5_000 });
       await input.setValue("Business");
 
-      const createItem = await find('*=Create "Business"');
-      await createItem.waitForExist({ timeout: 5_000 });
-      expect(await createItem.isDisplayed()).toBe(true);
+      await waitForCommandItemText(
+        (text) => text.includes('Create "Business"'),
+        { timeout: 10_000, timeoutMsg: "Create option not shown for Business" },
+      );
 
       await browser.keys(["Escape"]);
     });
@@ -320,14 +377,16 @@ describe("Tags and profile filtering", () => {
       const tagTrigger = await find("#acc-tag");
       await tagTrigger.waitForClickable({ timeout: 5_000 });
       await tagTrigger.click();
-      await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
+      await (await find('[data-slot="command-list"]')).waitForExist({ timeout: 5_000 });
 
-      const input = await find('input[placeholder="Search or create tag..."]');
+      const input = await find('input[data-slot="command-input"]');
       await input.waitForDisplayed({ timeout: 5_000 });
       await input.setValue("Personal");
 
-      const createItem = await find('*=Create "Personal"');
-      await createItem.waitForExist({ reverse: true, timeout: 3_000 });
+      await waitForNoCommandItemText(
+        (text) => text.includes('Create "Personal"'),
+        { timeout: 10_000, timeoutMsg: "Create option unexpectedly shown for Personal" },
+      );
 
       await browser.keys(["Escape"]);
     });
@@ -358,11 +417,18 @@ describe("Tags and profile filtering", () => {
       const trigger = await find('[aria-label="Profile selector"]');
       await trigger.waitForClickable({ timeout: 5_000 });
       await trigger.click();
-      await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
+      await (await find('[data-slot="select-content"]')).waitForExist({ timeout: 5_000 });
 
-      const options = await findAll('[role="option"]');
-      const optionTexts = await Promise.all(options.map((o) => o.getText()));
-      expect(optionTexts.some((t) => t.trim() === "Business")).toBe(true);
+      await browser.waitUntil(
+        async () => {
+          const options = await findAll('[data-slot="select-item"]');
+          for (let i = 0; i < options.length; i++) {
+            if ((await options[i].getText()).trim() === "Business") return true;
+          }
+          return false;
+        },
+        { timeout: 10_000, timeoutMsg: "Business tag not shown in profile selector" },
+      );
 
       // Close the selector by pressing Escape
       await browser.keys(["Escape"]);

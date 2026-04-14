@@ -64,11 +64,6 @@ export function TagCombobox({ id, tags, value, onChange, onTagCreated }: TagComb
     setQuery("");
   }
 
-  function handleClear(e: React.MouseEvent) {
-    e.stopPropagation();
-    onChange(null);
-  }
-
   return (
     <div className="flex flex-col gap-1">
       <Popover open={open} onOpenChange={setOpen}>
