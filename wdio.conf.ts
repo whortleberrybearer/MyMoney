@@ -9,7 +9,9 @@ import { tmpdir } from "os";
 // Workers inherit env vars, so they will reuse this exact value.
 const E2E_RUN_ID = process.env.MY_MONEY_E2E_RUN_ID ?? randomUUID();
 process.env.MY_MONEY_E2E_RUN_ID = E2E_RUN_ID;
-const E2E_RUN_DIR = process.env.MY_MONEY_E2E_RUN_DIR ?? join(tmpdir(), "my-money-e2e", E2E_RUN_ID);
+const E2E_RUN_DIR =
+  process.env.MY_MONEY_E2E_RUN_DIR ??
+  join(tmpdir(), "my-money-e2e", E2E_RUN_ID);
 process.env.MY_MONEY_E2E_RUN_DIR = E2E_RUN_DIR;
 
 export const config = defineConfig({
