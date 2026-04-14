@@ -1,7 +1,7 @@
 ## 1. Data Layer — Tag Creation and Account Filtering
 
 - [x] 1.1 Add `createTag(name: string): Promise<Tag>` to `src/lib/reference-data.ts` — inserts a row into the `tag` table (unique name, trimmed) and returns the created tag; throws if a tag with that name already exists
-- [ ] 1.2 Add tests for `createTag` covering: successful creation, duplicate name rejected, name is trimmed before insert
+- [x] 1.2 Add tests for `createTag` covering: successful creation, duplicate name rejected, name is trimmed before insert
 - [ ] 1.3 Update `listAccounts` in `src/lib/accounts.ts` to accept an optional `tagId: number | null` parameter; when set, add a `.where` condition filtering `account_tag.tag_id = tagId`
 - [ ] 1.4 Add tests for `listAccounts` covering: returns all accounts when `tagId` is null, returns only matching accounts when `tagId` is set, combined `tagId` + `showInactive = false` filter
 
