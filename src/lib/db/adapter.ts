@@ -11,11 +11,12 @@ export function createDrizzleDb(tauriDb: Database) {
         await tauriDb.execute(sql, params);
         return { rows: [] };
       }
+      // Drizzle's mapResultRow accesses row values by numeric index (row[columnIndex]).
+      // The Tauri SQL plugin returns rows as IndexMap-backed objects that preserve
+      // SQL column order, so Object.values() gives values in the correct column order.
+      // This works for all methods ("all", "get", "values").
       const rows = await tauriDb.select<Record<string, unknown>[]>(sql, params);
-      if (method === "values") {
-        return { rows: rows.map((row) => Object.values(row)) };
-      }
-      return { rows };
+      return { rows: rows.map((row) => Object.values(row)) };
     },
     { schema },
   );

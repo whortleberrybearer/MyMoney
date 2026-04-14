@@ -8,6 +8,13 @@
       "when": 1776074975325,
       "tag": "0000_pale_fixer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1776087718804,
+      "tag": "0001_cynical_the_watchers",
+      "breakpoints": true
     }
   ]
 }
