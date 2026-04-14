@@ -56,9 +56,16 @@ async function loadDashboard() {
 
 /** Open the AccountFormSheet and navigate to the institution management dialog. */
 async function openInstitutionDialog() {
-  await (await find("button*=Add Account")).click();
+  const sheetContent = await find('[data-slot="sheet-content"]');
+  if (!(await sheetContent.isExisting())) {
+    const addAccountBtn = await find("button*=Add Account");
+    await addAccountBtn.waitForClickable({ timeout: 10_000 });
+    await addAccountBtn.click();
+  }
   await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
-  await (await find("button*=Manage")).click();
+  const manageBtn = await find("button*=Manage");
+  await manageBtn.waitForClickable({ timeout: 5_000 });
+  await manageBtn.click();
   await (
     await find('[data-slot="dialog-title"]')
   ).waitForExist({ timeout: 5_000 });
@@ -165,11 +172,23 @@ describe("Account Management", () => {
     });
 
     after(async () => {
-      // Close institution dialog and the account form sheet with Escape
-      await browser.keys("Escape");
-      await browser.pause(400);
-      await browser.keys("Escape");
-      await browser.pause(400);
+      // Close institution dialog and the account form sheet using the UI close buttons.
+      // (Escape can be flaky with focus traps in WebView2.)
+      const dialog = await find('[data-slot="dialog-content"]');
+      if (await dialog.isExisting()) {
+        const dialogClose = await dialog.$("button=Close");
+        await dialogClose.waitForClickable({ timeout: 5_000 });
+        await dialogClose.click();
+        await dialog.waitForExist({ reverse: true, timeout: 10_000 });
+      }
+
+      const sheet = await find('[data-slot="sheet-content"]');
+      if (await sheet.isExisting()) {
+        const sheetClose = await sheet.$("button=Close");
+        await sheetClose.waitForClickable({ timeout: 5_000 });
+        await sheetClose.click();
+        await sheet.waitForExist({ reverse: true, timeout: 10_000 });
+      }
     });
   });
 
@@ -187,6 +206,65 @@ describe("Account Management", () => {
     it("shows the inactive-accounts toggle", async () => {
       const toggle = await find("[role='switch']");
       expect(await toggle.isDisplayed()).toBe(true);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Account creation
+  // -------------------------------------------------------------------------
+  describe("Create account", () => {
+    before(async () => {
+      // Create an institution via the UI so it is available in the form's dropdown
+      await openInstitutionDialog();
+      await (await find("button*=Add Institution")).click();
+      await (await find("input[placeholder='Institution name']")).setValue("My Bank");
+      await (await find("button[aria-label='Save']")).click();
+      await (await find("span=My Bank")).waitForExist({ timeout: 5_000 });
+      // Close the institution dialog (keep the account sheet open)
+      const dialog = await find('[data-slot="dialog-content"]');
+      const dialogClose = await dialog.$("button=Close");
+      await dialogClose.waitForClickable({ timeout: 5_000 });
+      await dialogClose.click();
+      await dialog.waitForExist({ reverse: true, timeout: 10_000 });
+      // The AccountFormSheet should still be open with the institution now loaded
+      const sheetTitle = await find('[data-slot="sheet-title"]');
+      await sheetTitle.waitForDisplayed({ timeout: 5_000 });
+      expect(await sheetTitle.getText()).toBe("New Account");
+    });
+
+    it("shows validation errors when the form is submitted empty", async () => {
+      await (await find("button=Save")).click();
+      const sheet = await find('[data-slot="sheet-content"]');
+      const nameErr = await sheet.$("p=Name is required");
+      await nameErr.waitForDisplayed({ timeout: 3_000 });
+      expect(await (await sheet.$("p=Institution is required")).isDisplayed()).toBe(true);
+      expect(await (await sheet.$("p=Account type is required")).isDisplayed()).toBe(true);
+    });
+
+    it("creates an account with all required fields and shows it in the list", async () => {
+      await (await find("#acc-name")).setValue("My Current Account");
+      await selectOption("acc-institution", "My Bank");
+      await selectOption("acc-type", "Current");
+      // Currency defaults to GBP — leave it
+      // Opening balance defaults to 0 — leave it
+      await (await find("#acc-opening-date")).setValue("2024-01-15");
+
+      await (await find("button=Save")).click();
+
+      // The sheet closes and the account appears in the table
+      const accountCell = await find("td*=My Current Account");
+      await accountCell.waitForExist({ timeout: 10_000 });
+      expect(await accountCell.isDisplayed()).toBe(true);
+    });
+
+    it("shows the institution name in the account row", async () => {
+      const instCell = await find("td*=My Bank");
+      expect(await instCell.isDisplayed()).toBe(true);
+    });
+
+    it("shows the account type badge", async () => {
+      const badge = await find('[data-slot="badge"]=Current');
+      expect(await badge.isDisplayed()).toBe(true);
     });
   });
 });
