@@ -50,7 +50,8 @@ export function PotBalanceChart({
     })),
   ];
 
-  const total = accountOwnBalance + activePots.reduce((s, p) => s + p.currentBalance, 0);
+  const total =
+    accountOwnBalance + activePots.reduce((s, p) => s + p.currentBalance, 0);
 
   return (
     <div className="flex flex-col items-center gap-2 py-4">
@@ -72,7 +73,10 @@ export function PotBalanceChart({
           formatter={(value) => {
             const asNumber =
               typeof value === "number" ? value : Number(value ?? 0);
-            return formatAmount(Number.isFinite(asNumber) ? asNumber : 0, currency);
+            return formatAmount(
+              Number.isFinite(asNumber) ? asNumber : 0,
+              currency,
+            );
           }}
         />
         <Legend

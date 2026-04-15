@@ -38,7 +38,9 @@ async function openInstitutionDialog() {
   }
   await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
   await (await find("button*=Manage")).click();
-  await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="dialog-title"]')
+  ).waitForExist({ timeout: 5_000 });
 }
 
 /** Creates an account named "Test Account" at My Bank via the UI. */
@@ -46,7 +48,9 @@ async function createTestAccount() {
   // Create institution
   await openInstitutionDialog();
   await (await find("button*=Add Institution")).click();
-  await (await find("input[placeholder='Institution name']")).setValue("My Bank");
+  await (
+    await find("input[placeholder='Institution name']")
+  ).setValue("My Bank");
   await (await find("button[aria-label='Save']")).click();
   await (await find("span=My Bank")).waitForExist({ timeout: 5_000 });
 
@@ -77,7 +81,9 @@ async function clickAddPot() {
   await addPotBtn.scrollIntoView();
   await addPotBtn.waitForClickable({ timeout: 10_000 });
   await addPotBtn.click();
-  await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
+  await (
+    await find('[data-slot="sheet-title"]')
+  ).waitForDisplayed({ timeout: 5_000 });
 }
 
 async function findPotRow(potName: string) {
@@ -123,7 +129,9 @@ describe("Pot Management", () => {
     await loadDashboard();
     // Open the add account sheet
     await (await find("button*=Add Account")).click();
-    await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
+    await (
+      await find('[data-slot="sheet-title"]')
+    ).waitForDisplayed({ timeout: 5_000 });
     await createTestAccount();
   });
 
@@ -168,9 +176,13 @@ describe("Pot Management", () => {
     it("opens the edit sheet pre-filled", async () => {
       await clickPotActionsItem("Edit", "Holiday Fund");
       const sheet = await find('[data-slot="sheet-content"]');
-      await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
+      await (
+        await find('[data-slot="sheet-title"]')
+      ).waitForDisplayed({ timeout: 5_000 });
 
-      expect(await (await sheet.$("#pot-name")).getValue()).toBe("Holiday Fund");
+      expect(await (await sheet.$("#pot-name")).getValue()).toBe(
+        "Holiday Fund",
+      );
     });
 
     it("saves an updated pot name", async () => {
@@ -225,7 +237,9 @@ describe("Pot Management", () => {
 
     it("transfers funds out of pot and updates balance", async () => {
       await clickPotActionsItem("Transfer", "Summer Holiday");
-      await (await find('[data-slot="dialog-title"]')).waitForDisplayed({ timeout: 5_000 });
+      await (
+        await find('[data-slot="dialog-title"]')
+      ).waitForDisplayed({ timeout: 5_000 });
 
       // Select "Out of pot"
       const outRadio = await find("input[value='out_of_pot']");
@@ -259,7 +273,9 @@ describe("Pot Management", () => {
       await clickPotActionsItem("Close", "Empty Pot");
 
       // No alert dialog should open; pot should be hidden
-      await (await find("td*=Empty Pot")).waitForExist({
+      await (
+        await find("td*=Empty Pot")
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
@@ -293,7 +309,9 @@ describe("Pot Management", () => {
       );
       await toggle.click();
 
-      await (await find("td*=Empty Pot")).waitForExist({
+      await (
+        await find("td*=Empty Pot")
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
@@ -317,13 +335,17 @@ describe("Pot Management", () => {
       // Confirm transfer & close
       const action = await find('[data-slot="alert-dialog-action"]');
       await action.click();
-      await (await find('[data-slot="alert-dialog-content"]')).waitForExist({
+      await (
+        await find('[data-slot="alert-dialog-content"]')
+      ).waitForExist({
         reverse: true,
         timeout: 10_000,
       });
 
       // Pot should be hidden (is_active=0)
-      await (await find("td*=Summer Holiday")).waitForExist({
+      await (
+        await find("td*=Summer Holiday")
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
@@ -378,7 +400,9 @@ describe("Pot Management", () => {
       await action.waitForClickable({ timeout: 5_000 });
       await action.click();
 
-      await (await find("td*=Summer Holiday")).waitForExist({
+      await (
+        await find("td*=Summer Holiday")
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
