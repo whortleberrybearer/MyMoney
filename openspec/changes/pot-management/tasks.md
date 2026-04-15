@@ -6,13 +6,13 @@
 
 ## 2. Pot Data Layer (`src/lib/pots.ts`)
 
-- [ ] 2.1 Implement `listPots(accountId, showClosed)` — returns pot rows with calculated current balance (`opening_balance + SUM(transaction.amount)`) for active (and optionally closed) pots
-- [ ] 2.2 Implement `createPot(input)` — validates unique name within account (case-insensitive), inserts `pot` row and optional `pot_tag` row
-- [ ] 2.3 Implement `updatePot(input)` — validates unique name excluding current pot, updates `pot` row, replaces `pot_tag` row
-- [ ] 2.4 Implement `closePot(potId)` — calculates current balance; if non-zero, creates a virtual transfer pair returning balance to parent account; then sets `is_active = 0`
-- [ ] 2.5 Implement `reactivatePot(potId)` — sets `is_active = 1`
-- [ ] 2.6 Implement `deletePot(potId)` — hard deletes: removes all `transaction` rows for the pot, all `pot_tag` rows, and the `pot` row
-- [ ] 2.7 Write unit tests for all pots data functions in `tests/unit/pots.test.ts`
+- [x] 2.1 Implement `listPots(accountId, showClosed)` — returns pot rows with calculated current balance (`opening_balance + SUM(transaction.amount)`) for active (and optionally closed) pots
+- [x] 2.2 Implement `createPot(input)` — validates unique name within account (case-insensitive), inserts `pot` row and optional `pot_tag` row
+- [x] 2.3 Implement `updatePot(input)` — validates unique name excluding current pot, updates `pot` row, replaces `pot_tag` row
+- [x] 2.4 Implement `closePot(potId)` — calculates current balance; if non-zero, creates a virtual transfer pair returning balance to parent account; then sets `is_active = 0`
+- [x] 2.5 Implement `reactivatePot(potId)` — sets `is_active = 1`
+- [x] 2.6 Implement `deletePot(potId)` — hard deletes: removes all `transaction` rows for the pot, all `pot_tag` rows, and the `pot` row
+- [x] 2.7 Write unit tests for all pots data functions in `tests/unit/pots.test.ts`
 
 ## 3. Transfer Data Layer (`src/lib/transfers.ts`)
 
