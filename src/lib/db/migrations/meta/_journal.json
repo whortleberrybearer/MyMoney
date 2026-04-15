@@ -15,6 +15,13 @@
       "when": 1776087718804,
       "tag": "0001_cynical_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776242811139,
+      "tag": "0002_wide_tag",
+      "breakpoints": true
     }
   ]
 }
