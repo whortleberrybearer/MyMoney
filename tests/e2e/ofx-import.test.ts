@@ -8,14 +8,16 @@
  */
 
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
-import { join, resolve } from "path";
+import { dirname, join, resolve } from "path";
+import { fileURLToPath } from "url";
 import { initializeAppWithFreshDb } from "./e2e-app";
 
 // ---------------------------------------------------------------------------
 // Paths to OFX fixtures (absolute paths required for file input setValue)
 // ---------------------------------------------------------------------------
 
-const FIXTURES_DIR = resolve(__dirname, "fixtures");
+const THIS_DIR = dirname(fileURLToPath(import.meta.url));
+const FIXTURES_DIR = resolve(THIS_DIR, "fixtures");
 const OFX_VALID_3TX = join(FIXTURES_DIR, "valid-3tx.ofx");
 const OFX_BALANCE_MISMATCH = join(FIXTURES_DIR, "balance-mismatch.ofx");
 const OFX_NO_LEDGERBAL = join(FIXTURES_DIR, "no-ledgerbal.ofx");

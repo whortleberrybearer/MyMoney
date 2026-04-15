@@ -39,84 +39,94 @@ export async function importOfxFile(
   let imported = 0;
   let duplicateCandidates = 0;
 
-  await db.transaction(async (tx) => {
-    for (const parsed of statement.transactions) {
-      // FITID duplicate check — scoped to this account
-      const existing = await tx
-        .select({ id: transactionFitid.id })
-        .from(transactionFitid)
-        .where(
-          and(
-            eq(transactionFitid.accountId, accountId),
-            eq(transactionFitid.fitid, parsed.fitid),
-          ),
-        );
+  const toImport = [] as typeof statement.transactions;
 
-      if (existing.length > 0) {
-        // Duplicate candidate — held for user review, never auto-imported.
-        duplicateCandidates++;
-        continue;
-      }
+  for (const parsed of statement.transactions) {
+    // FITID duplicate check — scoped to this account
+    const existing = await db
+      .select({ id: transactionFitid.id })
+      .from(transactionFitid)
+      .where(
+        and(
+          eq(transactionFitid.accountId, accountId),
+          eq(transactionFitid.fitid, parsed.fitid),
+        ),
+      );
 
-      // Insert the transaction row
-      await tx.insert(transaction).values({
-        accountId,
-        amount: parsed.amount,
-        date: parsed.date,
-        notes: parsed.memo || null,
-        type: "import",
-        isVoid: 0,
-      });
-
-      // Retrieve the ID of the row we just inserted (largest id for this account)
-      const [lastRow] = await tx
-        .select({ id: transaction.id })
-        .from(transaction)
-        .where(eq(transaction.accountId, accountId))
-        .orderBy(desc(transaction.id))
-        .limit(1);
-
-      // Record the FITID linked to the new transaction
-      await tx.insert(transactionFitid).values({
-        transactionId: lastRow.id,
-        accountId,
-        fitid: parsed.fitid,
-      });
-
-      imported++;
+    if (existing.length > 0) {
+      // Duplicate candidate — held for user review, never auto-imported.
+      duplicateCandidates++;
+      continue;
     }
 
-    // Closing balance validation — only when file includes LEDGERBAL
-    if (statement.closingBalance !== null) {
-      const [accountRow] = await tx
-        .select({ openingBalance: account.openingBalance })
-        .from(account)
-        .where(eq(account.id, accountId));
+    toImport.push(parsed);
+  }
 
-      if (!accountRow) {
-        throw new Error(`Account ${accountId} not found`);
-      }
+  // Closing balance validation — only when file includes LEDGERBAL.
+  // Do this BEFORE writing anything so we don't rely on driver-level transactions.
+  if (statement.closingBalance !== null) {
+    const [accountRow] = await db
+      .select({ openingBalance: account.openingBalance })
+      .from(account)
+      .where(eq(account.id, accountId));
 
-      const [totalRow] = await tx
-        .select({ total: sum(transaction.amount) })
-        .from(transaction)
-        .where(
-          and(eq(transaction.accountId, accountId), eq(transaction.isVoid, 0)),
-        );
-
-      const runningBalance =
-        accountRow.openingBalance + Number(totalRow?.total ?? 0);
-
-      const diff = Math.abs(runningBalance - statement.closingBalance);
-      if (diff > 0.005) {
-        const fileBalance = statement.closingBalance.toFixed(2);
-        const calcBalance = runningBalance.toFixed(2);
-        throw new Error(
-          `Import blocked: closing balance in file (${fileBalance}) does not match calculated balance (${calcBalance}). The file may be incomplete.`,
-        );
-      }
+    if (!accountRow) {
+      throw new Error(`Account ${accountId} not found`);
     }
-  });
+
+    const [totalRow] = await db
+      .select({ total: sum(transaction.amount) })
+      .from(transaction)
+      .where(and(eq(transaction.accountId, accountId), eq(transaction.isVoid, 0)));
+
+    const runningBalanceBefore =
+      accountRow.openingBalance + Number(totalRow?.total ?? 0);
+
+    const importSum = toImport.reduce((acc, t) => acc + t.amount, 0);
+    const runningBalanceAfter = runningBalanceBefore + importSum;
+
+    const diff = Math.abs(runningBalanceAfter - statement.closingBalance);
+    if (diff > 0.005) {
+      const fileBalance = statement.closingBalance.toFixed(2);
+      const calcBalance = runningBalanceAfter.toFixed(2);
+      throw new Error(
+        `Import blocked: closing balance in file (${fileBalance}) does not match calculated balance (${calcBalance}). The file may be incomplete.`,
+      );
+    }
+  }
+
+  for (const parsed of toImport) {
+    // Insert the transaction row
+    await db.insert(transaction).values({
+      accountId,
+      amount: parsed.amount,
+      date: parsed.date,
+      notes: parsed.memo || null,
+      type: "import",
+      isVoid: 0,
+    });
+
+    // Retrieve the ID of the row we just inserted (largest id for this account)
+    const [lastRow] = await db
+      .select({ id: transaction.id })
+      .from(transaction)
+      .where(eq(transaction.accountId, accountId))
+      .orderBy(desc(transaction.id))
+      .limit(1);
+
+    if (!lastRow) {
+      throw new Error("Failed to determine inserted transaction id");
+    }
+
+    // Record the FITID linked to the new transaction
+    await db.insert(transactionFitid).values({
+      transactionId: lastRow.id,
+      accountId,
+      fitid: parsed.fitid,
+    });
+
+    imported++;
+  }
 
   // Apply categorisation rules (stub — not yet implemented; see issue #10)
   const categorised = applyCategorisationRules(imported);
