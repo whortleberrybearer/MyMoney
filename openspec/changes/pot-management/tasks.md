@@ -52,6 +52,6 @@
 
 ## 9. E2E Tests
 
-- [ ] 9.1 Write E2E test `tests/e2e/pot-management.test.ts` covering: create a pot, edit a pot, add a tag, show/hide closed pots toggle, close a pot with zero balance, close a pot with non-zero balance (verify auto-transfer warning + balance update), reactivate a pot, hard delete a pot (verify confirmation dialog and removal)
-- [ ] 9.2 Extend or add E2E test covering manual pot transfer: open transfer dialog, transfer into pot, verify pot balance increases; transfer out of pot, verify pot balance decreases
-- [ ] 9.3 Add E2E scenario verifying account balance excludes pot balances and combined breakdown chart appears when toggle enabled
+- [x] 9.1 Write E2E test `tests/e2e/pot-management.test.ts` covering: create a pot, edit a pot, add a tag, show/hide closed pots toggle, close a pot with zero balance, close a pot with non-zero balance (verify auto-transfer warning + balance update), reactivate a pot, hard delete a pot (verify confirmation dialog and removal)
+- [x] 9.2 Extend or add E2E test covering manual pot transfer: open transfer dialog, transfer into pot, verify pot balance increases; transfer out of pot, verify pot balance decreases
+- [x] 9.3 Add E2E scenario verifying account balance excludes pot balances and combined breakdown chart appears when toggle enabled
