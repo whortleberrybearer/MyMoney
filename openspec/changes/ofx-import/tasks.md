@@ -2,7 +2,7 @@
 
 - [x] 1.1 Add `transactionFitid` table to `src/lib/db/schema.ts` with columns `id`, `transactionId`, `accountId`, `fitid` and a unique index on `(accountId, fitid)`
 - [x] 1.2 Run `drizzle-kit generate` to produce a new migration SQL file
-- [ ] 1.3 Add the new migration import to `tests/unit/db-helper.ts` so unit tests run against the updated schema
+- [x] 1.3 Add the new migration import to `tests/unit/db-helper.ts` so unit tests run against the updated schema
 
 ## 2. OFX Parser
 
