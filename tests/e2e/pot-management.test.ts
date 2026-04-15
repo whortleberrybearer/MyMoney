@@ -68,15 +68,32 @@ async function createTestAccount() {
 
 /** Clicks the "Add pot" button for the first (only) account in the list. */
 async function clickAddPot() {
-  const addPotBtn = await find("button[aria-label*='Add pot to']");
-  await addPotBtn.waitForClickable({ timeout: 5_000 });
+  // Prefer a stable, case-insensitive lookup. The built app can vary in casing
+  // (e.g. "Add Pot" vs "Add pot"), which would break a CSS attribute selector.
+  const addPotBtn = await find(
+    "//button[contains(translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'add pot') or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'add pot')]",
+  );
+  await addPotBtn.waitForExist({ timeout: 10_000 });
+  await addPotBtn.scrollIntoView();
+  await addPotBtn.waitForClickable({ timeout: 10_000 });
   await addPotBtn.click();
   await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
 }
 
+async function findPotRow(potName: string) {
+  const row = await find(
+    `//tr[@data-testid='pot-row'][.//td[contains(normalize-space(.), "${potName}")]]`,
+  );
+  await row.waitForExist({ timeout: 10_000 });
+  return row;
+}
+
 /** Clicks the pot actions dropdown for the first visible pot row. */
-async function openPotActionsMenu() {
-  const trigger = await find("button[aria-label='Pot actions']");
+async function openPotActionsMenu(potName?: string) {
+  const trigger = potName
+    ? await (await findPotRow(potName)).$("button[aria-label='Pot actions']")
+    : await find("button[aria-label='Pot actions']");
+  await trigger.scrollIntoView();
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
   const menu = await find('[data-slot="dropdown-menu-content"]');
@@ -84,8 +101,8 @@ async function openPotActionsMenu() {
   return menu;
 }
 
-async function clickPotActionsItem(label: string) {
-  const menu = await openPotActionsMenu();
+async function clickPotActionsItem(label: string, potName?: string) {
+  const menu = await openPotActionsMenu(potName);
   const items = await menu.$$('[data-slot="dropdown-menu-item"]');
   for (const item of items) {
     if ((await item.getText()).trim() === label) {
@@ -123,7 +140,7 @@ describe("Pot Management", () => {
 
     it("shows the parent account name read-only", async () => {
       const sheet = await find('[data-slot="sheet-content"]');
-      expect(await sheet.$("*=Test Account").isDisplayed()).toBe(true);
+      expect(await sheet.getText()).toContain("Test Account");
     });
 
     it("shows validation error when name is blank", async () => {
@@ -149,7 +166,7 @@ describe("Pot Management", () => {
   // -------------------------------------------------------------------------
   describe("Edit pot", () => {
     it("opens the edit sheet pre-filled", async () => {
-      await clickPotActionsItem("Edit");
+      await clickPotActionsItem("Edit", "Holiday Fund");
       const sheet = await find('[data-slot="sheet-content"]');
       await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 5_000 });
 
@@ -173,7 +190,7 @@ describe("Pot Management", () => {
   // -------------------------------------------------------------------------
   describe("Manual pot transfer", () => {
     it("opens transfer dialog from pot actions", async () => {
-      await clickPotActionsItem("Transfer");
+      await clickPotActionsItem("Transfer", "Summer Holiday");
       const title = await find('[data-slot="dialog-title"]');
       await title.waitForDisplayed({ timeout: 5_000 });
       expect(await title.getText()).toBe("Transfer Funds");
@@ -181,8 +198,8 @@ describe("Pot Management", () => {
 
     it("shows pot and account names in the dialog", async () => {
       const dialog = await find('[data-slot="dialog-content"]');
-      expect(await dialog.$("*=Summer Holiday").isDisplayed()).toBe(true);
-      expect(await dialog.$("*=Test Account").isDisplayed()).toBe(true);
+      expect(await dialog.getText()).toContain("Summer Holiday");
+      expect(await dialog.getText()).toContain("Test Account");
     });
 
     it("shows validation error when amount is zero", async () => {
@@ -207,7 +224,7 @@ describe("Pot Management", () => {
     });
 
     it("transfers funds out of pot and updates balance", async () => {
-      await clickPotActionsItem("Transfer");
+      await clickPotActionsItem("Transfer", "Summer Holiday");
       await (await find('[data-slot="dialog-title"]')).waitForDisplayed({ timeout: 5_000 });
 
       // Select "Out of pot"
@@ -239,19 +256,7 @@ describe("Pot Management", () => {
     });
 
     it("closes the pot without a warning dialog when balance is zero", async () => {
-      // Click Close for "Empty Pot" — find the second pot row's actions
-      const potActionsBtns = await findAll("button[aria-label='Pot actions']");
-      // The second pot is "Empty Pot"
-      await potActionsBtns[1].click();
-      const menu = await find('[data-slot="dropdown-menu-content"]');
-      await menu.waitForDisplayed({ timeout: 5_000 });
-      const items = await menu.$$('[data-slot="dropdown-menu-item"]');
-      for (const item of items) {
-        if ((await item.getText()).trim() === "Close") {
-          await item.click();
-          break;
-        }
-      }
+      await clickPotActionsItem("Close", "Empty Pot");
 
       // No alert dialog should open; pot should be hidden
       await (await find("td*=Empty Pot")).waitForExist({
@@ -301,7 +306,7 @@ describe("Pot Management", () => {
   describe("Close pot with non-zero balance", () => {
     it("shows a warning dialog and transfers balance on confirm", async () => {
       // "Summer Holiday" pot has a balance of 100.00 from the transfer tests
-      await clickPotActionsItem("Close");
+      await clickPotActionsItem("Close", "Summer Holiday");
 
       const alertTitle = await find('[data-slot="alert-dialog-title"]');
       await alertTitle.waitForDisplayed({ timeout: 5_000 });
@@ -312,6 +317,10 @@ describe("Pot Management", () => {
       // Confirm transfer & close
       const action = await find('[data-slot="alert-dialog-action"]');
       await action.click();
+      await (await find('[data-slot="alert-dialog-content"]')).waitForExist({
+        reverse: true,
+        timeout: 10_000,
+      });
 
       // Pot should be hidden (is_active=0)
       await (await find("td*=Summer Holiday")).waitForExist({
@@ -336,7 +345,7 @@ describe("Pot Management", () => {
     });
 
     it("reactivates the closed pot", async () => {
-      await clickPotActionsItem("Reactivate");
+      await clickPotActionsItem("Reactivate", "Summer Holiday");
 
       // Pot should reappear without the closed-pots toggle needing to be on
       // (after reactivation the toggle is still on, so pot is visible)
@@ -351,7 +360,7 @@ describe("Pot Management", () => {
   // -------------------------------------------------------------------------
   describe("Hard delete pot", () => {
     it("shows the permanent deletion warning dialog", async () => {
-      await clickPotActionsItem("Delete");
+      await clickPotActionsItem("Delete", "Summer Holiday");
 
       const alertTitle = await find('[data-slot="alert-dialog-title"]');
       await alertTitle.waitForDisplayed({ timeout: 5_000 });

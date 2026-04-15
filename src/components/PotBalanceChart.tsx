@@ -69,7 +69,11 @@ export function PotBalanceChart({
           ))}
         </Pie>
         <Tooltip
-          formatter={(value: number) => formatAmount(value, currency)}
+          formatter={(value) => {
+            const asNumber =
+              typeof value === "number" ? value : Number(value ?? 0);
+            return formatAmount(Number.isFinite(asNumber) ? asNumber : 0, currency);
+          }}
         />
         <Legend
           formatter={(value: string) => (
