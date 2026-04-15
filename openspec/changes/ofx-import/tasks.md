@@ -40,10 +40,10 @@
 
 ## 6. App Routing and Dashboard Integration
 
-- [ ] 6.1 Add `"import"` and `"import-result"` screens to the app router in `src/App.tsx`
-- [ ] 6.2 Add an Import button to the dashboard shell (`src/components/DashboardShell.tsx`) that navigates to the import screen
-- [ ] 6.3 Wire `ImportScreen` to invoke `importOfxFile` (or CSV handler stub) on Next, then navigate to `ImportResultScreen` with the result
-- [ ] 6.4 Write `tests/unit/DashboardShell.test.tsx` update: Import button is present on the dashboard
+- [x] 6.1 Add `"import"` and `"import-result"` screens to the app router in `src/App.tsx`
+- [x] 6.2 Add an Import button to the dashboard shell (`src/components/DashboardShell.tsx`) that navigates to the import screen
+- [x] 6.3 Wire `ImportScreen` to invoke `importOfxFile` (or CSV handler stub) on Next, then navigate to `ImportResultScreen` with the result
+- [x] 6.4 Write `tests/unit/DashboardShell.test.tsx` update: Import button is present on the dashboard
 
 ## 7. E2E Tests
 
