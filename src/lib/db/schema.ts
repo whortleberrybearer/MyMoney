@@ -1,4 +1,4 @@
-import { integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, primaryKey, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const accountType = sqliteTable("account_type", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -94,3 +94,18 @@ export const transaction = sqliteTable("transaction", {
   type: text("type").notNull(),
   isVoid: integer("is_void").notNull().default(0),
 });
+
+export const transactionFitid = sqliteTable(
+  "transaction_fitid",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    transactionId: integer("transaction_id")
+      .notNull()
+      .references(() => transaction.id),
+    accountId: integer("account_id")
+      .notNull()
+      .references(() => account.id),
+    fitid: text("fitid").notNull(),
+  },
+  (t) => [uniqueIndex("transaction_fitid_account_fitid_idx").on(t.accountId, t.fitid)],
+);
