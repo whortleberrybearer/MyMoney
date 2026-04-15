@@ -77,7 +77,9 @@ export async function importOfxFile(
     const [totalRow] = await db
       .select({ total: sum(transaction.amount) })
       .from(transaction)
-      .where(and(eq(transaction.accountId, accountId), eq(transaction.isVoid, 0)));
+      .where(
+        and(eq(transaction.accountId, accountId), eq(transaction.isVoid, 0)),
+      );
 
     const runningBalanceBefore =
       accountRow.openingBalance + Number(totalRow?.total ?? 0);

@@ -56,9 +56,13 @@ async function createTestAccount() {
   // Create institution
   await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
   await (await find("button*=Manage")).click();
-  await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="dialog-title"]')
+  ).waitForExist({ timeout: 5_000 });
   await (await find("button*=Add Institution")).click();
-  await (await find("input[placeholder='Institution name']")).setValue("Test Bank");
+  await (
+    await find("input[placeholder='Institution name']")
+  ).setValue("Test Bank");
   await (await find("button[aria-label='Save']")).click();
   await (await find("span=Test Bank")).waitForExist({ timeout: 5_000 });
 
@@ -84,7 +88,9 @@ async function openImportScreen() {
   const importBtn = await find('[data-testid="import-button"]');
   await importBtn.waitForClickable({ timeout: 10_000 });
   await importBtn.click();
-  await (await find("h1*=Import Transactions")).waitForExist({ timeout: 10_000 });
+  await (
+    await find("h1*=Import Transactions")
+  ).waitForExist({ timeout: 10_000 });
 }
 
 /**
@@ -111,16 +117,22 @@ async function selectImportAccount(accountName: string) {
 async function setImportFile(filePath: string) {
   const fileInput = await find('[data-testid="file-input"]');
   // Make the input temporarily visible so WebdriverIO can interact with it
-  await browser.execute((el: HTMLInputElement) => {
-    el.style.display = "block";
-    el.style.opacity = "1";
-  }, fileInput as unknown as HTMLInputElement);
+  await browser.execute(
+    (el: HTMLInputElement) => {
+      el.style.display = "block";
+      el.style.opacity = "1";
+    },
+    fileInput as unknown as HTMLInputElement,
+  );
   await fileInput.setValue(filePath);
   // Restore hidden state
-  await browser.execute((el: HTMLInputElement) => {
-    el.style.display = "";
-    el.style.opacity = "";
-  }, fileInput as unknown as HTMLInputElement);
+  await browser.execute(
+    (el: HTMLInputElement) => {
+      el.style.display = "";
+      el.style.opacity = "";
+    },
+    fileInput as unknown as HTMLInputElement,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -151,14 +163,16 @@ describe("OFX Import — happy path (valid 3-transaction file)", () => {
     await selectImportAccount("Import Account");
     await setImportFile(OFX_VALID_3TX);
 
-    await (await find('[data-testid="next-button"]')).waitForEnabled({ timeout: 5_000 });
+    await (
+      await find('[data-testid="next-button"]')
+    ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
     await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
 
-    expect(
-      await (await find('[data-testid="result-total"]')).getText(),
-    ).toBe("3");
+    expect(await (await find('[data-testid="result-total"]')).getText()).toBe(
+      "3",
+    );
     expect(
       await (await find('[data-testid="result-imported"]')).getText(),
     ).toBe("3");
@@ -182,7 +196,9 @@ describe("OFX Import — all FITIDs already exist (all duplicates)", () => {
     await openImportScreen();
     await selectImportAccount("Import Account");
     await setImportFile(OFX_VALID_3TX);
-    await (await find('[data-testid="next-button"]')).waitForEnabled({ timeout: 5_000 });
+    await (
+      await find('[data-testid="next-button"]')
+    ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
     await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
     await (await find('[data-testid="done-button"]')).click();
@@ -193,7 +209,9 @@ describe("OFX Import — all FITIDs already exist (all duplicates)", () => {
     await openImportScreen();
     await selectImportAccount("Import Account");
     await setImportFile(OFX_VALID_3TX);
-    await (await find('[data-testid="next-button"]')).waitForEnabled({ timeout: 5_000 });
+    await (
+      await find('[data-testid="next-button"]')
+    ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
     await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
@@ -217,11 +235,17 @@ describe("OFX Import — balance mismatch blocks import", () => {
     await openImportScreen();
     await selectImportAccount("Import Account");
     await setImportFile(OFX_BALANCE_MISMATCH);
-    await (await find('[data-testid="next-button"]')).waitForEnabled({ timeout: 5_000 });
+    await (
+      await find('[data-testid="next-button"]')
+    ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
-    await (await find('[data-testid="import-error"]')).waitForExist({ timeout: 15_000 });
-    const errorText = await (await find('[data-testid="import-error"]')).getText();
+    await (
+      await find('[data-testid="import-error"]')
+    ).waitForExist({ timeout: 15_000 });
+    const errorText = await (
+      await find('[data-testid="import-error"]')
+    ).getText();
     expect(errorText).toContain("Import blocked");
 
     // Import result screen should NOT have appeared
@@ -240,7 +264,9 @@ describe("OFX Import — no LEDGERBAL (no balance validation)", () => {
     await openImportScreen();
     await selectImportAccount("Import Account");
     await setImportFile(OFX_NO_LEDGERBAL);
-    await (await find('[data-testid="next-button"]')).waitForEnabled({ timeout: 5_000 });
+    await (
+      await find('[data-testid="next-button"]')
+    ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
     await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
@@ -262,8 +288,12 @@ describe("OFX Import — unsupported file type", () => {
     const txtPath = join(FIXTURES_DIR, "not-an-ofx.txt");
     await setImportFile(txtPath);
 
-    await (await find('[data-testid="file-type-error"]')).waitForExist({ timeout: 5_000 });
-    const errorText = await (await find('[data-testid="file-type-error"]')).getText();
+    await (
+      await find('[data-testid="file-type-error"]')
+    ).waitForExist({ timeout: 5_000 });
+    const errorText = await (
+      await find('[data-testid="file-type-error"]')
+    ).getText();
     expect(errorText).toContain("Unsupported");
   });
 
