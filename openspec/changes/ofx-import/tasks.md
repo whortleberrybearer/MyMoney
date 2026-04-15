@@ -29,9 +29,9 @@
 
 ## 4. UI — Import Entry Point
 
-- [ ] 4.1 Create `src/components/ImportScreen.tsx` with account `Select` dropdown (active accounts only) and a file picker button (`.ofx,.qfx,.csv`)
-- [ ] 4.2 Implement file type detection in `ImportScreen` using `detectFileType` from `src/lib/import.ts`; show inline error for unsupported extensions; disable Next until both account and valid file are selected
-- [ ] 4.3 Write `tests/unit/ImportScreen.test.tsx` covering: Next disabled with no account; Next disabled with no file; unsupported extension shows error; `.ofx` file accepted; `.qfx` file accepted; `.csv` file accepted
+- [x] 4.1 Create `src/components/ImportScreen.tsx` with account `Select` dropdown (active accounts only) and a file picker button (`.ofx,.qfx,.csv`)
+- [x] 4.2 Implement file type detection in `ImportScreen` using `detectFileType` from `src/lib/import.ts`; show inline error for unsupported extensions; disable Next until both account and valid file are selected
+- [x] 4.3 Write `tests/unit/ImportScreen.test.tsx` covering: Next disabled with no account; Next disabled with no file; unsupported extension shows error; `.ofx` file accepted; `.qfx` file accepted; `.csv` file accepted
 
 ## 5. UI — Import Result Screen
 
