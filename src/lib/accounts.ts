@@ -21,6 +21,7 @@ export type AccountRow = {
   accountTypeName: string;
   currency: string;
   openingBalance: number;
+  currentBalance: number;
   openingDate: string;
   notes: string | null;
   isActive: number;
@@ -90,7 +91,7 @@ export async function listAccounts(
     )
     .orderBy(asc(institution.name), asc(account.name));
 
-  return rows as AccountRow[];
+  return rows.map((r) => ({ ...r, currentBalance: r.openingBalance }));
 }
 
 export async function createAccount(input: CreateAccountInput): Promise<void> {
@@ -254,7 +255,15 @@ export async function listAccountsWithPots(
       });
     }
 
-    results.push({ ...acc, pots: potsWithBalances });
+    // Calculate the account's own current balance from account-side transactions
+    const [accTxTotal] = await db
+      .select({ total: sum(transaction.amount) })
+      .from(transaction)
+      .where(and(eq(transaction.accountId, acc.id), eq(transaction.isVoid, 0)));
+    const currentBalance =
+      acc.openingBalance + Number(accTxTotal?.total ?? 0);
+
+    results.push({ ...acc, currentBalance, pots: potsWithBalances });
   }
 
   return results;

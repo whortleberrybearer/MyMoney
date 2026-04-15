@@ -266,7 +266,7 @@ export function AccountsScreen({
                       </TableCell>
                       <TableCell className="text-sm">{row.currency}</TableCell>
                       <TableCell className="text-right tabular-nums text-sm">
-                        {row.openingBalance.toFixed(2)}
+                        {row.currentBalance.toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -423,7 +423,7 @@ export function AccountsScreen({
                         <TableCell colSpan={6} className="pb-2 pt-0">
                           <PotBalanceChart
                             accountName={row.name}
-                            accountOwnBalance={row.openingBalance}
+                            accountOwnBalance={row.currentBalance}
                             currency={row.currency}
                             pots={row.pots ?? []}
                           />

@@ -80,6 +80,7 @@ const ACTIVE_ACCOUNT: accountsLib.AccountRow = {
   accountTypeName: "Current",
   currency: "GBP",
   openingBalance: 1234.56,
+  currentBalance: 1234.56,
   openingDate: "2024-01-01",
   notes: null,
   isActive: 1,

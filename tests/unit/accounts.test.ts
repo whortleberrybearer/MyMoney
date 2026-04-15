@@ -436,4 +436,45 @@ describe("listAccountsWithPots", () => {
     const rows = await listAccountsWithPots(false);
     expect(rows[0].pots).toEqual([]);
   });
+
+  it("currentBalance reflects account-side virtual transfer transactions", async () => {
+    const db = mockGetDb();
+    mockGetDb.mockReturnValue(db as ReturnType<typeof dbModule.getDb>);
+
+    const inst = await seedInstitution(db);
+    await createAccount({ ...BASE_ACCOUNT, openingBalance: 1000, institutionId: inst.id });
+    const [acc] = await listAccounts(false);
+
+    // Simulate a pot transfer deducting 150 from the account side
+    await db.insert(transaction).values({
+      accountId: acc.id,
+      amount: -150,
+      date: "2024-02-01",
+      type: "virtual_transfer",
+      isVoid: 0,
+    });
+
+    const rows = await listAccountsWithPots(false);
+    expect(rows[0].currentBalance).toBe(850); // 1000 - 150
+  });
+
+  it("currentBalance ignores voided account-side transactions", async () => {
+    const db = mockGetDb();
+    mockGetDb.mockReturnValue(db as ReturnType<typeof dbModule.getDb>);
+
+    const inst = await seedInstitution(db);
+    await createAccount({ ...BASE_ACCOUNT, openingBalance: 500, institutionId: inst.id });
+    const [acc] = await listAccounts(false);
+
+    await db.insert(transaction).values({
+      accountId: acc.id,
+      amount: -200,
+      date: "2024-02-01",
+      type: "virtual_transfer",
+      isVoid: 1, // voided — should not affect balance
+    });
+
+    const rows = await listAccountsWithPots(false);
+    expect(rows[0].currentBalance).toBe(500); // unchanged
+  });
 });
