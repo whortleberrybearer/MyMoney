@@ -56,26 +56,26 @@ beforeEach(() => {
 
 describe("DashboardShell", () => {
   it("renders the profile selector in the header on mount", async () => {
-    render(<DashboardShell onNavigateToSettings={vi.fn()} />);
+    render(<DashboardShell onNavigateToSettings={vi.fn()} onNavigateToImport={vi.fn()} />);
     await waitFor(() => {
       expect(screen.getByRole("combobox", { name: /profile selector/i })).toBeInTheDocument();
     });
   });
 
   it("loads the tag list on mount and passes it to ProfileSelector", async () => {
-    render(<DashboardShell onNavigateToSettings={vi.fn()} />);
+    render(<DashboardShell onNavigateToSettings={vi.fn()} onNavigateToImport={vi.fn()} />);
     await waitFor(() => expect(mockListTags).toHaveBeenCalledTimes(1));
   });
 
   it("profile selector shows 'All' by default", async () => {
-    render(<DashboardShell onNavigateToSettings={vi.fn()} />);
+    render(<DashboardShell onNavigateToSettings={vi.fn()} onNavigateToImport={vi.fn()} />);
     await waitFor(() => {
       expect(screen.getByRole("combobox", { name: /profile selector/i })).toHaveTextContent("All");
     });
   });
 
   it("renders the settings button", async () => {
-    render(<DashboardShell onNavigateToSettings={vi.fn()} />);
+    render(<DashboardShell onNavigateToSettings={vi.fn()} onNavigateToImport={vi.fn()} />);
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /settings/i })).toBeInTheDocument();
     });
@@ -83,7 +83,9 @@ describe("DashboardShell", () => {
 
   it("calls onNavigateToSettings when the settings button is clicked", async () => {
     const onNavigate = vi.fn();
-    render(<DashboardShell onNavigateToSettings={onNavigate} />);
+    render(
+      <DashboardShell onNavigateToSettings={onNavigate} onNavigateToImport={vi.fn()} />,
+    );
     await waitFor(() => screen.getByRole("button", { name: /settings/i }));
 
     screen.getByRole("button", { name: /settings/i }).click();
@@ -95,7 +97,7 @@ describe("DashboardShell", () => {
     const newTag: refData.Tag = { id: 3, name: "Work" };
     vi.mocked(refData.createTag).mockResolvedValue(newTag);
 
-    render(<DashboardShell onNavigateToSettings={vi.fn()} />);
+    render(<DashboardShell onNavigateToSettings={vi.fn()} onNavigateToImport={vi.fn()} />);
     await waitFor(() => expect(mockListTags).toHaveBeenCalledTimes(1));
 
     // After initial load, mockListTags is called once.
@@ -105,5 +107,26 @@ describe("DashboardShell", () => {
     // The handleTagCreated callback appends to local state — no re-fetch needed.
     // Verify listTags was only called on mount (not on tag creation).
     expect(mockListTags).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders the Import button in the header", async () => {
+    render(
+      <DashboardShell onNavigateToSettings={vi.fn()} onNavigateToImport={vi.fn()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /import/i })).toBeInTheDocument();
+    });
+  });
+
+  it("calls onNavigateToImport when the Import button is clicked", async () => {
+    const onImport = vi.fn();
+    render(
+      <DashboardShell onNavigateToSettings={vi.fn()} onNavigateToImport={onImport} />,
+    );
+    await waitFor(() => screen.getByRole("button", { name: /import/i }));
+
+    screen.getByRole("button", { name: /import/i }).click();
+
+    expect(onImport).toHaveBeenCalledTimes(1);
   });
 });

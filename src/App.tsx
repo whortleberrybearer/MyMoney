@@ -4,6 +4,8 @@ import { createNewFile, openExistingFile } from "@/lib/file-selection";
 import { runStartupBackup } from "@/lib/file-backup";
 import { DashboardShell } from "@/components/DashboardShell";
 import { FileNotFoundScreen } from "@/components/FileNotFoundScreen";
+import { ImportResultScreen } from "@/components/ImportResultScreen";
+import { ImportScreen } from "@/components/ImportScreen";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { MigrationErrorScreen } from "@/components/MigrationErrorScreen";
 import { SettingsScreen } from "@/components/SettingsScreen";
@@ -81,6 +83,9 @@ function AppScreens() {
           onNavigateToSettings={() =>
             navigate({ screen: "settings", filePath: current.filePath })
           }
+          onNavigateToImport={() =>
+            navigate({ screen: "import", filePath: current.filePath })
+          }
         />
       );
 
@@ -97,6 +102,32 @@ function AppScreens() {
               navigate({ screen: "dashboard", filePath });
             }
           }}
+        />
+      );
+
+    case "import":
+      return (
+        <ImportScreen
+          onDone={(result) =>
+            navigate({
+              screen: "import-result",
+              filePath: current.filePath,
+              result,
+            })
+          }
+          onCancel={() =>
+            navigate({ screen: "dashboard", filePath: current.filePath })
+          }
+        />
+      );
+
+    case "import-result":
+      return (
+        <ImportResultScreen
+          result={current.result}
+          onDone={() =>
+            navigate({ screen: "dashboard", filePath: current.filePath })
+          }
         />
       );
   }

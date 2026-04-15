@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Settings } from "lucide-react";
+import { ArrowDownToLine, Settings } from "lucide-react";
 import { listTags, Tag } from "@/lib/reference-data";
 import { Button } from "@/components/ui/button";
 import { AccountsScreen } from "./AccountsScreen";
@@ -8,9 +8,10 @@ import { ProfileSelector } from "./ProfileSelector";
 
 interface DashboardShellProps {
   onNavigateToSettings: () => void;
+  onNavigateToImport: () => void;
 }
 
-export function DashboardShell({ onNavigateToSettings }: DashboardShellProps) {
+export function DashboardShell({ onNavigateToSettings, onNavigateToImport }: DashboardShellProps) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
 
@@ -35,6 +36,15 @@ export function DashboardShell({ onNavigateToSettings }: DashboardShellProps) {
           value={selectedTagId}
           onChange={setSelectedTagId}
         />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNavigateToImport}
+          aria-label="Import"
+          data-testid="import-button"
+        >
+          <ArrowDownToLine className="h-5 w-5" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"
