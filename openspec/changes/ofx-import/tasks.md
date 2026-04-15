@@ -35,8 +35,8 @@
 
 ## 5. UI — Import Result Screen
 
-- [ ] 5.1 Create `src/components/ImportResultScreen.tsx` displaying `ImportResult` counts (total, imported, duplicate candidates, uncategorised) and a Done button that navigates to the dashboard
-- [ ] 5.2 Write `tests/unit/ImportResultScreen.test.tsx` covering: all counts render correctly; Done button triggers navigation
+- [x] 5.1 Create `src/components/ImportResultScreen.tsx` displaying `ImportResult` counts (total, imported, duplicate candidates, uncategorised) and a Done button that navigates to the dashboard
+- [x] 5.2 Write `tests/unit/ImportResultScreen.test.tsx` covering: all counts render correctly; Done button triggers navigation
 
 ## 6. App Routing and Dashboard Integration
 
