@@ -16,13 +16,13 @@
 
 ## 3. Transfer Data Layer (`src/lib/transfers.ts`)
 
-- [ ] 3.1 Implement `createPotTransfer(input)` — validates amount > 0 and required fields; inserts two `transaction` rows (account side + pot side) sharing a `transfer_id`; direction controls sign of amounts
-- [ ] 3.2 Write unit tests for transfer creation (into pot, out of pot, validation errors) in `tests/unit/transfers.test.ts`
+- [x] 3.1 Implement `createPotTransfer(input)` — validates amount > 0 and required fields; inserts two `transaction` rows (account side + pot side) sharing a `transfer_id`; direction controls sign of amounts
+- [x] 3.2 Write unit tests for transfer creation (into pot, out of pot, validation errors) in `tests/unit/transfers.test.ts`
 
 ## 4. Accounts Data Layer Updates (`src/lib/accounts.ts`)
 
-- [ ] 4.1 Update `listAccounts` to also fetch and attach pot rows (with calculated balances) under each account result — or provide a separate `listAccountsWithPots` function used by the accounts screen
-- [ ] 4.2 Write/update unit tests to cover accounts listing with pot child data
+- [x] 4.1 Update `listAccounts` to also fetch and attach pot rows (with calculated balances) under each account result — or provide a separate `listAccountsWithPots` function used by the accounts screen
+- [x] 4.2 Write/update unit tests to cover accounts listing with pot child data
 
 ## 5. Pot Management UI (`PotFormSheet`)
 

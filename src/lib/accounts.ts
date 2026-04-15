@@ -1,12 +1,16 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql, sum } from "drizzle-orm";
 import { getDb } from "./db";
 import {
   account,
   accountTag,
   accountType,
   institution,
+  pot,
+  potTag,
   tag,
+  transaction,
 } from "./db/schema";
+import type { PotRow } from "./pots";
 
 export type AccountRow = {
   id: number;
@@ -22,6 +26,7 @@ export type AccountRow = {
   isActive: number;
   tagId: number | null;
   tagName: string | null;
+  pots?: PotRow[];
 };
 
 export type CreateAccountInput = {
@@ -192,4 +197,65 @@ export async function deleteAccount(accountId: number): Promise<void> {
     .update(account)
     .set({ isDeleted: 1 })
     .where(eq(account.id, accountId));
+}
+
+/**
+ * Lists accounts with their associated pots (including calculated balances).
+ * Used by the AccountsScreen to render pot child rows.
+ *
+ * @param showInactive - When false, only active accounts are returned.
+ * @param tagId - When provided, filters accounts by tag.
+ * @param showClosedPots - When true, includes closed pots under each account.
+ */
+export async function listAccountsWithPots(
+  showInactive: boolean,
+  tagId?: number | null,
+  showClosedPots = false,
+): Promise<AccountRow[]> {
+  const db = getDb();
+
+  const accounts = await listAccounts(showInactive, tagId);
+
+  // For each account fetch its pots with balances
+  const results: AccountRow[] = [];
+  for (const acc of accounts) {
+    const potRows = await db
+      .select({
+        id: pot.id,
+        accountId: pot.accountId,
+        name: pot.name,
+        openingBalance: pot.openingBalance,
+        openingDate: pot.openingDate,
+        isActive: pot.isActive,
+        notes: pot.notes,
+        tagId: sql<number | null>`${tag.id}`.as("potTagId"),
+        tagName: sql<string | null>`${tag.name}`.as("potTagName"),
+      })
+      .from(pot)
+      .leftJoin(potTag, eq(pot.id, potTag.potId))
+      .leftJoin(tag, eq(potTag.tagId, tag.id))
+      .where(
+        and(
+          eq(pot.accountId, acc.id),
+          showClosedPots ? undefined : eq(pot.isActive, 1),
+        ),
+      )
+      .orderBy(asc(pot.name));
+
+    const potsWithBalances: PotRow[] = [];
+    for (const p of potRows) {
+      const [balanceRow] = await db
+        .select({ total: sum(transaction.amount) })
+        .from(transaction)
+        .where(and(eq(transaction.potId, p.id), eq(transaction.isVoid, 0)));
+      potsWithBalances.push({
+        ...(p as Omit<PotRow, "currentBalance">),
+        currentBalance: p.openingBalance + Number(balanceRow?.total ?? 0),
+      });
+    }
+
+    results.push({ ...acc, pots: potsWithBalances });
+  }
+
+  return results;
 }
