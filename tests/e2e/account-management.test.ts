@@ -60,26 +60,58 @@ async function selectOption(triggerId: string, optionText: string) {
 }
 
 async function openRowActionsMenu() {
-  const trigger = await find("button[aria-label='Row actions']");
-  await trigger.waitForClickable({ timeout: 5_000 });
+  const trigger = await find(
+    "(//button[translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='account actions' or translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='row actions'])[1]",
+  );
+  await trigger.waitForExist({ timeout: 10_000 });
+  await trigger.scrollIntoView();
+  await trigger.waitForClickable({ timeout: 10_000 });
   await trigger.click();
 
   const menu = await find('[data-slot="dropdown-menu-content"]');
-  await menu.waitForDisplayed({ timeout: 5_000 });
+  await menu.waitForDisplayed({ timeout: 10_000 });
   return menu;
 }
 
-async function clickRowActionsItem(label: string) {
-  const menu = await openRowActionsMenu();
+async function openRowActionsMenuForAccount(accountName: string) {
+  const trigger = await find(
+    `//tr[.//td[contains(normalize-space(.), "${accountName}")]]//button[translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='account actions' or translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='row actions']`,
+  );
+  await trigger.waitForExist({ timeout: 10_000 });
+  await trigger.scrollIntoView();
+  await trigger.waitForClickable({ timeout: 10_000 });
+  await trigger.click();
+
+  const menu = await find('[data-slot="dropdown-menu-content"]');
+  await menu.waitForDisplayed({ timeout: 10_000 });
+  return menu;
+}
+
+async function clickRowActionsItem(label: string, accountName?: string) {
+  const menu = accountName
+    ? await openRowActionsMenuForAccount(accountName)
+    : await openRowActionsMenu();
   const items = await menu.$$('[data-slot="dropdown-menu-item"]');
   for (const item of items) {
     if ((await item.getText()).trim() === label) {
-      await item.waitForClickable({ timeout: 5_000 });
+      await item.scrollIntoView();
+      await item.waitForClickable({ timeout: 10_000 });
       await item.click();
       return;
     }
   }
   throw new Error(`Row actions item "${label}" not found`);
+}
+
+async function clickAlertDialogAction() {
+  const dialog = await find('[data-slot="alert-dialog-content"]');
+  await dialog.waitForDisplayed({ timeout: 10_000 });
+
+  const action = await dialog.$('[data-slot="alert-dialog-action"]');
+  await action.waitForExist({ timeout: 10_000 });
+  await action.scrollIntoView();
+  await action.waitForClickable({ timeout: 10_000 });
+  await action.click();
 }
 
 // ---------------------------------------------------------------------------
@@ -273,7 +305,7 @@ describe("Account Management", () => {
   // -------------------------------------------------------------------------
   describe("Account row actions", () => {
     it("deactivates the account and shows empty active list", async () => {
-      await clickRowActionsItem("Deactivate");
+      await clickRowActionsItem("Deactivate", "My Current Account");
 
       const emptyMsg = await find(
         "div=No active accounts. Add one to get started.",
@@ -292,7 +324,7 @@ describe("Account Management", () => {
     });
 
     it("opens the delete confirmation dialog", async () => {
-      await clickRowActionsItem("Delete");
+      await clickRowActionsItem("Delete", "My Current Account");
 
       const confirmationTitle = await find('[data-slot="alert-dialog-title"]');
       await confirmationTitle.waitForDisplayed({ timeout: 3_000 });
@@ -300,9 +332,7 @@ describe("Account Management", () => {
     });
 
     it("deletes the account after confirmation", async () => {
-      const confirm = await find('[data-slot="alert-dialog-action"]');
-      await confirm.waitForClickable({ timeout: 5_000 });
-      await confirm.click();
+      await clickAlertDialogAction();
 
       await (
         await find("td*=My Current Account")

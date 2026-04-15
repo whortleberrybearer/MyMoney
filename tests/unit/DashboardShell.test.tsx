@@ -14,6 +14,7 @@ vi.mock("@/lib/reference-data", () => ({
 
 vi.mock("@/lib/accounts", () => ({
   listAccounts: vi.fn(),
+  listAccountsWithPots: vi.fn().mockResolvedValue([]),
   createAccount: vi.fn(),
   updateAccount: vi.fn(),
   deleteAccount: vi.fn(),
@@ -22,6 +23,20 @@ vi.mock("@/lib/accounts", () => ({
 
 vi.mock("@/lib/institutions", () => ({
   listInstitutions: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("@/lib/pots", () => ({
+  closePot: vi.fn(),
+  reactivatePot: vi.fn(),
+  deletePot: vi.fn(),
+  getPotBalance: vi.fn().mockResolvedValue(0),
+  createPot: vi.fn(),
+  updatePot: vi.fn(),
+  listPots: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("@/lib/transfers", () => ({
+  createPotTransfer: vi.fn(),
 }));
 
 const mockListTags = vi.mocked(refData.listTags);

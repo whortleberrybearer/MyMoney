@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/sqlite-proxy";
 import * as schema from "@/lib/db/schema";
 import migration0000 from "@/lib/db/migrations/0000_pale_fixer.sql?raw";
 import migration0001 from "@/lib/db/migrations/0001_cynical_the_watchers.sql?raw";
+import migration0002 from "@/lib/db/migrations/0002_wide_tag.sql?raw";
 
 /**
  * Creates an isolated in-memory SQLite database with all migrations applied.
@@ -15,7 +16,7 @@ export function createTestDb() {
   const sqlite = new BetterSQLite(":memory:");
 
   // Apply each migration the same way the runtime runner does
-  for (const sql of [migration0000, migration0001]) {
+  for (const sql of [migration0000, migration0001, migration0002]) {
     const statements = sql
       .split("--> statement-breakpoint")
       .map((s) => s.trim())
