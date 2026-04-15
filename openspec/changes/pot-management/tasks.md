@@ -26,15 +26,15 @@
 
 ## 5. Pot Management UI (`PotFormSheet`)
 
-- [ ] 5.1 Create `src/components/PotFormSheet.tsx` — Sheet with fields: Name, Opening Balance (default 0), Opening Date, Tag (combobox), Notes; parent account shown read-only; currency label inherited from account
-- [ ] 5.2 Wire create and edit modes; call `createPot` / `updatePot` on submit; show per-field validation errors
-- [ ] 5.3 Write component tests for `PotFormSheet` in `tests/unit/PotFormSheet.test.tsx`
+- [x] 5.1 Create `src/components/PotFormSheet.tsx` — Sheet with fields: Name, Opening Balance (default 0), Opening Date, Tag (combobox), Notes; parent account shown read-only; currency label inherited from account
+- [x] 5.2 Wire create and edit modes; call `createPot` / `updatePot` on submit; show per-field validation errors
+- [x] 5.3 Write component tests for `PotFormSheet` in `tests/unit/PotFormSheet.test.tsx`
 
 ## 6. Pot Transfer UI (`PotTransferDialog`)
 
-- [ ] 6.1 Create `src/components/PotTransferDialog.tsx` — Dialog with direction selector (into/out of pot), Amount, Date, Notes; pot and account names shown read-only
-- [ ] 6.2 Call `createPotTransfer` on submit; show validation errors inline; close dialog on success and refresh balances
-- [ ] 6.3 Write component tests for `PotTransferDialog` in `tests/unit/PotTransferDialog.test.tsx`
+- [x] 6.1 Create `src/components/PotTransferDialog.tsx` — Dialog with direction selector (into/out of pot), Amount, Date, Notes; pot and account names shown read-only
+- [x] 6.2 Call `createPotTransfer` on submit; show validation errors inline; close dialog on success and refresh balances
+- [x] 6.3 Write component tests for `PotTransferDialog` in `tests/unit/PotTransferDialog.test.tsx`
 
 ## 7. Accounts Screen — Pot Child Rows
 
