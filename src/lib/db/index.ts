@@ -3,6 +3,7 @@ import { AppDb, createDrizzleDb } from "./adapter";
 import migration0000 from "./migrations/0000_pale_fixer.sql?raw";
 import migration0001 from "./migrations/0001_cynical_the_watchers.sql?raw";
 import migration0002 from "./migrations/0002_wide_tag.sql?raw";
+import migration0003 from "./migrations/0003_greedy_human_robot.sql?raw";
 
 // ---------------------------------------------------------------------------
 // Inline migration list
@@ -24,6 +25,11 @@ const MIGRATIONS: Array<{ when: number; hash: string; sql: string }> = [
     when: 1776243319315,
     hash: "c4a16ad440079b512e525eb7120560d782bd51499c116b1a37a6d1f65a00a9a8",
     sql: migration0002,
+  },
+  {
+    when: 1776282795136,
+    hash: "5c965e32c51f716492e4727c4a5de9c5c9e9975366144293aa6c0941d7c07a18",
+    sql: migration0003,
   },
 ];
 

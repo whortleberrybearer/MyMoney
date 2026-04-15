@@ -12,13 +12,13 @@
 
 ## 3. Import Logic
 
-- [ ] 3.1 Create `src/lib/import.ts` with shared types: `ImportResult { total, imported, duplicateCandidates, uncategorised }` and a `detectFileType(filename: string): "ofx" | "csv" | "unknown"` utility
-- [ ] 3.2 Create `src/lib/ofx-import.ts` implementing `importOfxFile(accountId: number, fileContents: string): Promise<ImportResult>` — reads file, calls parser, runs import pipeline
-- [ ] 3.3 Implement FITID-based duplicate detection inside `importOfxFile`: for each parsed transaction, query `transaction_fitid` for `(accountId, fitid)` and count matches as duplicate candidates (do not insert)
-- [ ] 3.4 Implement transaction inserts inside a single `db.transaction()`: insert `transaction` row then `transaction_fitid` row for each non-duplicate; roll back entire batch on any error
-- [ ] 3.5 Implement closing balance validation inside `importOfxFile`: after all inserts, compute running balance from `opening_balance + SUM(amount)` for the account; if OFX `closingBalance` is present and differs by more than 0.005, roll back and throw with a descriptive message
-- [ ] 3.6 Add categorisation rules stub and pot allocation rules stub hooks to `importOfxFile` — stubs return no matches; `uncategorised` count equals imported transactions with no category assigned
-- [ ] 3.7 Write `tests/unit/ofx-import.test.ts` covering:
+- [x] 3.1 Create `src/lib/import.ts` with shared types: `ImportResult { total, imported, duplicateCandidates, uncategorised }` and a `detectFileType(filename: string): "ofx" | "csv" | "unknown"` utility
+- [x] 3.2 Create `src/lib/ofx-import.ts` implementing `importOfxFile(accountId: number, fileContents: string): Promise<ImportResult>` — reads file, calls parser, runs import pipeline
+- [x] 3.3 Implement FITID-based duplicate detection inside `importOfxFile`: for each parsed transaction, query `transaction_fitid` for `(accountId, fitid)` and count matches as duplicate candidates (do not insert)
+- [x] 3.4 Implement transaction inserts inside a single `db.transaction()`: insert `transaction` row then `transaction_fitid` row for each non-duplicate; roll back entire batch on any error
+- [x] 3.5 Implement closing balance validation inside `importOfxFile`: after all inserts, compute running balance from `opening_balance + SUM(amount)` for the account; if OFX `closingBalance` is present and differs by more than 0.005, roll back and throw with a descriptive message
+- [x] 3.6 Add categorisation rules stub and pot allocation rules stub hooks to `importOfxFile` — stubs return no matches; `uncategorised` count equals imported transactions with no category assigned
+- [x] 3.7 Write `tests/unit/ofx-import.test.ts` covering:
   - All new FITIDs → all inserted, result shows imported = N, duplicates = 0
   - Mixed file with existing FITIDs → only new ones inserted, duplicate count is correct
   - Duplicate transactions held as candidates, not auto-imported
