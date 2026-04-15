@@ -46,9 +46,9 @@
 
 ## 8. Combined Balance View (`PotBalanceChart`)
 
-- [ ] 8.1 Install / confirm Recharts is available in the project; create `src/components/PotBalanceChart.tsx` — Recharts `PieChart` showing account own balance + each active pot balance as segments with name and balance labels
-- [ ] 8.2 Add breakdown toggle (shadcn `Switch`) within Account Detail view (or within `AccountsScreen` account row detail area); defaults off; hides chart when account has no active pots
-- [ ] 8.3 Write component tests for `PotBalanceChart` in `tests/unit/PotBalanceChart.test.tsx`
+- [x] 8.1 Install / confirm Recharts is available in the project; create `src/components/PotBalanceChart.tsx` — Recharts `PieChart` showing account own balance + each active pot balance as segments with name and balance labels
+- [x] 8.2 Add breakdown toggle (shadcn `Switch`) within Account Detail view (or within `AccountsScreen` account row detail area); defaults off; hides chart when account has no active pots
+- [x] 8.3 Write component tests for `PotBalanceChart` in `tests/unit/PotBalanceChart.test.tsx`
 
 ## 9. E2E Tests
 

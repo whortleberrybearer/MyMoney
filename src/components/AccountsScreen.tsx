@@ -43,6 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AccountFormSheet } from "./AccountFormSheet";
+import { PotBalanceChart } from "./PotBalanceChart";
 import { PotFormSheet } from "./PotFormSheet";
 import { PotTransferDialog } from "./PotTransferDialog";
 import { Tag } from "@/lib/reference-data";
@@ -63,6 +64,10 @@ export function AccountsScreen({
   const [showInactive, setShowInactive] = useState(false);
   // Per-account toggle for "show closed pots" keyed by account id
   const [showClosedPotsFor, setShowClosedPotsFor] = useState<
+    Record<number, boolean>
+  >({});
+  // Per-account toggle for combined balance breakdown chart
+  const [showBreakdownFor, setShowBreakdownFor] = useState<
     Record<number, boolean>
   >({});
 
@@ -238,9 +243,14 @@ export function AccountsScreen({
             <TableBody>
               {accounts.map((row) => {
                 const showClosed = showClosedPotsFor[row.id] ?? false;
+                const showBreakdown = showBreakdownFor[row.id] ?? false;
+                const activePots = (row.pots ?? []).filter(
+                  (p) => p.isActive === 1,
+                );
                 const visiblePots = (row.pots ?? []).filter(
                   (p) => p.isActive === 1 || showClosed,
                 );
+                const hasActivePots = activePots.length > 0;
                 return (
                   <React.Fragment key={row.id}>
                     {/* Account row */}
@@ -364,7 +374,7 @@ export function AccountsScreen({
                       </TableRow>
                     ))}
 
-                    {/* Per-account footer: show closed pots toggle + add pot */}
+                    {/* Per-account footer: show closed pots toggle + add pot + breakdown toggle */}
                     <TableRow className="border-0">
                       <TableCell colSpan={6} className="py-1">
                         <div className="flex items-center gap-4 pl-8">
@@ -378,6 +388,21 @@ export function AccountsScreen({
                             />
                             Show closed pots
                           </label>
+                          {hasActivePots && (
+                            <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                              <Switch
+                                checked={showBreakdown}
+                                onCheckedChange={() =>
+                                  setShowBreakdownFor((prev) => ({
+                                    ...prev,
+                                    [row.id]: !prev[row.id],
+                                  }))
+                                }
+                                aria-label={`Show balance breakdown for ${row.name}`}
+                              />
+                              Show breakdown
+                            </label>
+                          )}
                           <Button
                             size="sm"
                             variant="ghost"
@@ -391,6 +416,20 @@ export function AccountsScreen({
                         </div>
                       </TableCell>
                     </TableRow>
+
+                    {/* Combined balance breakdown chart */}
+                    {showBreakdown && hasActivePots && (
+                      <TableRow className="border-0">
+                        <TableCell colSpan={6} className="pb-2 pt-0">
+                          <PotBalanceChart
+                            accountName={row.name}
+                            accountOwnBalance={row.openingBalance}
+                            currency={row.currency}
+                            pots={row.pots ?? []}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </React.Fragment>
                 );
               })}
