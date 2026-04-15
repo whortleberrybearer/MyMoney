@@ -38,11 +38,11 @@
 
 ## 7. Accounts Screen — Pot Child Rows
 
-- [ ] 7.1 Update `src/components/AccountsScreen.tsx` to render pot child rows beneath each parent account: indented row showing pot name, balance, and a dropdown actions menu (Edit, Transfer, Close/Reactivate, Delete)
-- [ ] 7.2 Add "Add pot" button per account row; opens `PotFormSheet` in create mode for that account
-- [ ] 7.3 Add "Show closed pots" toggle per account (local state, defaults off); when enabled, shows closed pots in muted style
-- [ ] 7.4 Wire pot actions: Edit → opens `PotFormSheet` in edit mode; Transfer → opens `PotTransferDialog`; Close → calls `closePot` (with warning if non-zero balance); Reactivate → calls `reactivatePot`; Delete → shows `AlertDialog` confirmation then calls `deletePot`
-- [ ] 7.5 Update `AccountsScreen` tests in `tests/unit/AccountsScreen.test.tsx` to cover pot child row rendering and actions
+- [x] 7.1 Update `src/components/AccountsScreen.tsx` to render pot child rows beneath each parent account: indented row showing pot name, balance, and a dropdown actions menu (Edit, Transfer, Close/Reactivate, Delete)
+- [x] 7.2 Add "Add pot" button per account row; opens `PotFormSheet` in create mode for that account
+- [x] 7.3 Add "Show closed pots" toggle per account (local state, defaults off); when enabled, shows closed pots in muted style
+- [x] 7.4 Wire pot actions: Edit → opens `PotFormSheet` in edit mode; Transfer → opens `PotTransferDialog`; Close → calls `closePot` (with warning if non-zero balance); Reactivate → calls `reactivatePot`; Delete → shows `AlertDialog` confirmation then calls `deletePot`
+- [x] 7.5 Update `AccountsScreen` tests in `tests/unit/AccountsScreen.test.tsx` to cover pot child row rendering and actions
 
 ## 8. Combined Balance View (`PotBalanceChart`)
 
