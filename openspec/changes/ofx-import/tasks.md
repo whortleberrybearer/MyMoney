@@ -47,8 +47,8 @@
 
 ## 7. E2E Tests
 
-- [ ] 7.1 Create `tests/e2e/ofx-import.test.ts` — import a valid OFX fixture file: verify Import button visible on dashboard; select account; pick file; result screen shows expected imported count and 0 duplicates
-- [ ] 7.2 E2E: import OFX file where all FITIDs already exist in DB (pre-seeded) — result screen shows 0 imported and correct duplicate candidate count
-- [ ] 7.3 E2E: import OFX file with a `LEDGERBAL` that does not match the running balance — import screen shows balance mismatch error, no transactions are persisted
-- [ ] 7.4 E2E: import OFX file with no `LEDGERBAL` — import completes normally and result screen is shown
-- [ ] 7.5 E2E: attempt to import a file with an unsupported extension (e.g. `.txt`) — unsupported file type error is shown in the import screen, Next remains disabled
+- [x] 7.1 Create `tests/e2e/ofx-import.test.ts` — import a valid OFX fixture file: verify Import button visible on dashboard; select account; pick file; result screen shows expected imported count and 0 duplicates
+- [x] 7.2 E2E: import OFX file where all FITIDs already exist in DB (pre-seeded) — result screen shows 0 imported and correct duplicate candidate count
+- [x] 7.3 E2E: import OFX file with a `LEDGERBAL` that does not match the running balance — import screen shows balance mismatch error, no transactions are persisted
+- [x] 7.4 E2E: import OFX file with no `LEDGERBAL` — import completes normally and result screen is shown
+- [x] 7.5 E2E: attempt to import a file with an unsupported extension (e.g. `.txt`) — unsupported file type error is shown in the import screen, Next remains disabled
