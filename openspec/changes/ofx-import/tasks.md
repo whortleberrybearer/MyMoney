@@ -6,9 +6,9 @@
 
 ## 2. OFX Parser
 
-- [ ] 2.1 Evaluate and install a TypeScript OFX/QFX parser library (e.g. `ofx-js`) — verify it can parse a sample `.ofx` file and extract `FITID`, `DTPOSTED`, `TRNAMT`, `NAME`/`MEMO`, and `LEDGERBAL`
-- [ ] 2.2 Create `src/lib/ofx-parser.ts` that wraps the library and returns a typed `OfxStatement` object: `{ transactions: OfxTransaction[], closingBalance: number | null, closingBalanceDate: string | null }`
-- [ ] 2.3 Write `tests/unit/ofx-parser.test.ts` covering: valid OFX file parses to correct transaction list; QFX file parses identically to OFX; closing balance extracted when present; `closingBalance = null` when `LEDGERBAL` is absent; invalid file content returns descriptive error
+- [x] 2.1 Evaluate and install a TypeScript OFX/QFX parser library (e.g. `ofx-js`) — verify it can parse a sample `.ofx` file and extract `FITID`, `DTPOSTED`, `TRNAMT`, `NAME`/`MEMO`, and `LEDGERBAL`
+- [x] 2.2 Create `src/lib/ofx-parser.ts` that wraps the library and returns a typed `OfxStatement` object: `{ transactions: OfxTransaction[], closingBalance: number | null, closingBalanceDate: string | null }`
+- [x] 2.3 Write `tests/unit/ofx-parser.test.ts` covering: valid OFX file parses to correct transaction list; QFX file parses identically to OFX; closing balance extracted when present; `closingBalance = null` when `LEDGERBAL` is absent; invalid file content returns descriptive error
 
 ## 3. Import Logic
 
