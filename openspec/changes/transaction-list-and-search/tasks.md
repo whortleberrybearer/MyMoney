@@ -14,23 +14,23 @@
 
 ## 3. Unit Tests (`tests/unit/transactions.test.ts`)
 
-- [ ] 3.1 Test `listTransactions` — returns empty array for account with no transactions
-- [ ] 3.2 Test `listTransactions` — returns own transactions sorted newest-first by default
-- [ ] 3.3 Test `listTransactions` — filters by date range (from and/or to)
-- [ ] 3.4 Test `listTransactions` — filters by category
-- [ ] 3.5 Test `listTransactions` — filters by type (`manual`, `imported`, `virtual-transfer`)
-- [ ] 3.6 Test `listTransactions` — filters by reference substring (case-insensitive)
-- [ ] 3.7 Test `listTransactions` — filters by payee substring (case-insensitive)
-- [ ] 3.8 Test `listTransactions` — multiple filters combine with AND logic
-- [ ] 3.9 Test `createTransaction` — inserts transaction with correct type and recalculates running balance for subsequent rows
-- [ ] 3.10 Test `createTransaction` — validation rejects missing date or amount
-- [ ] 3.11 Test `updateTransaction` — updates notes/payee/category/reference without triggering recalculation
-- [ ] 3.12 Test `updateTransaction` — triggers recalculation when amount changes
-- [ ] 3.13 Test `updateTransaction` — triggers recalculation when date changes
-- [ ] 3.14 Test `deleteTransaction` — hard-deletes row and recalculates running balance for subsequent rows
-- [ ] 3.15 Test `recalculateRunningBalance` — correctly seeds balance from opening balance + prior transactions
-- [ ] 3.16 Test `recalculateRunningBalance` — correctly handles backdated inserts (running balance is correct at every row)
-- [ ] 3.17 Test `recalculateRunningBalance` — correctly handles deletion mid-history
+- [x] 3.1 Test `listTransactions` — returns empty array for account with no transactions
+- [x] 3.2 Test `listTransactions` — returns own transactions sorted newest-first by default
+- [x] 3.3 Test `listTransactions` — filters by date range (from and/or to)
+- [x] 3.4 Test `listTransactions` — filters by category
+- [x] 3.5 Test `listTransactions` — filters by type (`manual`, `imported`, `virtual-transfer`)
+- [x] 3.6 Test `listTransactions` — filters by reference substring (case-insensitive)
+- [x] 3.7 Test `listTransactions` — filters by payee substring (case-insensitive)
+- [x] 3.8 Test `listTransactions` — multiple filters combine with AND logic
+- [x] 3.9 Test `createTransaction` — inserts transaction with correct type and recalculates running balance for subsequent rows
+- [x] 3.10 Test `createTransaction` — validation rejects missing date or amount
+- [x] 3.11 Test `updateTransaction` — updates notes/payee/category/reference without triggering recalculation
+- [x] 3.12 Test `updateTransaction` — triggers recalculation when amount changes
+- [x] 3.13 Test `updateTransaction` — triggers recalculation when date changes
+- [x] 3.14 Test `deleteTransaction` — hard-deletes row and recalculates running balance for subsequent rows
+- [x] 3.15 Test `recalculateRunningBalance` — correctly seeds balance from opening balance + prior transactions
+- [x] 3.16 Test `recalculateRunningBalance` — correctly handles backdated inserts (running balance is correct at every row)
+- [x] 3.17 Test `recalculateRunningBalance` — correctly handles deletion mid-history
 
 ## 4. OFX Import Update (`src/lib/ofx-import.ts`)
 
