@@ -2,7 +2,7 @@
 
 - [x] 1.1 Update `src/lib/db/schema.ts`: add `payee TEXT`, `reference TEXT`, `categoryId INTEGER` (FK to `category.id`), `runningBalance REAL NOT NULL DEFAULT 0` to the `transaction` table; remove `description TEXT`
 - [x] 1.2 Run `npx drizzle-kit generate` to produce the Drizzle migration file and commit it alongside the schema change
-- [ ] 1.3 Verify the migration applies cleanly on a fresh database (`npm run test` or a manual check with a temp DB)
+- [x] 1.3 Verify the migration applies cleanly on a fresh database (`npm run test` or a manual check with a temp DB)
 
 ## 2. Transaction Data Layer (`src/lib/transactions.ts`)
 
