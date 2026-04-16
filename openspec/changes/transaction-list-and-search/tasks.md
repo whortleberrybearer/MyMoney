@@ -97,6 +97,6 @@
 
 ## 11. Final Checks
 
-- [ ] 11.1 Run `npm run test` (unit tests) — all pass
-- [ ] 11.2 Run `npm run test:e2e` (E2E tests) — all pass
-- [ ] 11.3 Run `npm run build` — TypeScript compiles without errors
+- [x] 11.1 Run `npm run test` (unit tests) — all pass
+- [ ] 11.2 Run `npm run test:e2e` (E2E tests) — all pass (requires built Tauri app)
+- [x] 11.3 Run `npm run build` — TypeScript compiles without errors
