@@ -48,7 +48,7 @@ const EMPTY_FORM: FormState = {
   payee: "",
   notes: "",
   reference: "",
-  categoryId: "",
+  categoryId: "__none__",
 };
 
 export function TransactionFormSheet({
@@ -77,7 +77,7 @@ export function TransactionFormSheet({
           payee: editTransaction.payee ?? "",
           notes: editTransaction.notes ?? "",
           reference: editTransaction.reference ?? "",
-          categoryId: editTransaction.categoryId ? String(editTransaction.categoryId) : "",
+          categoryId: editTransaction.categoryId ? String(editTransaction.categoryId) : "__none__",
         });
       } else {
         setForm(EMPTY_FORM);
@@ -122,7 +122,7 @@ export function TransactionFormSheet({
           payee: form.payee || null,
           notes: form.notes || null,
           reference: form.reference || null,
-          categoryId: form.categoryId ? Number(form.categoryId) : null,
+          categoryId: (form.categoryId && form.categoryId !== "__none__") ? Number(form.categoryId) : null,
         });
       } else {
         await createTransaction(accountId, {
@@ -131,7 +131,7 @@ export function TransactionFormSheet({
           payee: form.payee || undefined,
           notes: form.notes || undefined,
           reference: form.reference || undefined,
-          categoryId: form.categoryId ? Number(form.categoryId) : undefined,
+          categoryId: (form.categoryId && form.categoryId !== "__none__") ? Number(form.categoryId) : undefined,
         });
       }
       onOpenChange(false);
@@ -236,7 +236,7 @@ export function TransactionFormSheet({
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Uncategorised</SelectItem>
+                <SelectItem value="__none__">Uncategorised</SelectItem>
                 {categories.map((c) => (
                   <SelectItem key={c.id} value={String(c.id)}>
                     {c.name}

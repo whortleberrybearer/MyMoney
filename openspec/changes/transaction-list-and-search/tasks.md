@@ -73,13 +73,13 @@
 
 ## 9. Unit Tests — Frontend Components
 
-- [ ] 9.1 Create `tests/unit/TransactionListScreen.test.tsx` — renders empty state when no transactions
-- [ ] 9.2 Test `TransactionListScreen` — renders transaction rows with correct columns
-- [ ] 9.3 Test `TransactionListScreen` — virtual transfer rows have visual distinction
-- [ ] 9.4 Create `tests/unit/TransactionFormSheet.test.tsx` — create mode shows all fields editable
-- [ ] 9.5 Test `TransactionFormSheet` — edit mode for imported transaction shows date/amount read-only
-- [ ] 9.6 Test `TransactionFormSheet` — edit mode for manual transaction shows all fields editable
-- [ ] 9.7 Test `TransactionFormSheet` — submit blocked when date or amount missing
+- [x] 9.1 Create `tests/unit/TransactionListScreen.test.tsx` — renders empty state when no transactions
+- [x] 9.2 Test `TransactionListScreen` — renders transaction rows with correct columns
+- [x] 9.3 Test `TransactionListScreen` — virtual transfer rows have visual distinction
+- [x] 9.4 Create `tests/unit/TransactionFormSheet.test.tsx` — create mode shows all fields editable
+- [x] 9.5 Test `TransactionFormSheet` — edit mode for imported transaction shows date/amount read-only
+- [x] 9.6 Test `TransactionFormSheet` — edit mode for manual transaction shows all fields editable
+- [x] 9.7 Test `TransactionFormSheet` — submit blocked when date or amount missing
 
 ## 10. E2E Tests (`tests/e2e/transaction-list.test.ts`)
 

@@ -204,12 +204,15 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
           </div>
           <div className="flex flex-col gap-1">
             <Label className="text-xs text-muted-foreground">Category</Label>
-            <Select value={filterCategory} onValueChange={setFilterCategory}>
+            <Select
+              value={filterCategory || "__all__"}
+              onValueChange={(v) => setFilterCategory(v === "__all__" ? "" : v)}
+            >
               <SelectTrigger className="h-8 w-36 text-sm" data-testid="filter-category">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="__all__">All</SelectItem>
                 {categories.map((c) => (
                   <SelectItem key={c.id} value={String(c.id)}>
                     {c.name}
@@ -220,12 +223,15 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
           </div>
           <div className="flex flex-col gap-1">
             <Label className="text-xs text-muted-foreground">Type</Label>
-            <Select value={filterType} onValueChange={setFilterType}>
+            <Select
+              value={filterType || "__all__"}
+              onValueChange={(v) => setFilterType(v === "__all__" ? "" : v)}
+            >
               <SelectTrigger className="h-8 w-36 text-sm" data-testid="filter-type">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="__all__">All</SelectItem>
                 <SelectItem value="imported">Imported</SelectItem>
                 <SelectItem value="manual">Manual</SelectItem>
                 <SelectItem value="virtual_transfer">Transfer</SelectItem>
