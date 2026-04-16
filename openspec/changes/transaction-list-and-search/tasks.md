@@ -83,17 +83,17 @@
 
 ## 10. E2E Tests (`tests/e2e/transaction-list.test.ts`)
 
-- [ ] 10.1 Set up E2E helper: seed an account with known transactions in the test DB before suite runs
-- [ ] 10.2 E2E: clicking an account row on the dashboard navigates to the transaction list screen
-- [ ] 10.3 E2E: transaction list shows the correct number of rows and the account name in the header
-- [ ] 10.4 E2E: sorting by amount changes the row order
-- [ ] 10.5 E2E: filtering by date range shows only matching transactions
-- [ ] 10.6 E2E: filtering by payee text shows only matching transactions
-- [ ] 10.7 E2E: clicking Add Transaction, filling the form, and saving adds a new row to the list
-- [ ] 10.8 E2E: editing a transaction's notes field via the row actions menu updates the displayed value
-- [ ] 10.9 E2E: deleting a transaction via the row actions menu and confirming removes the row
-- [ ] 10.10 E2E: cancelling the delete confirmation leaves the row unchanged
-- [ ] 10.11 E2E: back button returns to the dashboard
+- [x] 10.1 Set up E2E helper: seed an account with known transactions in the test DB before suite runs
+- [x] 10.2 E2E: clicking an account row on the dashboard navigates to the transaction list screen
+- [x] 10.3 E2E: transaction list shows the correct number of rows and the account name in the header
+- [x] 10.4 E2E: sorting by amount changes the row order
+- [x] 10.5 E2E: filtering by date range shows only matching transactions
+- [x] 10.6 E2E: filtering by payee text shows only matching transactions
+- [x] 10.7 E2E: clicking Add Transaction, filling the form, and saving adds a new row to the list
+- [x] 10.8 E2E: editing a transaction's notes field via the row actions menu updates the displayed value
+- [x] 10.9 E2E: deleting a transaction via the row actions menu and confirming removes the row
+- [x] 10.10 E2E: cancelling the delete confirmation leaves the row unchanged
+- [x] 10.11 E2E: back button returns to the dashboard
 
 ## 11. Final Checks
 
