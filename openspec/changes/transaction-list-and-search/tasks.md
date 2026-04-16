@@ -48,28 +48,28 @@
 
 ## 6. App Navigation — `transaction-list` Screen
 
-- [ ] 6.1 Extend `app-context.tsx` with a `transaction-list` screen state carrying `{ screen: "transaction-list", filePath: string, accountId: number, accountName: string }`
-- [ ] 6.2 Add the `transaction-list` case to the `AppScreens` switch in `App.tsx`, rendering `<TransactionListScreen>` with back navigation to dashboard
-- [ ] 6.3 Update `AccountsScreen.tsx` to call the `onNavigateToTransactions(accountId, accountName)` prop when a row is clicked, and wire this prop through `DashboardShell.tsx` to `App.tsx`
+- [x] 6.1 Extend `app-context.tsx` with a `transaction-list` screen state carrying `{ screen: "transaction-list", filePath: string, accountId: number, accountName: string }`
+- [x] 6.2 Add the `transaction-list` case to the `AppScreens` switch in `App.tsx`, rendering `<TransactionListScreen>` with back navigation to dashboard
+- [x] 6.3 Update `AccountsScreen.tsx` to call the `onNavigateToTransactions(accountId, accountName)` prop when a row is clicked, and wire this prop through `DashboardShell.tsx` to `App.tsx`
 
 ## 7. Frontend — `TransactionListScreen` Component
 
-- [ ] 7.1 Create `src/components/TransactionListScreen.tsx` with a header showing account name and a back button
-- [ ] 7.2 Add the DataTable with columns: Date, Payee, Notes, Amount (signed, coloured), Category, Running Balance, Reference, Type (badge)
-- [ ] 7.3 Apply visual distinction to `virtual-transfer` type rows (italic row or distinct badge colour)
-- [ ] 7.4 Add filter bar: date-range pickers, category select, type select, reference text input, payee text input; wire filters to `listTransactions` call
-- [ ] 7.5 Add column sort on Date and Amount headers; wire sort to `listTransactions` call
-- [ ] 7.6 Add "Add Transaction" button that opens the `TransactionFormSheet` in create mode
-- [ ] 7.7 Add row actions menu (⋮) with Edit and Delete actions
+- [x] 7.1 Create `src/components/TransactionListScreen.tsx` with a header showing account name and a back button
+- [x] 7.2 Add the DataTable with columns: Date, Payee, Notes, Amount (signed, coloured), Category, Running Balance, Reference, Type (badge)
+- [x] 7.3 Apply visual distinction to `virtual-transfer` type rows (italic row or distinct badge colour)
+- [x] 7.4 Add filter bar: date-range pickers, category select, type select, reference text input, payee text input; wire filters to `listTransactions` call
+- [x] 7.5 Add column sort on Date and Amount headers; wire sort to `listTransactions` call
+- [x] 7.6 Add "Add Transaction" button that opens the `TransactionFormSheet` in create mode
+- [x] 7.7 Add row actions menu (⋮) with Edit and Delete actions
 
 ## 8. Frontend — `TransactionFormSheet` Component
 
-- [ ] 8.1 Create `src/components/TransactionFormSheet.tsx` as a Sheet supporting create and edit modes
-- [ ] 8.2 In create mode: all fields editable (date, amount, payee, notes, reference, category); on save call `createTransaction`
-- [ ] 8.3 In edit mode for imported transactions: date and amount are read-only; payee, notes, reference, category editable; on save call `updateTransaction`
-- [ ] 8.4 In edit mode for manual transactions: all fields editable including date and amount; on save call `updateTransaction`
-- [ ] 8.5 Add inline validation: date required, amount required (non-zero)
-- [ ] 8.6 Add delete confirmation dialog (shadcn/ui `AlertDialog`) triggered from the Delete row action; on confirm call `deleteTransaction`
+- [x] 8.1 Create `src/components/TransactionFormSheet.tsx` as a Sheet supporting create and edit modes
+- [x] 8.2 In create mode: all fields editable (date, amount, payee, notes, reference, category); on save call `createTransaction`
+- [x] 8.3 In edit mode for imported transactions: date and amount are read-only; payee, notes, reference, category editable; on save call `updateTransaction`
+- [x] 8.4 In edit mode for manual transactions: all fields editable including date and amount; on save call `updateTransaction`
+- [x] 8.5 Add inline validation: date required, amount required (non-zero)
+- [x] 8.6 Add delete confirmation dialog (shadcn/ui `AlertDialog`) triggered from the Delete row action; on confirm call `deleteTransaction`
 
 ## 9. Unit Tests — Frontend Components
 

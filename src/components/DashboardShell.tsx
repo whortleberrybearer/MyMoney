@@ -9,9 +9,10 @@ import { ProfileSelector } from "./ProfileSelector";
 interface DashboardShellProps {
   onNavigateToSettings: () => void;
   onNavigateToImport: () => void;
+  onNavigateToTransactions: (accountId: number, accountName: string) => void;
 }
 
-export function DashboardShell({ onNavigateToSettings, onNavigateToImport }: DashboardShellProps) {
+export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNavigateToTransactions }: DashboardShellProps) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
 
@@ -58,6 +59,7 @@ export function DashboardShell({ onNavigateToSettings, onNavigateToImport }: Das
         <AccountsScreen
           tagId={selectedTagId}
           onTagCreated={handleTagCreated}
+          onNavigateToTransactions={onNavigateToTransactions}
         />
       </ErrorBoundary>
     </div>

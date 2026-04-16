@@ -20,7 +20,8 @@ export type AppScreen =
   | { screen: "dashboard"; filePath: string }
   | { screen: "settings"; filePath: string }
   | { screen: "import"; filePath: string }
-  | { screen: "import-result"; filePath: string; result: import("./import").ImportResult };
+  | { screen: "import-result"; filePath: string; result: import("./import").ImportResult }
+  | { screen: "transaction-list"; filePath: string; accountId: number; accountName: string };
 
 // ---------------------------------------------------------------------------
 // AppContext

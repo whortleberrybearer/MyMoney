@@ -9,6 +9,7 @@ import { ImportScreen } from "@/components/ImportScreen";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { MigrationErrorScreen } from "@/components/MigrationErrorScreen";
 import { SettingsScreen } from "@/components/SettingsScreen";
+import { TransactionListScreen } from "@/components/TransactionListScreen";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
 import "./App.css";
 
@@ -85,6 +86,25 @@ function AppScreens() {
           }
           onNavigateToImport={() =>
             navigate({ screen: "import", filePath: current.filePath })
+          }
+          onNavigateToTransactions={(accountId, accountName) =>
+            navigate({
+              screen: "transaction-list",
+              filePath: current.filePath,
+              accountId,
+              accountName,
+            })
+          }
+        />
+      );
+
+    case "transaction-list":
+      return (
+        <TransactionListScreen
+          accountId={current.accountId}
+          accountName={current.accountName}
+          onBack={() =>
+            navigate({ screen: "dashboard", filePath: current.filePath })
           }
         />
       );
