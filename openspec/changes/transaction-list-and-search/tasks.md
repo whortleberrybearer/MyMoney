@@ -34,10 +34,10 @@
 
 ## 4. OFX Import Update (`src/lib/ofx-import.ts`)
 
-- [ ] 4.1 Update OFX import to populate `payee` from the OFX `<NAME>` field (nullable)
-- [ ] 4.2 Update OFX import to populate `reference` from the OFX `<CHECKNUM>` field (nullable)
-- [ ] 4.3 Update OFX import to call `recalculateRunningBalance` after all transactions are inserted (from the earliest imported date)
-- [ ] 4.4 Remove any references to `description` column in the import code
+- [x] 4.1 Update OFX import to populate `payee` from the OFX `<NAME>` field (nullable)
+- [x] 4.2 Update OFX import to populate `reference` from the OFX `<CHECKNUM>` field (nullable)
+- [x] 4.3 Update OFX import to call `recalculateRunningBalance` after all transactions are inserted (from the earliest imported date)
+- [x] 4.4 Remove any references to `description` column in the import code
 
 ## 5. Unit Tests — OFX Import Update (`tests/unit/ofx-import.test.ts`)
 

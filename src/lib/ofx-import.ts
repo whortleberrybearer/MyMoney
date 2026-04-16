@@ -14,6 +14,7 @@ import { getDb } from "./db";
 import { account, transaction, transactionFitid } from "./db/schema";
 import type { ImportResult } from "./import";
 import { parseOfx } from "./ofx-parser";
+import { recalculateRunningBalance } from "./transactions";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -97,14 +98,22 @@ export async function importOfxFile(
     }
   }
 
+  let earliestImportedDate: string | null = null;
+
   for (const parsed of toImport) {
+    if (!earliestImportedDate || parsed.date < earliestImportedDate) {
+      earliestImportedDate = parsed.date;
+    }
+
     // Insert the transaction row
     await db.insert(transaction).values({
       accountId,
       amount: parsed.amount,
       date: parsed.date,
-      notes: parsed.memo || null,
-      type: "import",
+      payee: parsed.name ?? null,
+      notes: parsed.memo ?? null,
+      reference: parsed.checkNum ?? null,
+      type: "imported",
       isVoid: 0,
     });
 
@@ -128,6 +137,11 @@ export async function importOfxFile(
     });
 
     imported++;
+  }
+
+  // Recalculate running balances for all transactions on or after the earliest imported date
+  if (earliestImportedDate !== null) {
+    await recalculateRunningBalance(accountId, earliestImportedDate);
   }
 
   // Apply categorisation rules (stub — not yet implemented; see issue #10)

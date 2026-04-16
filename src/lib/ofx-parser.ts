@@ -13,7 +13,9 @@ export type OfxTransaction = {
   fitid: string;
   date: string; // ISO YYYY-MM-DD
   amount: number; // signed real: positive = credit, negative = debit
-  memo: string;
+  name: string | null;     // OFX NAME field → payee
+  memo: string | null;     // OFX MEMO field → notes
+  checkNum: string | null; // OFX CHECKNUM field → reference
   type: string;
 };
 
@@ -81,7 +83,9 @@ function extractSgmlTransactions(body: string): OfxTransaction[] {
     const fitid = sgmlLeaf(block, "FITID");
     const dtposted = sgmlLeaf(block, "DTPOSTED");
     const trnamt = sgmlLeaf(block, "TRNAMT");
-    const name = sgmlLeaf(block, "NAME") ?? sgmlLeaf(block, "MEMO") ?? "";
+    const name = sgmlLeaf(block, "NAME");
+    const memo = sgmlLeaf(block, "MEMO");
+    const checkNum = sgmlLeaf(block, "CHECKNUM");
     const trntype = sgmlLeaf(block, "TRNTYPE") ?? "";
 
     if (!fitid || !dtposted || trnamt === null) continue;
@@ -90,7 +94,9 @@ function extractSgmlTransactions(body: string): OfxTransaction[] {
       fitid,
       date: ofxDateToIso(dtposted),
       amount: parseFloat(trnamt),
-      memo: name,
+      name,
+      memo,
+      checkNum,
       type: trntype,
     });
   }
@@ -166,7 +172,9 @@ function extractXmlTransactions(body: string): OfxTransaction[] {
     const fitid = xmlTag(block, "FITID");
     const dtposted = xmlTag(block, "DTPOSTED");
     const trnamt = xmlTag(block, "TRNAMT");
-    const name = xmlTag(block, "NAME") ?? xmlTag(block, "MEMO") ?? "";
+    const name = xmlTag(block, "NAME");
+    const memo = xmlTag(block, "MEMO");
+    const checkNum = xmlTag(block, "CHECKNUM");
     const trntype = xmlTag(block, "TRNTYPE") ?? "";
 
     if (!fitid || !dtposted || trnamt === null) continue;
@@ -175,7 +183,9 @@ function extractXmlTransactions(body: string): OfxTransaction[] {
       fitid,
       date: ofxDateToIso(dtposted),
       amount: parseFloat(trnamt),
-      memo: name,
+      name,
+      memo,
+      checkNum,
       type: trntype,
     });
   }

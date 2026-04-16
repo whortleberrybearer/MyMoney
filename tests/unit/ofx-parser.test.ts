@@ -113,7 +113,9 @@ describe("parseOfx — SGML format", () => {
       fitid: "TX001",
       date: "2024-01-15",
       amount: -50,
-      memo: "Tesco",
+      name: "Tesco",
+      memo: null,
+      checkNum: null,
       type: "DEBIT",
     });
 
@@ -121,7 +123,9 @@ describe("parseOfx — SGML format", () => {
       fitid: "TX002",
       date: "2024-01-20",
       amount: 1200,
-      memo: "Salary",
+      name: "Salary",
+      memo: null,
+      checkNum: null,
       type: "CREDIT",
     });
   });
