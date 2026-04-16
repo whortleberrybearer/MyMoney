@@ -6,11 +6,11 @@
 
 ## 2. Transaction Data Layer (`src/lib/transactions.ts`)
 
-- [ ] 2.1 Create `src/lib/transactions.ts` with a `listTransactions(accountId, filters, sort)` function — returns account transactions (`account_id = accountId`, `is_void = 0`) plus account-side virtual transfer legs, applying sort (date desc default, amount option) and filters (date range, category, type, reference substring, payee substring)
-- [ ] 2.2 Add `createTransaction(accountId, data)` function — inserts a row with `type = 'manual'`, then triggers running balance recalculation for all rows on or after the new date
-- [ ] 2.3 Add `updateTransaction(id, data)` function — updates editable fields; recalculates running balance if date or amount changed
-- [ ] 2.4 Add `deleteTransaction(id)` function — hard-deletes the row, then recalculates running balance for all rows with date ≥ deleted row's date on the same account
-- [ ] 2.5 Add internal `recalculateRunningBalance(accountId, fromDate)` helper — walks transactions ordered by date ASC, id ASC from `fromDate`, computing cumulative balance starting from `openingBalance + SUM(amount WHERE date < fromDate)`
+- [x] 2.1 Create `src/lib/transactions.ts` with a `listTransactions(accountId, filters, sort)` function — returns account transactions (`account_id = accountId`, `is_void = 0`) plus account-side virtual transfer legs, applying sort (date desc default, amount option) and filters (date range, category, type, reference substring, payee substring)
+- [x] 2.2 Add `createTransaction(accountId, data)` function — inserts a row with `type = 'manual'`, then triggers running balance recalculation for all rows on or after the new date
+- [x] 2.3 Add `updateTransaction(id, data)` function — updates editable fields; recalculates running balance if date or amount changed
+- [x] 2.4 Add `deleteTransaction(id)` function — hard-deletes the row, then recalculates running balance for all rows with date ≥ deleted row's date on the same account
+- [x] 2.5 Add internal `recalculateRunningBalance(accountId, fromDate)` helper — walks transactions ordered by date ASC, id ASC from `fromDate`, computing cumulative balance starting from `openingBalance + SUM(amount WHERE date < fromDate)`
 
 ## 3. Unit Tests (`tests/unit/transactions.test.ts`)
 
