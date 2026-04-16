@@ -339,3 +339,122 @@ describe("importOfxFile — result counts", () => {
     expect(result.uncategorised).toBe(3); // stub returns 0 categorised → all 3 are uncategorised
   });
 });
+
+// ---------------------------------------------------------------------------
+// Extended schema fields: payee, reference, running balance
+// ---------------------------------------------------------------------------
+
+function makeOfxFileWithChecknum(
+  transactions: Array<{
+    fitid: string;
+    dtposted: string;
+    trnamt: string;
+    name?: string;
+    memo?: string;
+    checknum?: string;
+  }>,
+): string {
+  const txBlocks = transactions
+    .map((t) => {
+      const nameLine = t.name ? `<NAME>${t.name}\n` : "";
+      const memoLine = t.memo ? `<MEMO>${t.memo}\n` : "";
+      const checknumLine = t.checknum ? `<CHECKNUM>${t.checknum}\n` : "";
+      return `<STMTTRN>
+<TRNTYPE>DEBIT
+<DTPOSTED>${t.dtposted}
+<TRNAMT>${t.trnamt}
+<FITID>${t.fitid}
+${nameLine}${memoLine}${checknumLine}</STMTTRN>`;
+    })
+    .join("\n");
+
+  return `OFXHEADER:100
+DATA:OFXSGML
+VERSION:151
+
+<OFX>
+<BANKMSGSRSV1>
+<STMTTRNRS>
+<STMTRS>
+<BANKTRANLIST>
+${txBlocks}
+</BANKTRANLIST>
+</STMTRS>
+</STMTTRNRS>
+</BANKMSGSRSV1>
+</OFX>`;
+}
+
+describe("importOfxFile — payee, reference, and running balance", () => {
+  it("populates payee from NAME field", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+
+    const acc = await seedAccount(db);
+    const ofx = makeOfxFileWithChecknum([
+      { fitid: "TX001", dtposted: "20240115", trnamt: "-10.00", name: "Starbucks" },
+    ]);
+
+    await importOfxFile(acc.id, ofx);
+
+    const [tx] = await db.select().from(transaction).where(eq(transaction.accountId, acc.id));
+    expect(tx.payee).toBe("Starbucks");
+  });
+
+  it("populates reference from CHECKNUM field", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+
+    const acc = await seedAccount(db);
+    const ofx = makeOfxFileWithChecknum([
+      { fitid: "TX001", dtposted: "20240115", trnamt: "-10.00", name: "Shop", checknum: "REF12345" },
+    ]);
+
+    await importOfxFile(acc.id, ofx);
+
+    const [tx] = await db.select().from(transaction).where(eq(transaction.accountId, acc.id));
+    expect(tx.reference).toBe("REF12345");
+  });
+
+  it("leaves payee null when NAME is absent", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+
+    const acc = await seedAccount(db);
+    const ofx = makeOfxFileWithChecknum([
+      { fitid: "TX001", dtposted: "20240115", trnamt: "-10.00", memo: "Some memo" },
+    ]);
+
+    await importOfxFile(acc.id, ofx);
+
+    const [tx] = await db.select().from(transaction).where(eq(transaction.accountId, acc.id));
+    expect(tx.payee).toBeNull();
+    expect(tx.notes).toBe("Some memo");
+  });
+
+  it("recalculates running balance after import", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+
+    const acc = await seedAccount(db, 100);
+    const ofx = makeOfxFileWithChecknum([
+      { fitid: "TX001", dtposted: "20240101", trnamt: "-10.00", name: "Shop A" },
+      { fitid: "TX002", dtposted: "20240102", trnamt: "-20.00", name: "Shop B" },
+    ]);
+
+    await importOfxFile(acc.id, ofx);
+
+    const txRows = await db
+      .select()
+      .from(transaction)
+      .where(eq(transaction.accountId, acc.id));
+
+    txRows.sort((a, b) => a.date.localeCompare(b.date));
+    expect(txRows[0].runningBalance).toBeCloseTo(90);  // 100 - 10
+    expect(txRows[1].runningBalance).toBeCloseTo(70);  // 100 - 10 - 20
+  });
+});

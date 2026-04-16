@@ -41,10 +41,10 @@
 
 ## 5. Unit Tests — OFX Import Update (`tests/unit/ofx-import.test.ts`)
 
-- [ ] 5.1 Test OFX import populates `payee` from `<NAME>` field
-- [ ] 5.2 Test OFX import populates `reference` from `<CHECKNUM>` field
-- [ ] 5.3 Test OFX import leaves `payee` null when `<NAME>` is absent
-- [ ] 5.4 Test OFX import triggers running balance recalculation after insert
+- [x] 5.1 Test OFX import populates `payee` from `<NAME>` field
+- [x] 5.2 Test OFX import populates `reference` from `<CHECKNUM>` field
+- [x] 5.3 Test OFX import leaves `payee` null when `<NAME>` is absent
+- [x] 5.4 Test OFX import triggers running balance recalculation after insert
 
 ## 6. App Navigation — `transaction-list` Screen
 
