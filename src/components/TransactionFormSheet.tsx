@@ -4,17 +4,11 @@ import {
   updateTransaction,
   type TransactionRow,
 } from "@/lib/transactions";
-import { listCategories, type Category } from "@/lib/reference-data";
+import { listCategories, type Category } from "@/lib/categories";
+import { CategoryCombobox } from "@/components/CategoryCombobox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -37,7 +31,7 @@ type FormState = {
   payee: string;
   notes: string;
   reference: string;
-  categoryId: string;
+  categoryId: number | null;
 };
 
 type FormErrors = Partial<Record<keyof FormState, string>>;
@@ -48,7 +42,7 @@ const EMPTY_FORM: FormState = {
   payee: "",
   notes: "",
   reference: "",
-  categoryId: "__none__",
+  categoryId: null,
 };
 
 export function TransactionFormSheet({
@@ -77,7 +71,7 @@ export function TransactionFormSheet({
           payee: editTransaction.payee ?? "",
           notes: editTransaction.notes ?? "",
           reference: editTransaction.reference ?? "",
-          categoryId: editTransaction.categoryId ? String(editTransaction.categoryId) : "__none__",
+          categoryId: editTransaction.categoryId ?? null,
         });
       } else {
         setForm(EMPTY_FORM);
@@ -91,7 +85,7 @@ export function TransactionFormSheet({
     setCategories(await listCategories());
   }
 
-  function setField(field: keyof FormState, value: string) {
+  function setField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
@@ -122,7 +116,7 @@ export function TransactionFormSheet({
           payee: form.payee || null,
           notes: form.notes || null,
           reference: form.reference || null,
-          categoryId: (form.categoryId && form.categoryId !== "__none__") ? Number(form.categoryId) : null,
+          categoryId: form.categoryId,
         });
       } else {
         await createTransaction(accountId, {
@@ -131,7 +125,7 @@ export function TransactionFormSheet({
           payee: form.payee || undefined,
           notes: form.notes || undefined,
           reference: form.reference || undefined,
-          categoryId: (form.categoryId && form.categoryId !== "__none__") ? Number(form.categoryId) : undefined,
+          categoryId: form.categoryId ?? undefined,
         });
       }
       onOpenChange(false);
@@ -228,22 +222,12 @@ export function TransactionFormSheet({
           {/* Category */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="tx-category">Category</Label>
-            <Select
+            <CategoryCombobox
+              id="tx-category"
+              categories={categories}
               value={form.categoryId}
-              onValueChange={(v) => setField("categoryId", v)}
-            >
-              <SelectTrigger id="tx-category" data-testid="tx-category">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">Uncategorised</SelectItem>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onChange={(id) => setField("categoryId", id)}
+            />
           </div>
 
           {saveError && (
