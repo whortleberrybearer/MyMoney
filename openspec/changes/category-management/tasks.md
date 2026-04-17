@@ -30,4 +30,4 @@
 
 ## 7. E2E Tests — Transaction Category Edit
 
-- [ ] 7.1 Create `tests/e2e/transaction-category-edit.test.ts` covering: category combobox is visible in the add transaction drawer, user can type to filter categories, user can select a category and save — transaction list shows the new category, user can edit a transaction and change its category, selecting Uncategorised clears the category (shows blank in list)
+- [x] 7.1 Create `tests/e2e/transaction-category-edit.test.ts` covering: category combobox is visible in the add transaction drawer, user can type to filter categories, user can select a category and save — transaction list shows the new category, user can edit a transaction and change its category, selecting Uncategorised clears the category (shows blank in list)
