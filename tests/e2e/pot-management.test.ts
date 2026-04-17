@@ -31,6 +31,23 @@ async function selectOption(triggerId: string, optionText: string) {
   throw new Error(`Select option "${optionText}" not found`);
 }
 
+async function waitForOverlaysToClear() {
+  const sheetOverlay = await find('[data-slot="sheet-overlay"]');
+  if (await sheetOverlay.isExisting()) {
+    await sheetOverlay.waitForExist({ reverse: true, timeout: 20_000 });
+  }
+
+  const dialogOverlay = await find('[data-slot="dialog-overlay"]');
+  if (await dialogOverlay.isExisting()) {
+    await dialogOverlay.waitForExist({ reverse: true, timeout: 20_000 });
+  }
+
+  const alertOverlay = await find('[data-slot="alert-dialog-overlay"]');
+  if (await alertOverlay.isExisting()) {
+    await alertOverlay.waitForExist({ reverse: true, timeout: 20_000 });
+  }
+}
+
 async function openInstitutionDialog() {
   const sheetContent = await find('[data-slot="sheet-content"]');
   if (!(await sheetContent.isExisting())) {
@@ -70,20 +87,21 @@ async function createTestAccount() {
   await (await find("td*=Test Account")).waitForExist({ timeout: 10_000 });
 }
 
-/** Clicks the "Add pot" button for the first (only) account in the list. */
+/** Clicks the "Add pot" button for the Test Account row. */
 async function clickAddPot() {
-  // Prefer a stable, case-insensitive lookup. The built app can vary in casing
-  // (e.g. "Add Pot" vs "Add pot"), which would break a CSS attribute selector.
-  const addPotBtn = await find(
-    "//button[contains(translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'add pot') or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'add pot')]",
-  );
+  await waitForOverlaysToClear();
+
+  const addPotBtn = await find("button[aria-label='Add pot to Test Account']");
   await addPotBtn.waitForExist({ timeout: 10_000 });
   await addPotBtn.scrollIntoView();
   await addPotBtn.waitForClickable({ timeout: 10_000 });
   await addPotBtn.click();
+
   await (
     await find('[data-slot="sheet-title"]')
-  ).waitForDisplayed({ timeout: 5_000 });
+  ).waitForDisplayed({
+    timeout: 10_000,
+  });
 }
 
 async function findPotRow(potName: string) {
@@ -96,12 +114,16 @@ async function findPotRow(potName: string) {
 
 /** Clicks the pot actions dropdown for the first visible pot row. */
 async function openPotActionsMenu(potName?: string) {
+  await waitForOverlaysToClear();
+
   const trigger = potName
     ? await (await findPotRow(potName)).$("button[aria-label='Pot actions']")
     : await find("button[aria-label='Pot actions']");
+
   await trigger.scrollIntoView();
-  await trigger.waitForClickable({ timeout: 5_000 });
+  await trigger.waitForClickable({ timeout: 10_000 });
   await trigger.click();
+
   const menu = await find('[data-slot="dropdown-menu-content"]');
   await menu.waitForDisplayed({ timeout: 5_000 });
   return menu;
@@ -227,12 +249,32 @@ describe("Pot Management", () => {
       await amountInput.clearValue();
       await amountInput.setValue("150");
       await (await find("#transfer-date")).setValue("2024-02-01");
-      await (await find("button=Transfer")).click();
 
-      // Dialog closes; pot balance cell shows 150.00
-      const balanceCell = await find("td=150.00");
-      await balanceCell.waitForExist({ timeout: 10_000 });
-      expect(await balanceCell.isDisplayed()).toBe(true);
+      const transferBtn = await find("button=Transfer");
+      await transferBtn.waitForClickable({ timeout: 10_000 });
+      await transferBtn.click();
+
+      // Wait for the modal to close before interacting with the table behind it.
+      await (
+        await find('[data-slot="dialog-overlay"]')
+      ).waitForExist({
+        reverse: true,
+        timeout: 20_000,
+      });
+      await waitForOverlaysToClear();
+
+      const potRow = await findPotRow("Summer Holiday");
+      const cells = await potRow.$$("td");
+      const balanceCell = cells[cells.length - 2];
+
+      await browser.waitUntil(
+        async () => (await balanceCell.getText()).trim() === "150.00",
+        {
+          timeout: 20_000,
+          timeoutMsg: "Expected pot balance to update to 150.00",
+        },
+      );
+      expect((await balanceCell.getText()).trim()).toBe("150.00");
     });
 
     it("transfers funds out of pot and updates balance", async () => {
@@ -247,12 +289,31 @@ describe("Pot Management", () => {
 
       await (await find("#transfer-amount")).setValue("50");
       await (await find("#transfer-date")).setValue("2024-03-01");
-      await (await find("button=Transfer")).click();
 
-      // Balance should now be 100.00
-      const balanceCell = await find("td=100.00");
-      await balanceCell.waitForExist({ timeout: 10_000 });
-      expect(await balanceCell.isDisplayed()).toBe(true);
+      const transferBtn = await find("button=Transfer");
+      await transferBtn.waitForClickable({ timeout: 10_000 });
+      await transferBtn.click();
+
+      await (
+        await find('[data-slot="dialog-overlay"]')
+      ).waitForExist({
+        reverse: true,
+        timeout: 20_000,
+      });
+      await waitForOverlaysToClear();
+
+      const potRow = await findPotRow("Summer Holiday");
+      const cells = await potRow.$$("td");
+      const balanceCell = cells[cells.length - 2];
+
+      await browser.waitUntil(
+        async () => (await balanceCell.getText()).trim() === "100.00",
+        {
+          timeout: 20_000,
+          timeoutMsg: "Expected pot balance to update to 100.00",
+        },
+      );
+      expect((await balanceCell.getText()).trim()).toBe("100.00");
     });
   });
 
@@ -292,10 +353,13 @@ describe("Pot Management", () => {
     });
 
     it("reveals closed pot when toggle is enabled", async () => {
+      await waitForOverlaysToClear();
+
       const toggle = await find(
         "button[aria-label*='Show closed pots for Test Account']",
       );
-      await toggle.waitForClickable({ timeout: 5_000 });
+      await toggle.scrollIntoView();
+      await toggle.waitForClickable({ timeout: 10_000 });
       await toggle.click();
 
       const potCell = await find("td*=Empty Pot");
@@ -304,9 +368,13 @@ describe("Pot Management", () => {
     });
 
     it("hides closed pot again when toggle is disabled", async () => {
+      await waitForOverlaysToClear();
+
       const toggle = await find(
         "button[aria-label*='Show closed pots for Test Account']",
       );
+      await toggle.scrollIntoView();
+      await toggle.waitForClickable({ timeout: 10_000 });
       await toggle.click();
 
       await (
@@ -334,6 +402,7 @@ describe("Pot Management", () => {
 
       // Confirm transfer & close
       const action = await find('[data-slot="alert-dialog-action"]');
+      await action.waitForClickable({ timeout: 10_000 });
       await action.click();
       await (
         await find('[data-slot="alert-dialog-content"]')
@@ -341,6 +410,7 @@ describe("Pot Management", () => {
         reverse: true,
         timeout: 10_000,
       });
+      await waitForOverlaysToClear();
 
       // Pot should be hidden (is_active=0)
       await (
@@ -384,6 +454,9 @@ describe("Pot Management", () => {
     it("shows the permanent deletion warning dialog", async () => {
       await clickPotActionsItem("Delete", "Summer Holiday");
 
+      const alertContent = await find('[data-slot="alert-dialog-content"]');
+      await alertContent.waitForDisplayed({ timeout: 10_000 });
+
       const alertTitle = await find('[data-slot="alert-dialog-title"]');
       await alertTitle.waitForDisplayed({ timeout: 5_000 });
       expect(await alertTitle.getText()).toContain("Delete pot permanently");
@@ -391,20 +464,30 @@ describe("Pot Management", () => {
 
     it("contains 'permanent' and 'irreversible' in the warning text", async () => {
       const desc = await find('[data-slot="alert-dialog-description"]');
+      await desc.waitForDisplayed({ timeout: 5_000 });
       const text = await desc.getText();
       expect(text).toContain("permanently");
+      expect(text).toContain("irreversible");
     });
 
     it("permanently removes the pot on confirmation", async () => {
       const action = await find('[data-slot="alert-dialog-action"]');
-      await action.waitForClickable({ timeout: 5_000 });
+      await action.waitForClickable({ timeout: 10_000 });
       await action.click();
+
+      await (
+        await find('[data-slot="alert-dialog-content"]')
+      ).waitForExist({
+        reverse: true,
+        timeout: 10_000,
+      });
+      await waitForOverlaysToClear();
 
       await (
         await find("td*=Summer Holiday")
       ).waitForExist({
         reverse: true,
-        timeout: 5_000,
+        timeout: 10_000,
       });
     });
   });
@@ -420,17 +503,18 @@ describe("Pot Management", () => {
       await (await find("#pot-opening-balance")).setValue("500");
       await (await find("#pot-opening-date")).setValue("2024-01-01");
       await (await find("button=Save")).click();
+
+      await waitForOverlaysToClear();
       await (await find("td*=Chart Pot")).waitForExist({ timeout: 10_000 });
     });
 
     it("account balance row shows its own balance (not including pot)", async () => {
       // Account opening balance is 0; pot balance is 500
       // Account row should show 0.00, pot row shows 500.00
-      const rows = await findAll("[data-testid='pot-row']");
-      // The pot row for "Chart Pot" should show 500.00
-      const balanceCells = await rows[0].$$("td");
-      const lastCell = balanceCells[balanceCells.length - 2]; // second-to-last (before actions)
-      expect(await lastCell.getText()).toBe("500.00");
+      const potRow = await findPotRow("Chart Pot");
+      const cells = await potRow.$$("td");
+      const balanceCell = cells[cells.length - 2]; // second-to-last (before actions)
+      expect((await balanceCell.getText()).trim()).toBe("500.00");
     });
 
     it("shows breakdown toggle when account has active pots", async () => {
@@ -441,27 +525,33 @@ describe("Pot Management", () => {
     });
 
     it("shows breakdown chart when toggle is enabled", async () => {
+      await waitForOverlaysToClear();
+
       const toggle = await find(
         "button[aria-label*='Show balance breakdown for Test Account']",
       );
+      await toggle.scrollIntoView();
+      await toggle.waitForClickable({ timeout: 10_000 });
       await toggle.click();
 
-      // The Recharts SVG should appear
-      const chart = await find("svg");
-      await chart.waitForExist({ timeout: 5_000 });
+      // Recharts renders an SVG with class "recharts-surface".
+      const chart = await find("svg.recharts-surface");
+      await chart.waitForExist({ timeout: 10_000 });
       expect(await chart.isDisplayed()).toBe(true);
     });
 
     it("hides breakdown chart when toggle is disabled", async () => {
+      await waitForOverlaysToClear();
+
       const toggle = await find(
         "button[aria-label*='Show balance breakdown for Test Account']",
       );
+      await toggle.scrollIntoView();
+      await toggle.waitForClickable({ timeout: 10_000 });
       await toggle.click();
 
-      // Give a moment for the chart to unmount
-      await browser.pause(300);
-      // The chart container should not be present
-      const chart = await find('[data-testid="pie-chart"]');
+      const chart = await find("svg.recharts-surface");
+      await chart.waitForExist({ reverse: true, timeout: 10_000 });
       expect(await chart.isExisting()).toBe(false);
     });
   });

@@ -90,7 +90,11 @@ export const transaction = sqliteTable("transaction", {
   transferId: integer("transfer_id"),
   amount: real("amount").notNull(),
   date: text("date").notNull(),
+  payee: text("payee"),
   notes: text("notes"),
+  reference: text("reference"),
+  categoryId: integer("category_id").references(() => category.id),
+  runningBalance: real("running_balance").notNull().default(0),
   type: text("type").notNull(),
   isVoid: integer("is_void").notNull().default(0),
 });
