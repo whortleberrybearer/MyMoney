@@ -25,8 +25,8 @@
 
 ## 6. E2E Tests — Category Management
 
-- [ ] 6.1 Create `tests/e2e/category-management.test.ts` covering: seeded categories are visible in Settings, user can add a new category and it appears in the list, adding a duplicate name shows an error, Uncategorised delete button is disabled, user can delete an unused category after confirmation, cancelling deletion leaves list unchanged
-- [ ] 6.2 Add E2E scenarios to `tests/e2e/category-management.test.ts` for the in-use deletion flow: create a transaction with a category, navigate to Settings, delete that category, confirm replacement picker appears, select Uncategorised as replacement, confirm — verify category is deleted and transaction now shows Uncategorised
+- [x] 6.1 Create `tests/e2e/category-management.test.ts` covering: seeded categories are visible in Settings, user can add a new category and it appears in the list, adding a duplicate name shows an error, Uncategorised delete button is disabled, user can delete an unused category after confirmation, cancelling deletion leaves list unchanged
+- [x] 6.2 Add E2E scenarios to `tests/e2e/category-management.test.ts` for the in-use deletion flow: create a transaction with a category, navigate to Settings, delete that category, confirm replacement picker appears, select Uncategorised as replacement, confirm — verify category is deleted and transaction now shows Uncategorised
 
 ## 7. E2E Tests — Transaction Category Edit
 
