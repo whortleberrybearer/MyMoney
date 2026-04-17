@@ -97,7 +97,9 @@ async function clickAddPot() {
   await addPotBtn.waitForClickable({ timeout: 10_000 });
   await addPotBtn.click();
 
-  await (await find('[data-slot="sheet-title"]')).waitForDisplayed({
+  await (
+    await find('[data-slot="sheet-title"]')
+  ).waitForDisplayed({
     timeout: 10_000,
   });
 }
@@ -253,7 +255,9 @@ describe("Pot Management", () => {
       await transferBtn.click();
 
       // Wait for the modal to close before interacting with the table behind it.
-      await (await find('[data-slot="dialog-overlay"]')).waitForExist({
+      await (
+        await find('[data-slot="dialog-overlay"]')
+      ).waitForExist({
         reverse: true,
         timeout: 20_000,
       });
@@ -290,7 +294,9 @@ describe("Pot Management", () => {
       await transferBtn.waitForClickable({ timeout: 10_000 });
       await transferBtn.click();
 
-      await (await find('[data-slot="dialog-overlay"]')).waitForExist({
+      await (
+        await find('[data-slot="dialog-overlay"]')
+      ).waitForExist({
         reverse: true,
         timeout: 20_000,
       });

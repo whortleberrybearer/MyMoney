@@ -34,7 +34,14 @@ function toXpathLiteral(value: string): string {
   // Minimal escaping for XPath string literals.
   if (!value.includes("'")) return `'${value}'`;
   if (!value.includes('"')) return `"${value}"`;
-  return "concat(" + value.split("'").map((part) => `'${part}'`).join(", \"'\", ") + ")";
+  return (
+    "concat(" +
+    value
+      .split("'")
+      .map((part) => `'${part}'`)
+      .join(', "\'", ') +
+    ")"
+  );
 }
 
 async function selectOption(triggerId: string, optionText: string) {
@@ -182,7 +189,9 @@ describe("OFX Import — happy path (valid 3-transaction file)", () => {
     ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
-    await (await find('[data-testid="done-button"]')).waitForExist({
+    await (
+      await find('[data-testid="done-button"]')
+    ).waitForExist({
       timeout: 60_000,
     });
 
@@ -236,7 +245,9 @@ describe("OFX Import — all FITIDs already exist (all duplicates)", () => {
     ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
-    await (await find('[data-testid="done-button"]')).waitForExist({
+    await (
+      await find('[data-testid="done-button"]')
+    ).waitForExist({
       timeout: 60_000,
     });
 
@@ -293,7 +304,9 @@ describe("OFX Import — no LEDGERBAL (no balance validation)", () => {
     ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
-    await (await find('[data-testid="done-button"]')).waitForExist({
+    await (
+      await find('[data-testid="done-button"]')
+    ).waitForExist({
       timeout: 60_000,
     });
     expect(
