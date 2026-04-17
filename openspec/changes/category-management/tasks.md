@@ -6,7 +6,7 @@
 
 ## 2. UI — `CategoryCombobox` Component
 
-- [ ] 2.1 Create `src/components/CategoryCombobox.tsx` using `<Popover>` + `<Command>` (shadcn combobox pattern). Props: `categories`, `value` (category id or null), `onChange`. `Uncategorised` is always the first entry and represents a null/cleared category. Supports keyboard-accessible search/filter.
+- [x] 2.1 Create `src/components/CategoryCombobox.tsx` using `<Popover>` + `<Command>` (shadcn combobox pattern). Props: `categories`, `value` (category id or null), `onChange`. `Uncategorised` is always the first entry and represents a null/cleared category. Supports keyboard-accessible search/filter.
 - [ ] 2.2 Write unit tests in `tests/unit/CategoryCombobox.test.tsx` covering: renders all categories, typing filters list (case-insensitive), selecting a category fires onChange, Uncategorised is always present, pre-selects current value
 
 ## 3. UI — Transaction Form Sheet: Replace Select with CategoryCombobox
