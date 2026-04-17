@@ -94,11 +94,21 @@ async function openAddTransactionDrawer() {
   const addBtn = await find('[data-testid="add-transaction-btn"]');
   await addBtn.waitForClickable({ timeout: 5_000 });
   await addBtn.click();
-  await (await find('[data-slot="sheet-title"]')).waitForExist({ timeout: 10_000 });
+
+  const title = await find('[data-slot="sheet-title"]');
+  await title.waitForExist({ timeout: 10_000 });
+  await browser.waitUntil(
+    async () => (await title.getText()).toLowerCase().includes("add transaction"),
+    { timeout: 10_000, timeoutMsg: "Add Transaction sheet did not open" },
+  );
+
+  // Wait for key controls to be present to reduce flakiness.
+  await (await find('[data-testid="tx-amount"]')).waitForExist({ timeout: 10_000 });
+  await (await find("#tx-category")).waitForExist({ timeout: 10_000 });
 }
 
 async function openCategoryCombobox() {
-  const trigger = await find('[data-testid="tx-category"]');
+  const trigger = await find("#tx-category");
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
   await (await find('[data-slot="command-input"]')).waitForExist({ timeout: 5_000 });
@@ -111,10 +121,16 @@ async function selectCategoryByName(name: string) {
 
   await browser.waitUntil(
     async () => {
-      const options = await findAll('[role="option"]');
+      const options = await findAll('[data-slot="command-item"]');
       for (const opt of options) {
-        if ((await opt.getText()).trim().toLowerCase().startsWith(name.toLowerCase())) {
+        const text = (await opt.getText()).trim().toLowerCase();
+        if (text === name.toLowerCase() || text.startsWith(name.toLowerCase())) {
           await opt.click();
+          // Popover should close after selection.
+          await (await find('[data-slot="command-input"]')).waitForExist({
+            reverse: true,
+            timeout: 5_000,
+          });
           return true;
         }
       }
@@ -122,6 +138,31 @@ async function selectCategoryByName(name: string) {
     },
     { timeout: 5_000, timeoutMsg: `Category "${name}" not found in combobox` },
   );
+}
+
+async function findTransactionRowByAmount(amountText: string) {
+  // Amount is rendered as a plain number string, e.g. "-25.00".
+  const xpath = `//tr[.//td[normalize-space(.)='${amountText}']]`;
+  return find(xpath);
+}
+
+async function openEditDrawerForTransactionAmount(amountText: string) {
+  const row = await findTransactionRowByAmount(amountText);
+  await row.waitForExist({ timeout: 10_000 });
+
+  const actionsButton = await row.$('button[data-testid^="tx-actions-"]');
+  await actionsButton.waitForClickable({ timeout: 10_000 });
+  await actionsButton.click();
+
+  const editItem = await find(
+    '//div[@data-slot="dropdown-menu-item" and normalize-space(.)="Edit"]',
+  );
+  await editItem.waitForClickable({ timeout: 10_000 });
+  await editItem.click();
+
+  const title = await find('[data-slot="sheet-title"]');
+  await title.waitForExist({ timeout: 10_000 });
+  await (await find("#tx-category")).waitForExist({ timeout: 10_000 });
 }
 
 // ---------------------------------------------------------------------------
@@ -152,12 +193,12 @@ describe("Transaction category combobox", () => {
     });
 
     it("category combobox is visible in the add transaction drawer", async () => {
-      const trigger = await find('[data-testid="tx-category"]');
+      const trigger = await find("#tx-category");
       expect(await trigger.isExisting()).toBe(true);
     });
 
     it("combobox shows Uncategorised by default", async () => {
-      const trigger = await find('[data-testid="tx-category"]');
+      const trigger = await find("#tx-category");
       expect(await trigger.getText()).toMatch(/uncategorised/i);
     });
 
@@ -169,7 +210,7 @@ describe("Transaction category combobox", () => {
 
       await browser.waitUntil(
         async () => {
-          const options = await findAll('[role="option"]');
+          const options = await findAll('[data-slot="command-item"]');
           for (const opt of options) {
             if ((await opt.getText()).toLowerCase().includes("groceries")) return true;
           }
@@ -179,7 +220,7 @@ describe("Transaction category combobox", () => {
       );
 
       // Bills should not be visible
-      const options = await findAll('[role="option"]');
+      const options = await findAll('[data-slot="command-item"]');
       let billsVisible = false;
       for (const opt of options) {
         if ((await opt.getText()).toLowerCase().includes("bills")) {
@@ -189,8 +230,13 @@ describe("Transaction category combobox", () => {
       }
       expect(billsVisible).toBe(false);
 
-      // Close combobox by pressing Escape
-      await browser.keys(["Escape"]);
+      // Close the combobox by toggling the trigger (Escape can be flaky in WebView2).
+      const trigger = await find("#tx-category");
+      await trigger.click();
+      await (await find('[data-slot="command-input"]')).waitForExist({
+        reverse: true,
+        timeout: 5_000,
+      });
     });
 
     it("can select a category and save — transaction list shows category", async () => {
@@ -202,7 +248,7 @@ describe("Transaction category combobox", () => {
       await selectCategoryByName("Groceries");
 
       // Combobox trigger should now show "Groceries"
-      const trigger = await find('[data-testid="tx-category"]');
+      const trigger = await find("#tx-category");
       expect(await trigger.getText()).toMatch(/groceries/i);
 
       await (await find('[data-testid="tx-save"]')).click();
@@ -211,35 +257,22 @@ describe("Transaction category combobox", () => {
         timeout: 5_000,
       });
 
-      // Transaction list should show "Groceries" in the category column
+      // Transaction row should show "Groceries".
       await browser.waitUntil(
         async () => {
-          const cells = await findAll("td");
-          for (const cell of cells) {
-            if ((await cell.getText()).trim() === "Groceries") return true;
-          }
-          return false;
+          const row = await findTransactionRowByAmount("-25.00");
+          return /groceries/i.test(await row.getText());
         },
-        { timeout: 5_000, timeoutMsg: "Groceries not found in transaction list" },
+        { timeout: 10_000, timeoutMsg: "Groceries not found in saved transaction row" },
       );
     });
   });
 
   describe("Edit transaction drawer", () => {
     it("opens edit drawer and category is pre-populated", async () => {
-      // Click the row actions for the transaction we just created
-      const moreButtons = await findAll('[data-testid^="row-actions-"]');
-      if (moreButtons.length === 0) throw new Error("No row action buttons found");
-      await moreButtons[0].waitForClickable({ timeout: 5_000 });
-      await moreButtons[0].click();
+      await openEditDrawerForTransactionAmount("-25.00");
 
-      const editItem = await find('[data-testid^="row-action-edit-"]');
-      await editItem.waitForClickable({ timeout: 5_000 });
-      await editItem.click();
-
-      await (await find('[data-slot="sheet-title"]')).waitForExist({ timeout: 5_000 });
-
-      const trigger = await find('[data-testid="tx-category"]');
+      const trigger = await find("#tx-category");
       expect(await trigger.getText()).toMatch(/groceries/i);
     });
 
@@ -253,30 +286,18 @@ describe("Transaction category combobox", () => {
         timeout: 5_000,
       });
 
-      // Transaction list should now show "Bills"
+      // Transaction row should now show "Bills".
       await browser.waitUntil(
         async () => {
-          const cells = await findAll("td");
-          for (const cell of cells) {
-            if ((await cell.getText()).trim() === "Bills") return true;
-          }
-          return false;
+          const row = await findTransactionRowByAmount("-25.00");
+          return /bills/i.test(await row.getText());
         },
-        { timeout: 5_000, timeoutMsg: "Bills not found in transaction list after edit" },
+        { timeout: 10_000, timeoutMsg: "Bills not found in transaction row after edit" },
       );
     });
 
     it("can select Uncategorised to clear the category", async () => {
-      // Open edit again
-      const moreButtons = await findAll('[data-testid^="row-actions-"]');
-      await moreButtons[0].waitForClickable({ timeout: 5_000 });
-      await moreButtons[0].click();
-
-      const editItem = await find('[data-testid^="row-action-edit-"]');
-      await editItem.waitForClickable({ timeout: 5_000 });
-      await editItem.click();
-
-      await (await find('[data-slot="sheet-title"]')).waitForExist({ timeout: 5_000 });
+      await openEditDrawerForTransactionAmount("-25.00");
 
       await openCategoryCombobox();
       await selectCategoryByName("Uncategorised");
@@ -287,16 +308,16 @@ describe("Transaction category combobox", () => {
         timeout: 5_000,
       });
 
-      // Category column should be blank (no category text in that row)
+      // Transaction row should have an empty category cell after clearing.
       await browser.waitUntil(
         async () => {
-          const cells = await findAll("td");
-          for (const cell of cells) {
-            if ((await cell.getText()).trim() === "Bills") return false;
-          }
-          return true;
+          const row = await findTransactionRowByAmount("-25.00");
+          const cells = await row.$$("td");
+          // Columns: date, payee, notes, amount, category, running balance, reference, type, actions
+          const categoryCellText = (await cells[4].getText()).trim();
+          return categoryCellText === "";
         },
-        { timeout: 5_000, timeoutMsg: "Bills still showing after clearing category" },
+        { timeout: 10_000, timeoutMsg: "Category cell did not clear" },
       );
     });
   });

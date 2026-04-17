@@ -33,17 +33,23 @@ async function openCategoryDialog() {
   await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
 }
 
-async function waitForCategoryInList(name: string) {
+async function getCategoryRowByName(name: string) {
+  let found: WebdriverIO.Element | null = null;
   await browser.waitUntil(
     async () => {
-      const els = await findAll('[data-slot="dialog-content"] span');
-      for (const el of els) {
-        if ((await el.getText()).trim() === name) return true;
+      const rows = await findAll('[data-testid^="category-row-"]');
+      for (const row of rows) {
+        if ((await row.getText()).includes(name)) {
+          found = row;
+          return true;
+        }
       }
       return false;
     },
-    { timeout: 5_000, timeoutMsg: `Category "${name}" not found in list` },
+    { timeout: 10_000, timeoutMsg: `Category "${name}" not found in list` },
   );
+  if (!found) throw new Error(`Category "${name}" not found in list`);
+  return found;
 }
 
 // ---------------------------------------------------------------------------
@@ -59,17 +65,17 @@ describe("Category management", () => {
 
   it("shows seeded categories in the dialog", async () => {
     // A few seeded categories should be visible
-    await waitForCategoryInList("Bills");
-    await waitForCategoryInList("Groceries");
-    await waitForCategoryInList("Uncategorised");
+    await getCategoryRowByName("Bills");
+    await getCategoryRowByName("Groceries");
+    await getCategoryRowByName("Uncategorised");
   });
 
   it("shows Uncategorised with the system indicator", async () => {
-    const systemLabel = await find('[data-slot="dialog-content"] span=Uncategorised');
-    await systemLabel.waitForExist({ timeout: 3_000 });
-    const row = await systemLabel.$("..");
-    const systemBadge = await row.$("span*=(system)");
-    expect(await systemBadge.isExisting()).toBe(true);
+    const row = await getCategoryRowByName("Uncategorised");
+    const nameSpan = await row.$("span.flex-1");
+    await nameSpan.waitForExist({ timeout: 3_000 });
+    const systemBadge = await nameSpan.$("span");
+    expect((await systemBadge.getText()).toLowerCase()).toContain("system");
   });
 
   it("delete button is disabled for Uncategorised", async () => {
@@ -101,7 +107,7 @@ describe("Category management", () => {
 
     await (await find('[data-testid="save-new-category"]')).click();
 
-    await waitForCategoryInList("E2E Test Category");
+    await getCategoryRowByName("E2E Test Category");
   });
 
   it("shows an error when adding a duplicate category name", async () => {
@@ -187,7 +193,7 @@ describe("Category management", () => {
     await cancelBtn.click();
 
     // The category should still be in the list
-    await waitForCategoryInList(rowText.trim());
+    await getCategoryRowByName(rowText.trim());
   });
 });
 
@@ -294,7 +300,7 @@ describe("Category management — in-use deletion flow", () => {
     await navigateToSettings();
     await openCategoryDialog();
 
-    await waitForCategoryInList("Bills");
+    await getCategoryRowByName("Bills");
   });
 
   it("shows replacement picker when deleting an in-use category", async () => {
