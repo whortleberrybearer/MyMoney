@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CategoryManagementDialog } from "@/components/CategoryManagementDialog";
 
 interface SettingsScreenProps {
   filePath: string;
@@ -12,6 +14,8 @@ export function SettingsScreen({
   onSwitchFile,
   onBack,
 }: SettingsScreenProps) {
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+
   return (
     <div className="flex h-screen flex-col">
       <header className="flex items-center gap-3 border-b px-6 py-3">
@@ -36,7 +40,29 @@ export function SettingsScreen({
             Switch data file
           </Button>
         </section>
+
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            Categories
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Manage the categories used to classify transactions.
+          </p>
+          <Button
+            variant="outline"
+            className="w-fit"
+            onClick={() => setCategoryDialogOpen(true)}
+            data-testid="manage-categories-btn"
+          >
+            Manage Categories
+          </Button>
+        </section>
       </main>
+
+      <CategoryManagementDialog
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+      />
     </div>
   );
 }

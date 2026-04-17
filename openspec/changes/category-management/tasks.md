@@ -21,7 +21,7 @@
 
 ## 5. UI — Wire `CategoryManagementDialog` into Settings Screen
 
-- [ ] 5.1 Update `src/components/SettingsScreen.tsx` to add a Categories section with an "Add / Manage" button (or inline section) that opens `CategoryManagementDialog`
+- [x] 5.1 Update `src/components/SettingsScreen.tsx` to add a Categories section with an "Add / Manage" button (or inline section) that opens `CategoryManagementDialog`
 
 ## 6. E2E Tests — Category Management
 
