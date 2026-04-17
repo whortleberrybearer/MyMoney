@@ -1,10 +1,10 @@
 ## 1. Database Schema & Migration
 
-- [ ] 1.1 Add `categorisation_rule` table to Drizzle schema (`src/lib/db/schema.ts`): id, name, sort_order, is_active
-- [ ] 1.2 Add `rule_condition` table to Drizzle schema: id, rule_id (FK), field, operator, value (all text)
-- [ ] 1.3 Add `rule_action` table to Drizzle schema: id, rule_id (FK), action_type, category_id (nullable FK), note (nullable text)
-- [ ] 1.4 Generate Drizzle migration file for the three new tables
-- [ ] 1.5 Write unit tests for schema: verify tables exist with correct columns and constraints after migration
+- [x] 1.1 Add `categorisation_rule` table to Drizzle schema (`src/lib/db/schema.ts`): id, name, sort_order, is_active
+- [x] 1.2 Add `rule_condition` table to Drizzle schema: id, rule_id (FK), field, operator, value (all text)
+- [x] 1.3 Add `rule_action` table to Drizzle schema: id, rule_id (FK), action_type, category_id (nullable FK), note (nullable text)
+- [x] 1.4 Generate Drizzle migration file for the three new tables
+- [x] 1.5 Write unit tests for schema: verify tables exist with correct columns and constraints after migration
 
 ## 2. Rules Engine — Tauri Command
 

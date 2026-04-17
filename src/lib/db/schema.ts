@@ -113,3 +113,30 @@ export const transactionFitid = sqliteTable(
   },
   (t) => [uniqueIndex("transaction_fitid_account_fitid_idx").on(t.accountId, t.fitid)],
 );
+
+export const categorisationRule = sqliteTable("categorisation_rule", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  sortOrder: integer("sort_order").notNull(),
+  isActive: integer("is_active").notNull().default(1),
+});
+
+export const ruleCondition = sqliteTable("rule_condition", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  ruleId: integer("rule_id")
+    .notNull()
+    .references(() => categorisationRule.id),
+  field: text("field").notNull(),
+  operator: text("operator").notNull(),
+  value: text("value").notNull(),
+});
+
+export const ruleAction = sqliteTable("rule_action", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  ruleId: integer("rule_id")
+    .notNull()
+    .references(() => categorisationRule.id),
+  actionType: text("action_type").notNull(),
+  categoryId: integer("category_id").references(() => category.id),
+  note: text("note"),
+});
