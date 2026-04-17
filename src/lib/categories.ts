@@ -87,9 +87,15 @@ export async function deleteCategory(
     await db
       .update(transaction)
       .set({ categoryId: replacementId })
-      .where(eq(transaction.categoryId, id));
+      .where(and(eq(transaction.categoryId, id), eq(transaction.isVoid, 0)));
     // TODO(#10): reassign categorisation rules referencing this category
   }
+
+  // Null out any remaining references (voided transactions) so the FK allows deletion
+  await db
+    .update(transaction)
+    .set({ categoryId: null })
+    .where(eq(transaction.categoryId, id));
 
   await db.delete(category).where(eq(category.id, id));
 }
