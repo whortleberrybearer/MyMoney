@@ -21,7 +21,8 @@ export type AppScreen =
   | { screen: "settings"; filePath: string }
   | { screen: "import"; filePath: string }
   | { screen: "import-result"; filePath: string; result: import("./import").ImportResult }
-  | { screen: "transaction-list"; filePath: string; accountId: number; accountName: string };
+  | { screen: "transaction-list"; filePath: string; accountId: number; accountName: string }
+  | { screen: "rules"; filePath: string };
 
 // ---------------------------------------------------------------------------
 // AppContext
