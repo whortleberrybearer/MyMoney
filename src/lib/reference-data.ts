@@ -1,15 +1,10 @@
 import { asc, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { accountType, category, tag } from "./db/schema";
+import { accountType, tag } from "./db/schema";
+export { listCategories, type Category } from "./categories";
 
 export type AccountType = typeof accountType.$inferSelect;
 export type Tag = typeof tag.$inferSelect;
-export type Category = typeof category.$inferSelect;
-
-export async function listCategories(): Promise<Category[]> {
-  const db = getDb();
-  return db.select().from(category).orderBy(asc(category.sortOrder), asc(category.name));
-}
 
 export async function listAccountTypes(): Promise<AccountType[]> {
   const db = getDb();
