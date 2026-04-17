@@ -1,6 +1,6 @@
 ## 1. Data Layer — `src/lib/categories.ts`
 
-- [ ] 1.1 Create `src/lib/categories.ts` with `listCategories` (alphabetical order), `createCategory` (case-insensitive uniqueness check), and `deleteCategory` (accepts optional `replacementId`; throws `CATEGORY_IN_USE` error code when in-use and no replacement provided; reassigns transactions then hard-deletes when replacement is given; blocks deletion of system categories)
+- [x] 1.1 Create `src/lib/categories.ts` with `listCategories` (alphabetical order), `createCategory` (case-insensitive uniqueness check), and `deleteCategory` (accepts optional `replacementId`; throws `CATEGORY_IN_USE` error code when in-use and no replacement provided; reassigns transactions then hard-deletes when replacement is given; blocks deletion of system categories)
 - [ ] 1.2 Re-export `listCategories` from `src/lib/reference-data.ts` to keep existing callers working without changes
 - [ ] 1.3 Write unit tests in `tests/unit/categories.test.ts` covering: `listCategories` (returns all, alphabetical order), `createCategory` (success, duplicate name rejected, blank name rejected), `deleteCategory` (success when unused, system category blocked, in-use throws CATEGORY_IN_USE, reassigns transactions and deletes when replacement provided, replacement must be a valid different category)
 
