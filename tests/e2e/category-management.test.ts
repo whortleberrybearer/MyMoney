@@ -23,14 +23,18 @@ async function navigateToSettings() {
   const settingsBtn = await find('button[aria-label="Settings"]');
   await settingsBtn.waitForClickable({ timeout: 10_000 });
   await settingsBtn.click();
-  await (await find("button*=Manage Categories")).waitForExist({ timeout: 10_000 });
+  await (
+    await find("button*=Manage Categories")
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function openCategoryDialog() {
   const btn = await find("button*=Manage Categories");
   await btn.waitForClickable({ timeout: 5_000 });
   await btn.click();
-  await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="dialog-title"]')
+  ).waitForExist({ timeout: 5_000 });
 }
 
 async function getCategoryRowByName(name: string) {
@@ -92,7 +96,10 @@ describe("Category management", () => {
         }
         return false;
       },
-      { timeout: 5_000, timeoutMsg: "Uncategorised delete button is not disabled" },
+      {
+        timeout: 5_000,
+        timeoutMsg: "Uncategorised delete button is not disabled",
+      },
     );
   });
 
@@ -180,7 +187,8 @@ describe("Category management", () => {
         break;
       }
     }
-    if (!deleteBtn) throw new Error("No non-system category found for cancel test");
+    if (!deleteBtn)
+      throw new Error("No non-system category found for cancel test");
 
     // Record the category name before clicking
     const rowText = await (await deleteBtn.$("..")).$("span.flex-1").getText();
@@ -217,9 +225,13 @@ describe("Category management — in-use deletion flow", () => {
     // Create institution
     await (await find("button*=Manage")).waitForExist({ timeout: 10_000 });
     await (await find("button*=Manage")).click();
-    await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+    await (
+      await find('[data-slot="dialog-title"]')
+    ).waitForExist({ timeout: 5_000 });
     await (await find("button*=Add Institution")).click();
-    await (await find("input[placeholder='Institution name']")).setValue("Cat Test Bank");
+    await (
+      await find("input[placeholder='Institution name']")
+    ).setValue("Cat Test Bank");
     await (await find("button[aria-label='Save']")).click();
     await (await find("span=Cat Test Bank")).waitForExist({ timeout: 10_000 });
 
@@ -253,7 +265,9 @@ describe("Category management — in-use deletion flow", () => {
     }
     await (await find("#acc-opening-date")).setValue("2024-01-01");
     await (await find("button=Save")).click();
-    await (await find("td*=Cat Test Account")).waitForExist({ timeout: 10_000 });
+    await (
+      await find("td*=Cat Test Account")
+    ).waitForExist({ timeout: 10_000 });
 
     // Navigate to transaction list
     const accountLink = await find("button*=Cat Test Account");
@@ -282,7 +296,9 @@ describe("Category management — in-use deletion flow", () => {
     await billsOption.click();
 
     await (await find('[data-testid="tx-save"]')).click();
-    await (await find('[data-slot="sheet-content"]')).waitForExist({
+    await (
+      await find('[data-slot="sheet-content"]')
+    ).waitForExist({
       reverse: true,
       timeout: 5_000,
     });

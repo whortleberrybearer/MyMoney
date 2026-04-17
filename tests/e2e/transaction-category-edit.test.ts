@@ -46,10 +46,14 @@ async function createTestAccountAndNavigate() {
 
   await (await find("button*=Manage")).waitForExist({ timeout: 10_000 });
   await (await find("button*=Manage")).click();
-  await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="dialog-title"]')
+  ).waitForExist({ timeout: 5_000 });
 
   await (await find("button*=Add Institution")).click();
-  await (await find("input[placeholder='Institution name']")).setValue("Tx Cat Bank");
+  await (
+    await find("input[placeholder='Institution name']")
+  ).setValue("Tx Cat Bank");
   await (await find("button[aria-label='Save']")).click();
   await (await find("span=Tx Cat Bank")).waitForExist({ timeout: 10_000 });
 
@@ -87,7 +91,9 @@ async function createTestAccountAndNavigate() {
   const accountLink = await find("button*=Tx Cat Account");
   await accountLink.waitForClickable({ timeout: 10_000 });
   await accountLink.click();
-  await (await find('[data-testid="add-transaction-btn"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="add-transaction-btn"]')
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function openAddTransactionDrawer() {
@@ -98,12 +104,15 @@ async function openAddTransactionDrawer() {
   const title = await find('[data-slot="sheet-title"]');
   await title.waitForExist({ timeout: 10_000 });
   await browser.waitUntil(
-    async () => (await title.getText()).toLowerCase().includes("add transaction"),
+    async () =>
+      (await title.getText()).toLowerCase().includes("add transaction"),
     { timeout: 10_000, timeoutMsg: "Add Transaction sheet did not open" },
   );
 
   // Wait for key controls to be present to reduce flakiness.
-  await (await find('[data-testid="tx-amount"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="tx-amount"]')
+  ).waitForExist({ timeout: 10_000 });
   await (await find("#tx-category")).waitForExist({ timeout: 10_000 });
 }
 
@@ -111,7 +120,9 @@ async function openCategoryCombobox() {
   const trigger = await find("#tx-category");
   await trigger.waitForClickable({ timeout: 5_000 });
   await trigger.click();
-  await (await find('[data-slot="command-input"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="command-input"]')
+  ).waitForExist({ timeout: 5_000 });
 }
 
 async function selectCategoryByName(name: string) {
@@ -124,10 +135,15 @@ async function selectCategoryByName(name: string) {
       const options = await findAll('[data-slot="command-item"]');
       for (const opt of options) {
         const text = (await opt.getText()).trim().toLowerCase();
-        if (text === name.toLowerCase() || text.startsWith(name.toLowerCase())) {
+        if (
+          text === name.toLowerCase() ||
+          text.startsWith(name.toLowerCase())
+        ) {
           await opt.click();
           // Popover should close after selection.
-          await (await find('[data-slot="command-input"]')).waitForExist({
+          await (
+            await find('[data-slot="command-input"]')
+          ).waitForExist({
             reverse: true,
             timeout: 5_000,
           });
@@ -183,9 +199,11 @@ describe("Transaction category combobox", () => {
     after(async () => {
       // Close the drawer if still open
       const cancelBtn = await find("button*=Cancel");
-      if (await cancelBtn.isExisting() && await cancelBtn.isClickable()) {
+      if ((await cancelBtn.isExisting()) && (await cancelBtn.isClickable())) {
         await cancelBtn.click();
-        await (await find('[data-slot="sheet-content"]')).waitForExist({
+        await (
+          await find('[data-slot="sheet-content"]')
+        ).waitForExist({
           reverse: true,
           timeout: 5_000,
         });
@@ -212,11 +230,15 @@ describe("Transaction category combobox", () => {
         async () => {
           const options = await findAll('[data-slot="command-item"]');
           for (const opt of options) {
-            if ((await opt.getText()).toLowerCase().includes("groceries")) return true;
+            if ((await opt.getText()).toLowerCase().includes("groceries"))
+              return true;
           }
           return false;
         },
-        { timeout: 3_000, timeoutMsg: "Groceries option not found after filtering" },
+        {
+          timeout: 3_000,
+          timeoutMsg: "Groceries option not found after filtering",
+        },
       );
 
       // Bills should not be visible
@@ -233,7 +255,9 @@ describe("Transaction category combobox", () => {
       // Close the combobox by toggling the trigger (Escape can be flaky in WebView2).
       const trigger = await find("#tx-category");
       await trigger.click();
-      await (await find('[data-slot="command-input"]')).waitForExist({
+      await (
+        await find('[data-slot="command-input"]')
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
@@ -252,7 +276,9 @@ describe("Transaction category combobox", () => {
       expect(await trigger.getText()).toMatch(/groceries/i);
 
       await (await find('[data-testid="tx-save"]')).click();
-      await (await find('[data-slot="sheet-content"]')).waitForExist({
+      await (
+        await find('[data-slot="sheet-content"]')
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
@@ -263,7 +289,10 @@ describe("Transaction category combobox", () => {
           const row = await findTransactionRowByAmount("-25.00");
           return /groceries/i.test(await row.getText());
         },
-        { timeout: 10_000, timeoutMsg: "Groceries not found in saved transaction row" },
+        {
+          timeout: 10_000,
+          timeoutMsg: "Groceries not found in saved transaction row",
+        },
       );
     });
   });
@@ -281,7 +310,9 @@ describe("Transaction category combobox", () => {
       await selectCategoryByName("Bills");
 
       await (await find('[data-testid="tx-save"]')).click();
-      await (await find('[data-slot="sheet-content"]')).waitForExist({
+      await (
+        await find('[data-slot="sheet-content"]')
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
@@ -292,7 +323,10 @@ describe("Transaction category combobox", () => {
           const row = await findTransactionRowByAmount("-25.00");
           return /bills/i.test(await row.getText());
         },
-        { timeout: 10_000, timeoutMsg: "Bills not found in transaction row after edit" },
+        {
+          timeout: 10_000,
+          timeoutMsg: "Bills not found in transaction row after edit",
+        },
       );
     });
 
@@ -303,7 +337,9 @@ describe("Transaction category combobox", () => {
       await selectCategoryByName("Uncategorised");
 
       await (await find('[data-testid="tx-save"]')).click();
-      await (await find('[data-slot="sheet-content"]')).waitForExist({
+      await (
+        await find('[data-slot="sheet-content"]')
+      ).waitForExist({
         reverse: true,
         timeout: 5_000,
       });
