@@ -151,7 +151,7 @@ export function CategoryManagementDialog({ open, onOpenChange }: Props) {
             </p>
           )}
 
-          <div className="flex flex-col gap-1">
+          <div className="flex max-h-72 flex-col gap-1 overflow-y-auto pr-1">
             {categories.map((cat) => (
               <div
                 key={cat.id}
