@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { TransactionFormSheet } from "@/components/TransactionFormSheet";
 import * as transactionsLib from "@/lib/transactions";
-import * as referenceData from "@/lib/reference-data";
+import * as categoriesLib from "@/lib/categories";
 import type { TransactionRow } from "@/lib/transactions";
 
 vi.mock("@/lib/transactions", () => ({
@@ -13,10 +13,15 @@ vi.mock("@/lib/transactions", () => ({
   recalculateRunningBalance: vi.fn(),
 }));
 
-vi.mock("@/lib/reference-data", () => ({
+vi.mock("@/lib/categories", () => ({
   listCategories: vi.fn().mockResolvedValue([]),
-  listTags: vi.fn().mockResolvedValue([]),
 }));
+
+const CATEGORIES: categoriesLib.Category[] = [
+  { id: 1, name: "Bills", isSystem: 0, sortOrder: 3 },
+  { id: 2, name: "Groceries", isSystem: 0, sortOrder: 4 },
+  { id: 999, name: "Uncategorised", isSystem: 1, sortOrder: 999 },
+];
 
 const BASE_TX: TransactionRow = {
   id: 1,
@@ -42,7 +47,7 @@ const IMPORTED_TX: TransactionRow = {
 };
 
 beforeEach(() => {
-  vi.mocked(referenceData.listCategories).mockResolvedValue([]);
+  vi.mocked(categoriesLib.listCategories).mockResolvedValue([]);
   vi.mocked(transactionsLib.createTransaction).mockResolvedValue(undefined);
   vi.mocked(transactionsLib.updateTransaction).mockResolvedValue(undefined);
 });
@@ -179,5 +184,117 @@ describe("TransactionFormSheet — edit mode, manual transaction", () => {
 
     expect(dateField.readOnly).toBe(false);
     expect(amountField.readOnly).toBe(false);
+  });
+});
+
+describe("TransactionFormSheet — category combobox", () => {
+  it("renders the category combobox", async () => {
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tx-category")).toBeInTheDocument();
+    });
+  });
+
+  it("shows 'Uncategorised' in the combobox by default when creating a transaction", async () => {
+    vi.mocked(categoriesLib.listCategories).mockResolvedValue(CATEGORIES);
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tx-category")).toHaveTextContent("Uncategorised");
+    });
+  });
+
+  it("pre-populates category when editing a transaction with a category", async () => {
+    vi.mocked(categoriesLib.listCategories).mockResolvedValue(CATEGORIES);
+    const txWithCategory: TransactionRow = {
+      ...BASE_TX,
+      categoryId: 2,
+      categoryName: "Groceries",
+    };
+
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        editTransaction={txWithCategory}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("tx-category")).toHaveTextContent("Groceries");
+    });
+  });
+
+  it("passes null category_id to createTransaction when Uncategorised is selected", async () => {
+    vi.mocked(categoriesLib.listCategories).mockResolvedValue(CATEGORIES);
+    const mockCreate = vi.mocked(transactionsLib.createTransaction);
+
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => screen.getByTestId("tx-date"));
+
+    fireEvent.change(screen.getByTestId("tx-date"), { target: { value: "2024-03-01" } });
+    fireEvent.change(screen.getByTestId("tx-amount"), { target: { value: "-10" } });
+    fireEvent.click(screen.getByTestId("tx-save"));
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith(
+        10,
+        expect.objectContaining({ categoryId: undefined }),
+      );
+    });
+  });
+
+  it("passes the category id to updateTransaction when editing", async () => {
+    vi.mocked(categoriesLib.listCategories).mockResolvedValue(CATEGORIES);
+    const mockUpdate = vi.mocked(transactionsLib.updateTransaction);
+    const txWithCategory: TransactionRow = {
+      ...BASE_TX,
+      categoryId: 1,
+      categoryName: "Bills",
+    };
+
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        editTransaction={txWithCategory}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => screen.getByTestId("tx-save"));
+    fireEvent.click(screen.getByTestId("tx-save"));
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ categoryId: 1 }),
+      );
+    });
   });
 });
