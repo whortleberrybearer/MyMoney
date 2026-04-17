@@ -8,27 +8,27 @@
 
 ## 2. Rules Engine — Tauri Command
 
-- [ ] 2.1 Create `apply_rules` Tauri command: accepts optional list of transaction IDs (None = all non-void)
-- [ ] 2.2 Implement condition evaluation: fetch active rules ordered by sort_order, evaluate conditions per transaction using field/operator/value with AND logic
-- [ ] 2.3 Implement `contains`, `starts_with`, `equals` string operators (case-insensitive)
-- [ ] 2.4 Implement `greater_than`, `less_than` numeric operators for amount field; treat invalid cast as non-match
-- [ ] 2.5 Implement first-match-wins: stop evaluating rules for a transaction once one matches; assign Uncategorised if no rule matches
-- [ ] 2.6 Implement action execution: `assign_category` sets category_id; `set_note` overwrites notes
-- [ ] 2.7 Return count of transactions categorised (non-Uncategorised result) from `apply_rules`
-- [ ] 2.8 Write unit tests for engine: first-match-wins, Uncategorised fallback, inactive rules skipped, void transactions skipped
-- [ ] 2.9 Write unit tests for each operator type (contains, starts_with, equals, greater_than, less_than)
-- [ ] 2.10 Write unit tests for multi-condition AND logic (all must match)
-- [ ] 2.11 Write unit tests for multiple actions on a single rule (both applied)
+- [x] 2.1 Create `apply_rules` Tauri command: accepts optional list of transaction IDs (None = all non-void)
+- [x] 2.2 Implement condition evaluation: fetch active rules ordered by sort_order, evaluate conditions per transaction using field/operator/value with AND logic
+- [x] 2.3 Implement `contains`, `starts_with`, `equals` string operators (case-insensitive)
+- [x] 2.4 Implement `greater_than`, `less_than` numeric operators for amount field; treat invalid cast as non-match
+- [x] 2.5 Implement first-match-wins: stop evaluating rules for a transaction once one matches; assign Uncategorised if no rule matches
+- [x] 2.6 Implement action execution: `assign_category` sets category_id; `set_note` overwrites notes
+- [x] 2.7 Return count of transactions categorised (non-Uncategorised result) from `apply_rules`
+- [x] 2.8 Write unit tests for engine: first-match-wins, Uncategorised fallback, inactive rules skipped, void transactions skipped
+- [x] 2.9 Write unit tests for each operator type (contains, starts_with, equals, greater_than, less_than)
+- [x] 2.10 Write unit tests for multi-condition AND logic (all must match)
+- [x] 2.11 Write unit tests for multiple actions on a single rule (both applied)
 
 ## 3. Rule CRUD — Tauri Commands
 
-- [ ] 3.1 Create `get_rules` Tauri command: returns all rules ordered by sort_order with their conditions and actions
-- [ ] 3.2 Create `create_rule` Tauri command: inserts rule, conditions, and actions; appends to end (max sort_order + 1)
-- [ ] 3.3 Create `update_rule` Tauri command: replaces rule name, conditions, and actions (delete-and-reinsert child rows)
-- [ ] 3.4 Create `delete_rule` Tauri command: deletes rule and cascades to conditions and actions
-- [ ] 3.5 Create `toggle_rule_active` Tauri command: flips is_active on a single rule
-- [ ] 3.6 Create `reorder_rules` Tauri command: accepts ordered array of rule IDs, updates sort_order values in a single transaction
-- [ ] 3.7 Write unit tests for each CRUD command (create, read, update, delete, toggle, reorder)
+- [x] 3.1 Create `get_rules` Tauri command: returns all rules ordered by sort_order with their conditions and actions
+- [x] 3.2 Create `create_rule` Tauri command: inserts rule, conditions, and actions; appends to end (max sort_order + 1)
+- [x] 3.3 Create `update_rule` Tauri command: replaces rule name, conditions, and actions (delete-and-reinsert child rows)
+- [x] 3.4 Create `delete_rule` Tauri command: deletes rule and cascades to conditions and actions
+- [x] 3.5 Create `toggle_rule_active` Tauri command: flips is_active on a single rule
+- [x] 3.6 Create `reorder_rules` Tauri command: accepts ordered array of rule IDs, updates sort_order values in a single transaction
+- [x] 3.7 Write unit tests for each CRUD command (create, read, update, delete, toggle, reorder)
 
 ## 4. Rules Management Screen
 
