@@ -12,7 +12,7 @@
 ## 3. UI — Transaction Form Sheet: Replace Select with CategoryCombobox
 
 - [x] 3.1 Update `src/components/TransactionFormSheet.tsx` to replace the `<Select>` category field with `<CategoryCombobox>`, loading categories via `listCategories` from `src/lib/categories.ts`
-- [ ] 3.2 Update `tests/unit/TransactionFormSheet.test.tsx` to cover: category combobox is rendered, selecting a category updates form state, selecting Uncategorised clears category_id, category is pre-populated when editing a transaction with an existing category
+- [x] 3.2 Update `tests/unit/TransactionFormSheet.test.tsx` to cover: category combobox is rendered, selecting a category updates form state, selecting Uncategorised clears category_id, category is pre-populated when editing a transaction with an existing category
 
 ## 4. UI — `CategoryManagementDialog` Component
 
