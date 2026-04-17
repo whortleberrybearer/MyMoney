@@ -17,7 +17,7 @@
 ## 4. UI — `CategoryManagementDialog` Component
 
 - [x] 4.1 Create `src/components/CategoryManagementDialog.tsx`. Displays all categories in alphabetical order; shows system indicator for `Uncategorised`; Add button opens inline input for new category name; Delete button per row (disabled for system categories); on delete of unused category shows confirmation `AlertDialog`; on delete of in-use category shows replacement picker `AlertDialog` with a dropdown of all other categories (including Uncategorised) and Confirm disabled until a selection is made
-- [ ] 4.2 Write unit tests in `tests/unit/CategoryManagementDialog.test.tsx` covering: renders category list alphabetically, Uncategorised has delete disabled, add new category succeeds and refreshes list, add duplicate name shows error, add blank name shows error, delete unused category shows confirmation then deletes, cancel deletion leaves list unchanged, delete in-use category shows replacement picker with correct options (excludes category being deleted), confirm replacement reassigns and deletes, confirm button is disabled until replacement is selected
+- [x] 4.2 Write unit tests in `tests/unit/CategoryManagementDialog.test.tsx` covering: renders category list alphabetically, Uncategorised has delete disabled, add new category succeeds and refreshes list, add duplicate name shows error, add blank name shows error, delete unused category shows confirmation then deletes, cancel deletion leaves list unchanged, delete in-use category shows replacement picker with correct options (excludes category being deleted), confirm replacement reassigns and deletes, confirm button is disabled until replacement is selected
 
 ## 5. UI — Wire `CategoryManagementDialog` into Settings Screen
 
