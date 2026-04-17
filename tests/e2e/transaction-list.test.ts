@@ -10,6 +10,7 @@
 
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
 import BetterSQLite from "better-sqlite3";
+import { createHash } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { createE2EDb } from "./e2e-app";
@@ -28,6 +29,19 @@ const MIGRATIONS = [
 
 function applyMigrations(sqlite: BetterSQLite.Database) {
   const migrationsDir = join(process.cwd(), "src/lib/db/migrations");
+
+  // Mirror the runtime migrator’s bookkeeping so the app doesn’t try to
+  // re-apply already-applied migrations when opening this seeded DB.
+  sqlite.exec(`CREATE TABLE IF NOT EXISTS __drizzle_migrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hash TEXT NOT NULL,
+    created_at NUMERIC
+  )`);
+
+  const journal = JSON.parse(
+    readFileSync(join(migrationsDir, "meta/_journal.json"), "utf-8"),
+  ) as { entries: Array<{ tag: string; when: number }> };
+
   for (const file of MIGRATIONS) {
     const sql = readFileSync(join(migrationsDir, file), "utf-8");
     const statements = sql
@@ -37,6 +51,15 @@ function applyMigrations(sqlite: BetterSQLite.Database) {
     for (const stmt of statements) {
       sqlite.exec(stmt);
     }
+
+    const tag = file.replace(/\.sql$/, "");
+    const when = journal.entries.find((e) => e.tag === tag)?.when;
+    if (!when) throw new Error(`No migration journal entry for ${tag}`);
+
+    const hash = createHash("sha256").update(sql, "utf8").digest("hex");
+    sqlite.prepare(
+      "INSERT INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)"
+    ).run(hash, when);
   }
 }
 
@@ -68,8 +91,9 @@ function seedDb(): SeedResult {
   const accountId = (sqlite.prepare("SELECT id FROM account").get() as { id: number }).id;
 
   // Three transactions with known amounts and dates
+  // Note: "transaction" is a reserved keyword in SQLite, so it must be quoted.
   const insertTx = sqlite.prepare(`
-    INSERT INTO transaction (account_id, date, amount, payee, notes, type, running_balance, is_void)
+    INSERT INTO "transaction" (account_id, date, amount, payee, notes, type, running_balance, is_void)
     VALUES (?, ?, ?, ?, ?, 'manual', 0, 0)
   `);
   insertTx.run(accountId, "2024-01-10", -50, "Tesco", "Groceries");
@@ -111,6 +135,24 @@ async function navigateToTransactionList() {
   await accountLink.waitForClickable({ timeout: 10_000 });
   await accountLink.click();
   await (await find("[data-testid='add-transaction-btn']")).waitForExist({ timeout: 10_000 });
+}
+
+async function setControlledInputValue(input: WebdriverIO.Element, value: string) {
+  await browser.execute(
+    (el: HTMLInputElement, nextValue: string) => {
+      // Use the native setter so React’s controlled input tracking sees the change.
+      const setter = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      setter?.call(el, nextValue);
+
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    },
+    input as unknown as HTMLInputElement,
+    value,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -176,31 +218,83 @@ describe("Transaction list — filtering", () => {
     const fromField = await find("[data-testid='filter-from-date']");
     const toField = await find("[data-testid='filter-to-date']");
 
-    await fromField.setValue("2024-01-12");
-    await toField.setValue("2024-01-18");
-    await browser.pause(400);
+    await setControlledInputValue(fromField, "2024-01-12");
+    await setControlledInputValue(toField, "2024-01-18");
+
+    expect(await fromField.getValue()).toBe("2024-01-12");
+    expect(await toField.getValue()).toBe("2024-01-18");
+
+    await browser.waitUntil(
+      async () => {
+        const emptyState = await find("[data-testid='empty-state']");
+        if (await emptyState.isExisting()) return true;
+
+        const rows = await findAll("[data-testid^='tx-row-']");
+        if (rows.length === 0) return false;
+
+        const firstRowText = await rows[0].getText();
+        return firstRowText.includes("Starbucks") || firstRowText.includes("2024-01-15");
+      },
+      { timeout: 10_000, timeoutMsg: "Expected date filter to apply" },
+    );
+
+    const emptyState = await find("[data-testid='empty-state']");
+    if (await emptyState.isExisting()) {
+      throw new Error(`Filter returned empty state: ${await emptyState.getText()}`);
+    }
 
     const rows = await findAll("[data-testid^='tx-row-']");
-    expect(rows.length).toBe(1);
-    const rowText = await rows[0].getText();
-    expect(rowText).toContain("Starbucks");
+    const texts: string[] = [];
+    for (const r of rows) {
+      texts.push(await r.getText());
+    }
+    expect(texts.some((t) => t.includes("Starbucks"))).toBe(true);
+    expect(texts.some((t) => t.includes("Tesco"))).toBe(false);
+    expect(texts.some((t) => t.includes("Employer"))).toBe(false);
   });
 
   it("filtering by payee text shows only matching transactions", async () => {
     // Clear date filter first
     const fromField = await find("[data-testid='filter-from-date']");
     const toField = await find("[data-testid='filter-to-date']");
-    await fromField.clearValue();
-    await toField.clearValue();
+    await setControlledInputValue(fromField, "");
+    await setControlledInputValue(toField, "");
+
+    expect(await fromField.getValue()).toBe("");
+    expect(await toField.getValue()).toBe("");
 
     const payeeFilter = await find("[data-testid='filter-payee']");
     await payeeFilter.setValue("tesco");
-    await browser.pause(400);
+
+    expect(await payeeFilter.getValue()).toBe("tesco");
+
+    await browser.waitUntil(
+      async () => {
+        const emptyState = await find("[data-testid='empty-state']");
+        if (await emptyState.isExisting()) return true;
+
+        const rows = await findAll("[data-testid^='tx-row-']");
+        if (rows.length === 0) return false;
+
+        const firstRowText = await rows[0].getText();
+        return firstRowText.includes("Tesco");
+      },
+      { timeout: 10_000, timeoutMsg: "Expected payee filter to apply" },
+    );
+
+    const emptyState = await find("[data-testid='empty-state']");
+    if (await emptyState.isExisting()) {
+      throw new Error(`Filter returned empty state: ${await emptyState.getText()}`);
+    }
 
     const rows = await findAll("[data-testid^='tx-row-']");
-    expect(rows.length).toBe(1);
-    const rowText = await rows[0].getText();
-    expect(rowText).toContain("Tesco");
+    const texts: string[] = [];
+    for (const r of rows) {
+      texts.push(await r.getText());
+    }
+    expect(texts.some((t) => t.includes("Tesco"))).toBe(true);
+    expect(texts.some((t) => t.includes("Starbucks"))).toBe(false);
+    expect(texts.some((t) => t.includes("Employer"))).toBe(false);
   });
 });
 
@@ -250,11 +344,15 @@ describe("Transaction list — CRUD", () => {
   it("editing a transaction notes field updates the displayed value", async () => {
     // Open the actions menu for the first row
     const actionBtns = await findAll("[data-testid^='tx-actions-']");
-    await actionBtns[0].waitForClickable({ timeout: 5_000 });
+    await actionBtns[0].scrollIntoView();
+    await actionBtns[0].waitForClickable({ timeout: 10_000 });
     await actionBtns[0].click();
 
-    const editItem = await find("//li[contains(normalize-space(.), 'Edit')]");
-    await editItem.waitForExist({ timeout: 5_000 });
+    const editItem = await find(
+      "//*[@role='menuitem' and contains(normalize-space(.), 'Edit')]",
+    );
+    await editItem.waitForExist({ timeout: 10_000 });
+    await editItem.waitForClickable({ timeout: 10_000 });
     await editItem.click();
 
     const sheetTitle = await find("[data-slot='sheet-title']");
@@ -288,19 +386,27 @@ describe("Transaction list — CRUD", () => {
 
     // Open actions menu for last row
     const actionBtns = await findAll("[data-testid^='tx-actions-']");
-    await actionBtns[actionBtns.length - 1].waitForClickable({ timeout: 5_000 });
-    await actionBtns[actionBtns.length - 1].click();
+    const lastAction = actionBtns[actionBtns.length - 1];
+    await lastAction.scrollIntoView();
+    await lastAction.waitForClickable({ timeout: 10_000 });
+    await lastAction.click();
 
-    const deleteItem = await find("//li[contains(normalize-space(.), 'Delete')]");
-    await deleteItem.waitForExist({ timeout: 5_000 });
+    const deleteItem = await find(
+      "//*[@role='menuitem' and contains(normalize-space(.), 'Delete')]",
+    );
+    await deleteItem.waitForExist({ timeout: 10_000 });
+    await deleteItem.waitForClickable({ timeout: 10_000 });
     await deleteItem.click();
 
     // Confirm dialog
     const confirmBtn = await find("[data-testid='delete-confirm']");
-    await confirmBtn.waitForClickable({ timeout: 5_000 });
+    await confirmBtn.waitForClickable({ timeout: 10_000 });
     await confirmBtn.click();
 
-    await browser.pause(500);
+    await browser.waitUntil(
+      async () => (await findAll("[data-testid^='tx-row-']")).length === countBefore - 1,
+      { timeout: 10_000, timeoutMsg: "Expected row count to decrease after deleting" },
+    );
 
     const countAfter = (await findAll("[data-testid^='tx-row-']")).length;
     expect(countAfter).toBe(countBefore - 1);
@@ -310,18 +416,22 @@ describe("Transaction list — CRUD", () => {
     const countBefore = (await findAll("[data-testid^='tx-row-']")).length;
 
     const actionBtns = await findAll("[data-testid^='tx-actions-']");
-    await actionBtns[0].waitForClickable({ timeout: 5_000 });
+    await actionBtns[0].scrollIntoView();
+    await actionBtns[0].waitForClickable({ timeout: 10_000 });
     await actionBtns[0].click();
 
-    const deleteItem = await find("//li[contains(normalize-space(.), 'Delete')]");
-    await deleteItem.waitForExist({ timeout: 5_000 });
+    const deleteItem = await find(
+      "//*[@role='menuitem' and contains(normalize-space(.), 'Delete')]",
+    );
+    await deleteItem.waitForExist({ timeout: 10_000 });
+    await deleteItem.waitForClickable({ timeout: 10_000 });
     await deleteItem.click();
 
     const cancelBtn = await find("[data-testid='delete-cancel']");
-    await cancelBtn.waitForClickable({ timeout: 5_000 });
+    await cancelBtn.waitForClickable({ timeout: 10_000 });
     await cancelBtn.click();
 
-    await browser.pause(300);
+    await cancelBtn.waitForExist({ reverse: true, timeout: 10_000 });
 
     const countAfter = (await findAll("[data-testid^='tx-row-']")).length;
     expect(countAfter).toBe(countBefore);

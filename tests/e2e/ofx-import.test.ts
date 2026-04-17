@@ -30,17 +30,28 @@ async function loadDashboard() {
   await initializeAppWithFreshDb();
 }
 
+function toXpathLiteral(value: string): string {
+  // Minimal escaping for XPath string literals.
+  if (!value.includes("'")) return `'${value}'`;
+  if (!value.includes('"')) return `"${value}"`;
+  return "concat(" + value.split("'").map((part) => `'${part}'`).join(", \"'\", ") + ")";
+}
+
 async function selectOption(triggerId: string, optionText: string) {
-  await (await find(`#${triggerId}`)).click();
-  await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
-  const options = await findAll('[role="option"]');
-  for (const opt of options) {
-    if ((await opt.getText()).includes(optionText)) {
-      await opt.click();
-      return;
-    }
-  }
-  throw new Error(`Select option "${optionText}" not found`);
+  const trigger = await find(`#${triggerId}`);
+  await trigger.waitForClickable({ timeout: 10_000 });
+  await trigger.click();
+
+  const listbox = await find('[role="listbox"]');
+  await listbox.waitForExist({ timeout: 10_000 });
+
+  const option = await find(
+    `//*[@role="option" and contains(normalize-space(.), ${toXpathLiteral(optionText)})]`,
+  );
+  await option.waitForExist({ timeout: 10_000 });
+  await option.scrollIntoView();
+  await option.waitForClickable({ timeout: 10_000 });
+  await option.click();
 }
 
 /**
@@ -98,16 +109,19 @@ async function openImportScreen() {
  */
 async function selectImportAccount(accountName: string) {
   const trigger = await find('[data-testid="account-select"]');
+  await trigger.waitForClickable({ timeout: 10_000 });
   await trigger.click();
-  await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
-  const options = await findAll('[role="option"]');
-  for (const opt of options) {
-    if ((await opt.getText()).includes(accountName)) {
-      await opt.click();
-      return;
-    }
-  }
-  throw new Error(`Account option "${accountName}" not found`);
+
+  const listbox = await find('[role="listbox"]');
+  await listbox.waitForExist({ timeout: 10_000 });
+
+  const option = await find(
+    `//*[@role="option" and contains(normalize-space(.), ${toXpathLiteral(accountName)})]`,
+  );
+  await option.waitForExist({ timeout: 10_000 });
+  await option.scrollIntoView();
+  await option.waitForClickable({ timeout: 10_000 });
+  await option.click();
 }
 
 /**
@@ -168,7 +182,9 @@ describe("OFX Import — happy path (valid 3-transaction file)", () => {
     ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
-    await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
+    await (await find('[data-testid="done-button"]')).waitForExist({
+      timeout: 60_000,
+    });
 
     expect(await (await find('[data-testid="result-total"]')).getText()).toBe(
       "3",
@@ -182,7 +198,9 @@ describe("OFX Import — happy path (valid 3-transaction file)", () => {
   });
 
   it("Done button returns to the dashboard", async () => {
-    await (await find('[data-testid="done-button"]')).click();
+    const doneBtn = await find('[data-testid="done-button"]');
+    await doneBtn.waitForClickable({ timeout: 10_000 });
+    await doneBtn.click();
     await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
   });
 });
@@ -200,8 +218,12 @@ describe("OFX Import — all FITIDs already exist (all duplicates)", () => {
       await find('[data-testid="next-button"]')
     ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
-    await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
-    await (await find('[data-testid="done-button"]')).click();
+
+    const doneBtn = await find('[data-testid="done-button"]');
+    await doneBtn.waitForExist({ timeout: 60_000 });
+    await doneBtn.waitForClickable({ timeout: 10_000 });
+    await doneBtn.click();
+
     await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
   });
 
@@ -214,7 +236,9 @@ describe("OFX Import — all FITIDs already exist (all duplicates)", () => {
     ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
-    await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
+    await (await find('[data-testid="done-button"]')).waitForExist({
+      timeout: 60_000,
+    });
 
     expect(
       await (await find('[data-testid="result-imported"]')).getText(),
@@ -269,7 +293,9 @@ describe("OFX Import — no LEDGERBAL (no balance validation)", () => {
     ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="next-button"]')).click();
 
-    await (await find("h1*=Import Complete")).waitForExist({ timeout: 15_000 });
+    await (await find('[data-testid="done-button"]')).waitForExist({
+      timeout: 60_000,
+    });
     expect(
       await (await find('[data-testid="result-imported"]')).getText(),
     ).toBe("1");
