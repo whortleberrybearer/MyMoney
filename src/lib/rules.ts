@@ -109,7 +109,6 @@ export async function applyRules(transactionIds?: number[]): Promise<number> {
       }
     }
 
-    const targetCategoryId = matchedRule ? null : uncategorisedId;
     const updates: Partial<{ categoryId: number | null; notes: string | null }> = {};
 
     if (matchedRule) {
