@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowDownToLine, Settings } from "lucide-react";
+import { ArrowDownToLine, Settings, Tags } from "lucide-react";
 import { listTags, Tag } from "@/lib/reference-data";
 import { Button } from "@/components/ui/button";
 import { AccountsScreen } from "./AccountsScreen";
@@ -10,9 +10,10 @@ interface DashboardShellProps {
   onNavigateToSettings: () => void;
   onNavigateToImport: () => void;
   onNavigateToTransactions: (accountId: number, accountName: string) => void;
+  onNavigateToRules: () => void;
 }
 
-export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNavigateToTransactions }: DashboardShellProps) {
+export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNavigateToTransactions, onNavigateToRules }: DashboardShellProps) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
 
@@ -45,6 +46,15 @@ export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNav
           data-testid="import-button"
         >
           <ArrowDownToLine className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNavigateToRules}
+          aria-label="Rules"
+          data-testid="rules-nav-button"
+        >
+          <Tags className="h-5 w-5" />
         </Button>
         <Button
           variant="ghost"

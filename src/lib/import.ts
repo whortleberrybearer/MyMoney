@@ -7,6 +7,7 @@ export type ImportResult = {
   total: number;
   imported: number;
   duplicateCandidates: number;
+  categorised: number;
   uncategorised: number;
 };
 

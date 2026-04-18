@@ -27,6 +27,10 @@ export function ImportResultScreen({ result, onDone }: ImportResultScreenProps) 
             <span data-testid="result-duplicates">{result.duplicateCandidates}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-muted-foreground">Categorised</span>
+            <span data-testid="result-categorised">{result.categorised}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-muted-foreground">Uncategorised</span>
             <span data-testid="result-uncategorised">{result.uncategorised}</span>
           </div>

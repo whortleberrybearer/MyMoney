@@ -3,6 +3,7 @@ import { AppProvider, useApp } from "@/lib/app-context";
 import { createNewFile, openExistingFile } from "@/lib/file-selection";
 import { runStartupBackup } from "@/lib/file-backup";
 import { DashboardShell } from "@/components/DashboardShell";
+import { RulesManagementScreen } from "@/components/RulesManagementScreen";
 import { FileNotFoundScreen } from "@/components/FileNotFoundScreen";
 import { ImportResultScreen } from "@/components/ImportResultScreen";
 import { ImportScreen } from "@/components/ImportScreen";
@@ -95,6 +96,16 @@ function AppScreens() {
               accountName,
             })
           }
+          onNavigateToRules={() =>
+            navigate({ screen: "rules", filePath: current.filePath })
+          }
+        />
+      );
+
+    case "rules":
+      return (
+        <RulesManagementScreen
+          onBack={() => navigate({ screen: "dashboard", filePath: current.filePath })}
         />
       );
 

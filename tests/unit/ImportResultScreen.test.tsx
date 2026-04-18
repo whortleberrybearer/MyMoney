@@ -7,6 +7,7 @@ const RESULT: ImportResult = {
   total: 42,
   imported: 39,
   duplicateCandidates: 2,
+  categorised: 34,
   uncategorised: 5,
 };
 
@@ -18,6 +19,7 @@ describe("ImportResultScreen — counts", () => {
     expect(screen.getByTestId("result-total")).toHaveTextContent("42");
     expect(screen.getByTestId("result-imported")).toHaveTextContent("39");
     expect(screen.getByTestId("result-duplicates")).toHaveTextContent("2");
+    expect(screen.getByTestId("result-categorised")).toHaveTextContent("34");
     expect(screen.getByTestId("result-uncategorised")).toHaveTextContent("5");
   });
 
@@ -25,7 +27,7 @@ describe("ImportResultScreen — counts", () => {
     const onDone = vi.fn();
     render(
       <ImportResultScreen
-        result={{ total: 0, imported: 0, duplicateCandidates: 0, uncategorised: 0 }}
+        result={{ total: 0, imported: 0, duplicateCandidates: 0, categorised: 0, uncategorised: 0 }}
         onDone={onDone}
       />,
     );

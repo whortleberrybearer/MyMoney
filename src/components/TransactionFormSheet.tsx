@@ -6,6 +6,16 @@ import {
 } from "@/lib/transactions";
 import { listCategories, type Category } from "@/lib/categories";
 import { CategoryCombobox } from "@/components/CategoryCombobox";
+import { RuleBuilderSheet, type RuleBuilderPrefill } from "@/components/RuleBuilderSheet";
+import { applyRules } from "@/lib/rules";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +33,8 @@ interface Props {
   /** When provided, the sheet is in edit mode for this transaction. */
   editTransaction?: TransactionRow;
   onSaved: () => void;
+  /** Called after re-run completes, with the count of categorised transactions. */
+  onRerunComplete?: (count: number) => void;
 }
 
 type FormState = {
@@ -51,12 +63,18 @@ export function TransactionFormSheet({
   accountId,
   editTransaction,
   onSaved,
+  onRerunComplete,
 }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryPromptOpen, setCategoryPromptOpen] = useState(false);
+  const [savedCategoryId, setSavedCategoryId] = useState<number | null>(null);
+  const [ruleBuilderOpen, setRuleBuilderOpen] = useState(false);
+  const [rulePrefill, setRulePrefill] = useState<RuleBuilderPrefill | undefined>(undefined);
+  const [triggerRerunOnSave, setTriggerRerunOnSave] = useState(false);
 
   const isEditMode = editTransaction !== undefined;
   const isImported = editTransaction?.type === "imported";
@@ -105,10 +123,12 @@ export function TransactionFormSheet({
     setSaving(true);
     setSaveError("");
     try {
+      const originalCategoryId = editTransaction?.categoryId ?? null;
+      const categoryChanged = isEditMode && form.categoryId !== originalCategoryId;
+
       if (isEditMode && editTransaction) {
         await updateTransaction({
           id: editTransaction.id,
-          // Only send date/amount for manual transactions
           ...(isImported ? {} : {
             date: form.date,
             amount: Number(form.amount),
@@ -128,8 +148,29 @@ export function TransactionFormSheet({
           categoryId: form.categoryId ?? undefined,
         });
       }
-      onOpenChange(false);
-      onSaved();
+
+      if (categoryChanged && form.categoryId !== null) {
+        setSavedCategoryId(form.categoryId);
+        const catName =
+          categories.find((c) => c.id === form.categoryId)?.name ?? "selected category";
+        const ruleNameSource =
+          form.payee?.trim() || form.notes?.trim().slice(0, 30) || catName;
+        setRulePrefill({
+          name: ruleNameSource,
+          condition: {
+            field: "description",
+            operator: "contains",
+            value: form.notes?.trim() || form.payee?.trim() || "",
+          },
+          action: { actionType: "assign_category", categoryId: form.categoryId },
+        });
+        onOpenChange(false);
+        onSaved();
+        setCategoryPromptOpen(true);
+      } else {
+        onOpenChange(false);
+        onSaved();
+      }
     } catch (err) {
       setSaveError(String(err));
     } finally {
@@ -137,7 +178,32 @@ export function TransactionFormSheet({
     }
   }
 
+  function handlePromptNo() {
+    setCategoryPromptOpen(false);
+  }
+
+  function handlePromptFutureOnly() {
+    setCategoryPromptOpen(false);
+    setTriggerRerunOnSave(false);
+    setRuleBuilderOpen(true);
+  }
+
+  function handlePromptAllTransactions() {
+    setCategoryPromptOpen(false);
+    setTriggerRerunOnSave(true);
+    setRuleBuilderOpen(true);
+  }
+
+  async function handleRuleBuilderSaved(_ruleId: number, triggered: boolean) {
+    setRuleBuilderOpen(false);
+    if (triggered && onRerunComplete) {
+      const count = await applyRules();
+      onRerunComplete(count);
+    }
+  }
+
   return (
+    <>
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <SheetHeader>
@@ -249,5 +315,40 @@ export function TransactionFormSheet({
         </div>
       </SheetContent>
     </Sheet>
+
+    {/* Category change shortcut prompt */}
+    <AlertDialog open={categoryPromptOpen} onOpenChange={(open) => !open && setCategoryPromptOpen(false)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Apply to future transactions?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You changed the category to "
+            {categories.find((c) => c.id === savedCategoryId)?.name ?? "selected category"}".
+            Create a rule to apply this automatically?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={handlePromptNo} data-testid="prompt-no">
+            No
+          </Button>
+          <Button variant="outline" onClick={handlePromptFutureOnly} data-testid="prompt-future-only">
+            Future transactions only
+          </Button>
+          <Button onClick={handlePromptAllTransactions} data-testid="prompt-all-transactions">
+            All transactions
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    {/* Rule builder opened from category change shortcut */}
+    <RuleBuilderSheet
+      open={ruleBuilderOpen}
+      onOpenChange={(open) => !open && setRuleBuilderOpen(false)}
+      prefill={rulePrefill}
+      onSaved={handleRuleBuilderSaved}
+      triggerRerunOnSave={triggerRerunOnSave}
+    />
+    </>
   );
 }

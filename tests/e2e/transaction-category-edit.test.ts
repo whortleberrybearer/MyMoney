@@ -181,6 +181,21 @@ async function openEditDrawerForTransactionAmount(amountText: string) {
   await (await find("#tx-category")).waitForExist({ timeout: 10_000 });
 }
 
+async function dismissApplyToFuturePromptIfPresent() {
+  // Editing an existing transaction and changing its category to a non-null
+  // value triggers an "Apply to future transactions?" prompt.
+  const noBtn = await find('[data-testid="prompt-no"]');
+  try {
+    await noBtn.waitForExist({ timeout: 3_000 });
+  } catch {
+    return;
+  }
+
+  await noBtn.waitForClickable({ timeout: 10_000 });
+  await noBtn.click();
+  await noBtn.waitForExist({ reverse: true, timeout: 10_000 });
+}
+
 // ---------------------------------------------------------------------------
 // Test suite
 // ---------------------------------------------------------------------------
@@ -316,6 +331,8 @@ describe("Transaction category combobox", () => {
         reverse: true,
         timeout: 5_000,
       });
+
+      await dismissApplyToFuturePromptIfPresent();
 
       // Transaction row should now show "Bills".
       await browser.waitUntil(
