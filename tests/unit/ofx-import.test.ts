@@ -458,3 +458,46 @@ describe("importOfxFile — payee, reference, and running balance", () => {
     expect(txRows[1].runningBalance).toBeCloseTo(70);  // 100 - 10 - 20
   });
 });
+
+describe("importOfxFile — rules engine integration", () => {
+  it("returns categorised=0 and uncategorised=imported when no rules exist", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+    const acc = await seedAccount(db);
+
+    const ofx = makeOfxFile([
+      { fitid: "TX1", dtposted: "20240101", trnamt: "-10.00", name: "Shop" },
+      { fitid: "TX2", dtposted: "20240102", trnamt: "-20.00", name: "Cafe" },
+    ]);
+
+    const result = await importOfxFile(acc.id, ofx);
+    expect(result.categorised).toBe(0);
+    expect(result.uncategorised).toBe(2);
+  });
+
+  it("returns correct categorised count when a matching rule exists", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+    const acc = await seedAccount(db);
+
+    // Seed a rule that matches "Shop" in payee
+    const { categorisationRule, ruleCondition, ruleAction, category } = await import("@/lib/db/schema");
+    const { eq: eqLocal } = await import("drizzle-orm");
+    await db.insert(categorisationRule).values({ name: "Shop Rule", sortOrder: 1, isActive: 1 });
+    const [rule] = await db.select().from(categorisationRule);
+    await db.insert(ruleCondition).values({ ruleId: rule.id, field: "payee", operator: "equals", value: "Shop" });
+    const [cat] = await db.select().from(category).where(eqLocal(category.name, "Groceries"));
+    await db.insert(ruleAction).values({ ruleId: rule.id, actionType: "assign_category", categoryId: cat.id });
+
+    const ofx = makeOfxFile([
+      { fitid: "TX1", dtposted: "20240101", trnamt: "-10.00", name: "Shop" },   // matches
+      { fitid: "TX2", dtposted: "20240102", trnamt: "-20.00", name: "Cafe" },   // no match
+    ]);
+
+    const result = await importOfxFile(acc.id, ofx);
+    expect(result.categorised).toBe(1);
+    expect(result.uncategorised).toBe(1);
+  });
+});

@@ -70,7 +70,7 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
         result = await importOfxFile(Number(selectedAccountId), fileContents);
       } else {
         // CSV handler stub — to be implemented with issue #38
-        result = { total: 0, imported: 0, duplicateCandidates: 0, uncategorised: 0 };
+        result = { total: 0, imported: 0, duplicateCandidates: 0, categorised: 0, uncategorised: 0 };
       }
       onDone(result);
     } catch (err) {

@@ -36,6 +36,13 @@
       "when": 1776369189477,
       "tag": "0004_transaction_extended_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1776459596136,
+      "tag": "0005_colossal_tarantula",
+      "breakpoints": true
     }
   ]
 }

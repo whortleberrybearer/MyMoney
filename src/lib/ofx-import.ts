@@ -14,6 +14,7 @@ import { getDb } from "./db";
 import { account, transaction, transactionFitid } from "./db/schema";
 import type { ImportResult } from "./import";
 import { parseOfx } from "./ofx-parser";
+import { applyRules } from "./rules";
 import { recalculateRunningBalance } from "./transactions";
 
 // ---------------------------------------------------------------------------
@@ -99,6 +100,7 @@ export async function importOfxFile(
   }
 
   let earliestImportedDate: string | null = null;
+  const importedIds: number[] = [];
 
   for (const parsed of toImport) {
     if (!earliestImportedDate || parsed.date < earliestImportedDate) {
@@ -129,6 +131,8 @@ export async function importOfxFile(
       throw new Error("Failed to determine inserted transaction id");
     }
 
+    importedIds.push(lastRow.id);
+
     // Record the FITID linked to the new transaction
     await db.insert(transactionFitid).values({
       transactionId: lastRow.id,
@@ -144,24 +148,14 @@ export async function importOfxFile(
     await recalculateRunningBalance(accountId, earliestImportedDate);
   }
 
-  // Apply categorisation rules (stub — not yet implemented; see issue #10)
-  const categorised = applyCategorisationRules(imported);
+  // Apply categorisation rules to the newly imported transactions
+  const categorised = importedIds.length > 0 ? await applyRules(importedIds) : 0;
   const uncategorised = imported - categorised;
 
   // Apply pot allocation rules (stub — not yet implemented; see issue #12)
   applyPotAllocationRules();
 
-  return { total, imported, duplicateCandidates, uncategorised };
-}
-
-// ---------------------------------------------------------------------------
-// Rules engine stubs
-// Replaced when issues #10 (categorisation) and #12 (pot allocation) ship.
-// ---------------------------------------------------------------------------
-
-function applyCategorisationRules(_importedCount: number): number {
-  // Stub: no rules → all transactions are uncategorised
-  return 0;
+  return { total, imported, duplicateCandidates, categorised, uncategorised };
 }
 
 function applyPotAllocationRules(): void {
