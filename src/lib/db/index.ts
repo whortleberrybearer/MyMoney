@@ -6,6 +6,7 @@ import migration0002 from "./migrations/0002_wide_tag.sql?raw";
 import migration0003 from "./migrations/0003_greedy_human_robot.sql?raw";
 import migration0004 from "./migrations/0004_transaction_extended_fields.sql?raw";
 import migration0005 from "./migrations/0005_colossal_tarantula.sql?raw";
+import migration0006 from "./migrations/0006_pot_allocation_rules.sql?raw";
 
 // ---------------------------------------------------------------------------
 // Inline migration list
@@ -42,6 +43,11 @@ const MIGRATIONS: Array<{ when: number; hash: string; sql: string }> = [
     when: 1776459596136,
     hash: "840631d33b12c5d2bc9a3fe722064313c745207768b8273aec3e68449452ab3d",
     sql: migration0005,
+  },
+  {
+    when: 1776546000000,
+    hash: "bfba01143ae0a056ebf240fd3b8b935a2d3af80d5b8722ab829bb842575b5838",
+    sql: migration0006,
   },
 ];
 
