@@ -34,7 +34,27 @@ export function ImportResultScreen({ result, onDone }: ImportResultScreenProps) 
             <span className="text-muted-foreground">Uncategorised</span>
             <span data-testid="result-uncategorised">{result.uncategorised}</span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Pot allocations</span>
+            <span data-testid="result-pot-allocations">{result.potAllocations}</span>
+          </div>
         </div>
+
+        {result.allocationFailures.length > 0 && (
+          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm dark:border-amber-800 dark:bg-amber-950" data-testid="allocation-failures">
+            <p className="mb-2 font-medium text-amber-800 dark:text-amber-200">
+              Allocation failures ({result.allocationFailures.length})
+            </p>
+            <ul className="space-y-1 text-amber-700 dark:text-amber-300">
+              {result.allocationFailures.map((failure, i) => (
+                <li key={i}>
+                  Rule &apos;{failure.ruleName}&apos; — insufficient balance for{" "}
+                  {failure.potNames.join(", ")}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="mt-6 flex justify-end">
           <Button onClick={onDone} data-testid="done-button">
