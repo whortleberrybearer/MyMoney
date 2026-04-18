@@ -1,4 +1,6 @@
 import { ArrowLeft, ChevronDown, ChevronUp, MoreHorizontal, Plus } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PotAllocationRulesTab } from "./PotAllocationRulesTab";
 import { useEffect, useState } from "react";
 import {
   deleteTransaction,
@@ -173,14 +175,27 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <span className="font-semibold flex-1">{accountName}</span>
-        <Button size="sm" className="gap-1" onClick={openAdd} data-testid="add-transaction-btn">
-          <Plus className="h-4 w-4" />
-          Add Transaction
-        </Button>
       </header>
 
-      {/* Filter bar */}
-      <div className="border-b px-6 py-3">
+      <Tabs defaultValue="transactions" className="flex flex-1 flex-col overflow-hidden">
+        <div className="border-b px-6 pt-3">
+          <TabsList>
+            <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="rules" data-testid="tab-rules">Rules</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="transactions" className="flex flex-1 flex-col overflow-hidden mt-0">
+          {/* Add transaction button */}
+          <div className="flex justify-end px-6 py-2">
+            <Button size="sm" className="gap-1" onClick={openAdd} data-testid="add-transaction-btn">
+              <Plus className="h-4 w-4" />
+              Add Transaction
+            </Button>
+          </div>
+
+          {/* Filter bar */}
+          <div className="border-b px-6 pb-3">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
             <Label className="text-xs text-muted-foreground">From</Label>
@@ -275,12 +290,12 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
               Clear filters
             </Button>
           )}
-        </div>
-      </div>
+          </div>
+          </div>
 
-      {/* Table */}
-      <div className="flex-1 overflow-auto">
-        {loading ? (
+          {/* Table */}
+          <div className="flex-1 overflow-auto">
+            {loading ? (
           <div className="flex h-32 items-center justify-center text-muted-foreground">
             Loading…
           </div>
@@ -375,45 +390,51 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
               ))}
             </TableBody>
           </Table>
-        )}
-      </div>
+          )}
+          </div>
 
-      {/* Transaction form */}
-      <TransactionFormSheet
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        accountId={accountId}
-        editTransaction={editTarget}
-        onSaved={load}
-      />
+          {/* Transaction form */}
+          <TransactionFormSheet
+            open={formOpen}
+            onOpenChange={setFormOpen}
+            accountId={accountId}
+            editTransaction={editTarget}
+            onSaved={load}
+          />
 
-      {/* Delete confirmation */}
-      <AlertDialog
-        open={!!deleteTarget}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete transaction?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the transaction
-              {deleteTarget?.payee ? ` from ${deleteTarget.payee}` : ""}
-              {" "}on {deleteTarget?.date}. Running balances will be recalculated.
-              This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel data-testid="delete-cancel">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              data-testid="delete-confirm"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          {/* Delete confirmation */}
+          <AlertDialog
+            open={!!deleteTarget}
+            onOpenChange={(o) => !o && setDeleteTarget(null)}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete transaction?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the transaction
+                  {deleteTarget?.payee ? ` from ${deleteTarget.payee}` : ""}
+                  {" "}on {deleteTarget?.date}. Running balances will be recalculated.
+                  This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel data-testid="delete-cancel">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={confirmDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  data-testid="delete-confirm"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </TabsContent>
+
+        <TabsContent value="rules" className="flex-1 overflow-auto px-6 py-4 mt-0">
+          <PotAllocationRulesTab accountId={accountId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
