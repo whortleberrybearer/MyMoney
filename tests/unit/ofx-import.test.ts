@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as dbModule from "@/lib/db";
 import { importOfxFile } from "@/lib/ofx-import";
 import { createTestDb } from "./db-helper";
-import { account, institution, transaction, transactionFitid } from "@/lib/db/schema";
+import { account, institution, pot, potAllocationRule, potAllocationRuleAction, potAllocationRuleCondition, transaction, transactionFitid } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 vi.mock("@/lib/db", () => ({ getDb: vi.fn() }));
@@ -499,5 +499,76 @@ describe("importOfxFile — rules engine integration", () => {
     const result = await importOfxFile(acc.id, ofx);
     expect(result.categorised).toBe(1);
     expect(result.uncategorised).toBe(1);
+  });
+});
+
+describe("importOfxFile — pot allocation rules engine integration", () => {
+  it("returns potAllocations=0 and empty allocationFailures when no rules exist", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+
+    const acc = await seedAccount(db, 1000);
+    const ofx = makeOfxFile([
+      { fitid: "TX1", dtposted: "20240601", trnamt: "2000.00", name: "Salary" },
+    ]);
+
+    const result = await importOfxFile(acc.id, ofx);
+    expect(result.potAllocations).toBe(0);
+    expect(result.allocationFailures).toEqual([]);
+  });
+
+  it("pot allocation runs after categorisation and creates virtual transfers", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+
+    const acc = await seedAccount(db, 0);
+    await db.insert(pot).values({ accountId: acc.id, name: "Holiday Pot", openingBalance: 0, openingDate: "2024-01-01", isActive: 1 });
+    const [p] = await db.select().from(pot);
+
+    // Condition: amount > 1000 (the import transaction is 2000.00)
+    await db.insert(potAllocationRule).values({ accountId: acc.id, name: "Salary split", priority: 1, isActive: 1 });
+    const [rule] = await db.select().from(potAllocationRule);
+    await db.insert(potAllocationRuleCondition).values({ ruleId: rule.id, field: "amount", operator: "greater_than", value: "1000" });
+    await db.insert(potAllocationRuleAction).values({ ruleId: rule.id, potId: p.id, allocationValue: 200 });
+
+    const ofx = makeOfxFile([
+      { fitid: "TX1", dtposted: "20240601", trnamt: "2000.00", name: "Salary" },
+    ]);
+
+    const result = await importOfxFile(acc.id, ofx);
+    expect(result.potAllocations).toBe(1);
+    expect(result.allocationFailures).toHaveLength(0);
+
+    const allTxs = await db.select().from(transaction);
+    const virtualTxs = allTxs.filter((t) => t.type === "virtual_transfer");
+    expect(virtualTxs).toHaveLength(2);
+  });
+
+  it("surfaces allocation failures in result when insufficient balance", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+
+    const acc = await seedAccount(db, 0);
+    await db.insert(pot).values({ accountId: acc.id, name: "Holiday Pot", openingBalance: 0, openingDate: "2024-01-01", isActive: 1 });
+    const [p] = await db.select().from(pot);
+
+    // Condition: amount > 50 (matches 100); rule allocates 9999 — will fail due to insufficient balance
+    await db.insert(potAllocationRule).values({ accountId: acc.id, name: "Big Split", priority: 1, isActive: 1 });
+    const [rule] = await db.select().from(potAllocationRule);
+    await db.insert(potAllocationRuleCondition).values({ ruleId: rule.id, field: "amount", operator: "greater_than", value: "50" });
+    await db.insert(potAllocationRuleAction).values({ ruleId: rule.id, potId: p.id, allocationValue: 9999 });
+
+    const ofx = makeOfxFile([
+      { fitid: "TX1", dtposted: "20240601", trnamt: "100.00", name: "Salary" },
+    ]);
+
+    const result = await importOfxFile(acc.id, ofx);
+    expect(result.potAllocations).toBe(0);
+    expect(result.allocationFailures).toHaveLength(1);
+    expect(result.allocationFailures[0].ruleName).toBe("Big Split");
+    expect(result.allocationFailures[0].potNames).toContain("Holiday Pot");
   });
 });

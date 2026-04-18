@@ -3,12 +3,19 @@
  * Both OFX and CSV import handlers produce an ImportResult.
  */
 
+export type AllocationFailure = {
+  ruleName: string;
+  potNames: string[];
+};
+
 export type ImportResult = {
   total: number;
   imported: number;
   duplicateCandidates: number;
   categorised: number;
   uncategorised: number;
+  potAllocations: number;
+  allocationFailures: AllocationFailure[];
 };
 
 /**
