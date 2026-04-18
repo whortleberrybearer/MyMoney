@@ -114,6 +114,37 @@ export const transactionFitid = sqliteTable(
   (t) => [uniqueIndex("transaction_fitid_account_fitid_idx").on(t.accountId, t.fitid)],
 );
 
+export const potAllocationRule = sqliteTable("pot_allocation_rule", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  accountId: integer("account_id")
+    .notNull()
+    .references(() => account.id),
+  name: text("name").notNull(),
+  priority: integer("priority").notNull(),
+  isActive: integer("is_active").notNull().default(1),
+});
+
+export const potAllocationRuleCondition = sqliteTable("pot_allocation_rule_condition", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  ruleId: integer("rule_id")
+    .notNull()
+    .references(() => potAllocationRule.id),
+  field: text("field").notNull(),
+  operator: text("operator").notNull(),
+  value: text("value").notNull(),
+});
+
+export const potAllocationRuleAction = sqliteTable("pot_allocation_rule_action", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  ruleId: integer("rule_id")
+    .notNull()
+    .references(() => potAllocationRule.id),
+  potId: integer("pot_id")
+    .notNull()
+    .references(() => pot.id),
+  allocationValue: real("allocation_value").notNull(),
+});
+
 export const categorisationRule = sqliteTable("categorisation_rule", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),

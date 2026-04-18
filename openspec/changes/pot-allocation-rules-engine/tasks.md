@@ -59,5 +59,5 @@
 
 ## 8. End-to-End Tests
 
-- [ ] 8.1 Write `tests/e2e/pot-allocation-rules-management.test.ts` — create rule, verify it appears in list; toggle active; drag to reorder; delete with confirmation
-- [ ] 8.2 Write `tests/e2e/pot-allocation-import.test.ts` — import OFX with a matching active rule, verify virtual transfer transactions created on account and pot, verify import result screen shows allocation count; import with insufficient balance, verify failure shown on result screen
+- [x] 8.1 Write `tests/e2e/pot-allocation-rules-management.test.ts` — create rule, verify it appears in list; toggle active; drag to reorder; delete with confirmation
+- [x] 8.2 Write `tests/e2e/pot-allocation-import.test.ts` — import OFX with a matching active rule, verify virtual transfer transactions created on account and pot, verify import result screen shows allocation count; import with insufficient balance, verify failure shown on result screen
