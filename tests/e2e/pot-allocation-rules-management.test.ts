@@ -271,8 +271,13 @@ describe("Pot Allocation Rules Tab — drag to reorder", () => {
     await fillRuleForm("Rule B", "BBB", "50");
     await (await find('[data-testid="par-builder-save"]')).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="par-builder-save"]')).click();
-    const rows = await findAll('[data-testid^="par-rule-row-"]');
-    await rows[1].waitForExist({ timeout: 10_000 });
+    await browser.waitUntil(
+      async () => (await findAll('[data-testid^="par-rule-row-"]').length) >= 2,
+      {
+        timeout: 10_000,
+        timeoutMsg: "Expected 2 pot allocation rule rows to be visible",
+      },
+    );
   });
 
   it("each rule row has a drag handle", async () => {

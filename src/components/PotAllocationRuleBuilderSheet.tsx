@@ -46,7 +46,20 @@ const NUMERIC_OPERATORS = [
   { value: "less_than", label: "Less than" },
 ] as const;
 
-function operatorsForField(field: string) {
+type ConditionField = (typeof CONDITION_FIELDS)[number]["value"];
+type ConditionOperator =
+  | (typeof TEXT_OPERATORS)[number]["value"]
+  | (typeof NUMERIC_OPERATORS)[number]["value"];
+
+function isConditionField(value: string): value is ConditionField {
+  return CONDITION_FIELDS.some((f) => f.value === value);
+}
+
+function isConditionOperator(value: string): value is ConditionOperator {
+  return [...TEXT_OPERATORS, ...NUMERIC_OPERATORS].some((op) => op.value === value);
+}
+
+function operatorsForField(field: ConditionField) {
   return field === "amount" ? NUMERIC_OPERATORS : TEXT_OPERATORS;
 }
 
@@ -56,8 +69,8 @@ function operatorsForField(field: string) {
 
 type ConditionForm = {
   key: number;
-  field: string;
-  operator: string;
+  field: ConditionField;
+  operator: ConditionOperator;
   value: string;
 };
 
@@ -128,9 +141,9 @@ export function PotAllocationRuleBuilderSheet({
       setName(rule.name);
       setConditions(
         rule.conditions.map((c) => ({
+          field: isConditionField(c.field) ? c.field : "description",
+          operator: isConditionOperator(c.operator) ? c.operator : "contains",
           key: nextKey(),
-          field: c.field,
-          operator: c.operator,
           value: c.value,
         })),
       );
@@ -253,7 +266,9 @@ export function PotAllocationRuleBuilderSheet({
               <div key={cond.key} className="flex items-center gap-2" data-testid={`par-condition-row-${idx}`}>
                 <Select
                   value={cond.field}
-                  onValueChange={(v) => updateCondition(cond.key, { field: v })}
+                  onValueChange={(v) => {
+                    if (isConditionField(v)) updateCondition(cond.key, { field: v });
+                  }}
                 >
                   <SelectTrigger className="w-36" data-testid={`par-cond-field-${idx}`}>
                     <SelectValue />
@@ -267,7 +282,9 @@ export function PotAllocationRuleBuilderSheet({
 
                 <Select
                   value={cond.operator}
-                  onValueChange={(v) => updateCondition(cond.key, { operator: v })}
+                  onValueChange={(v) => {
+                    if (isConditionOperator(v)) updateCondition(cond.key, { operator: v });
+                  }}
                 >
                   <SelectTrigger className="w-32" data-testid={`par-cond-operator-${idx}`}>
                     <SelectValue />
