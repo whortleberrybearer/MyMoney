@@ -7,7 +7,7 @@
 
 ## 2. App Integration
 
-- [ ] 2.1 Wrap `<AppProvider>` with `<ThemeProvider>` in `src/App.tsx` so the theme is applied before any screen renders
+- [x] 2.1 Wrap `<AppProvider>` with `<ThemeProvider>` in `src/App.tsx` so the theme is applied before any screen renders
 
 ## 3. Settings Screen
 

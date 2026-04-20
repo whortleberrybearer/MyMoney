@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { AppProvider, useApp } from "@/lib/app-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { createNewFile, openExistingFile } from "@/lib/file-selection";
 import { runStartupBackup } from "@/lib/file-backup";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -166,10 +167,12 @@ function AppScreens() {
 
 function App() {
   return (
-    <AppProvider>
-      <StartupBackupTrigger />
-      <AppScreens />
-    </AppProvider>
+    <ThemeProvider>
+      <AppProvider>
+        <StartupBackupTrigger />
+        <AppScreens />
+      </AppProvider>
+    </ThemeProvider>
   );
 }
 
