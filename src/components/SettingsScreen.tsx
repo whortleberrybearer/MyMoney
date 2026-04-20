@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CategoryManagementDialog } from "@/components/CategoryManagementDialog";
+import { useTheme, type ThemePreference } from "@/lib/theme-context";
 
 interface SettingsScreenProps {
   filePath: string;
@@ -15,6 +17,7 @@ export function SettingsScreen({
   onBack,
 }: SettingsScreenProps) {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const { preference, setThemePreference } = useTheme();
 
   return (
     <div className="flex h-screen flex-col">
@@ -39,6 +42,27 @@ export function SettingsScreen({
           >
             Switch data file
           </Button>
+        </section>
+
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            Appearance
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Choose how the app looks.
+          </p>
+          <ToggleGroup
+            type="single"
+            value={preference}
+            onValueChange={(value) => {
+              if (value) setThemePreference(value as ThemePreference);
+            }}
+            className="w-fit"
+          >
+            <ToggleGroupItem value="light">Light</ToggleGroupItem>
+            <ToggleGroupItem value="dark">Dark</ToggleGroupItem>
+            <ToggleGroupItem value="system">System</ToggleGroupItem>
+          </ToggleGroup>
         </section>
 
         <section className="flex flex-col gap-2">
