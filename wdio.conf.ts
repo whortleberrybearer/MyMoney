@@ -17,8 +17,10 @@ process.env.MY_MONEY_E2E_RUN_DIR = E2E_RUN_DIR;
 export const config = defineConfig({
   runner: "local",
   specs: ["./tests/e2e/**/*.test.ts"],
+  maxInstances: 1,
   capabilities: [
     {
+      maxInstances: 1,
       "tauri:options": {
         application: ".",
       },

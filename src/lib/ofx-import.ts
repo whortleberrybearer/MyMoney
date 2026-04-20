@@ -13,6 +13,7 @@ import { and, desc, eq, sum } from "drizzle-orm";
 import { getDb } from "./db";
 import { account, transaction, transactionFitid } from "./db/schema";
 import type { ImportResult } from "./import";
+import { applyPotAllocationRules } from "./pot-allocation-engine";
 import { parseOfx } from "./ofx-parser";
 import { applyRules } from "./rules";
 import { recalculateRunningBalance } from "./transactions";
@@ -152,12 +153,19 @@ export async function importOfxFile(
   const categorised = importedIds.length > 0 ? await applyRules(importedIds) : 0;
   const uncategorised = imported - categorised;
 
-  // Apply pot allocation rules (stub — not yet implemented; see issue #12)
-  applyPotAllocationRules();
+  // Apply pot allocation rules after categorisation
+  const allocationResult =
+    importedIds.length > 0
+      ? await applyPotAllocationRules(accountId, importedIds)
+      : { allocations: 0, failures: [] };
 
-  return { total, imported, duplicateCandidates, categorised, uncategorised };
-}
-
-function applyPotAllocationRules(): void {
-  // Stub: no-op
+  return {
+    total,
+    imported,
+    duplicateCandidates,
+    categorised,
+    uncategorised,
+    potAllocations: allocationResult.allocations,
+    allocationFailures: allocationResult.failures,
+  };
 }
