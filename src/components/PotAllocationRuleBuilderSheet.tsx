@@ -56,7 +56,9 @@ function isConditionField(value: string): value is ConditionField {
 }
 
 function isConditionOperator(value: string): value is ConditionOperator {
-  return [...TEXT_OPERATORS, ...NUMERIC_OPERATORS].some((op) => op.value === value);
+  return [...TEXT_OPERATORS, ...NUMERIC_OPERATORS].some(
+    (op) => op.value === value,
+  );
 }
 
 function operatorsForField(field: ConditionField) {
@@ -86,7 +88,12 @@ function nextKey() {
 }
 
 function emptyCondition(): ConditionForm {
-  return { key: nextKey(), field: "description", operator: "contains", value: "" };
+  return {
+    key: nextKey(),
+    field: "description",
+    operator: "contains",
+    value: "",
+  };
 }
 
 function emptyAction(): ActionForm {
@@ -94,7 +101,9 @@ function emptyAction(): ActionForm {
 }
 
 function isConditionComplete(c: ConditionForm): boolean {
-  return c.field.length > 0 && c.operator.length > 0 && c.value.trim().length > 0;
+  return (
+    c.field.length > 0 && c.operator.length > 0 && c.value.trim().length > 0
+  );
 }
 
 function isActionComplete(a: ActionForm): boolean {
@@ -123,7 +132,9 @@ export function PotAllocationRuleBuilderSheet({
   onCancel,
 }: Props) {
   const [name, setName] = useState("");
-  const [conditions, setConditions] = useState<ConditionForm[]>([emptyCondition()]);
+  const [conditions, setConditions] = useState<ConditionForm[]>([
+    emptyCondition(),
+  ]);
   const [actions, setActions] = useState<ActionForm[]>([emptyAction()]);
   const [pots, setPots] = useState<PotRow[]>([]);
   const [saving, setSaving] = useState(false);
@@ -202,7 +213,9 @@ export function PotAllocationRuleBuilderSheet({
   // ---------------------------------------------------------------------------
 
   function updateAction(key: number, update: Partial<ActionForm>) {
-    setActions((prev) => prev.map((a) => (a.key === key ? { ...a, ...update } : a)));
+    setActions((prev) =>
+      prev.map((a) => (a.key === key ? { ...a, ...update } : a)),
+    );
   }
 
   function addAction() {
@@ -223,8 +236,15 @@ export function PotAllocationRuleBuilderSheet({
 
     const input = {
       name: name.trim(),
-      conditions: conditions.map((c) => ({ field: c.field, operator: c.operator, value: c.value })),
-      actions: actions.map((a) => ({ potId: Number(a.potId), allocationValue: Number(a.allocationValue) })),
+      conditions: conditions.map((c) => ({
+        field: c.field,
+        operator: c.operator,
+        value: c.value,
+      })),
+      actions: actions.map((a) => ({
+        potId: Number(a.potId),
+        allocationValue: Number(a.allocationValue),
+      })),
     };
 
     try {
@@ -243,7 +263,9 @@ export function PotAllocationRuleBuilderSheet({
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
       <SheetContent className="w-full max-w-lg overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{rule ? "Edit Rule" : "New Pot Allocation Rule"}</SheetTitle>
+          <SheetTitle>
+            {rule ? "Edit Rule" : "New Pot Allocation Rule"}
+          </SheetTitle>
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
@@ -263,19 +285,29 @@ export function PotAllocationRuleBuilderSheet({
           <div className="space-y-2">
             <Label>Conditions (all must match)</Label>
             {conditions.map((cond, idx) => (
-              <div key={cond.key} className="flex items-center gap-2" data-testid={`par-condition-row-${idx}`}>
+              <div
+                key={cond.key}
+                className="flex items-center gap-2"
+                data-testid={`par-condition-row-${idx}`}
+              >
                 <Select
                   value={cond.field}
                   onValueChange={(v) => {
-                    if (isConditionField(v)) updateCondition(cond.key, { field: v });
+                    if (isConditionField(v))
+                      updateCondition(cond.key, { field: v });
                   }}
                 >
-                  <SelectTrigger className="w-36" data-testid={`par-cond-field-${idx}`}>
+                  <SelectTrigger
+                    className="w-36"
+                    data-testid={`par-cond-field-${idx}`}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {CONDITION_FIELDS.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                      <SelectItem key={f.value} value={f.value}>
+                        {f.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -283,15 +315,21 @@ export function PotAllocationRuleBuilderSheet({
                 <Select
                   value={cond.operator}
                   onValueChange={(v) => {
-                    if (isConditionOperator(v)) updateCondition(cond.key, { operator: v });
+                    if (isConditionOperator(v))
+                      updateCondition(cond.key, { operator: v });
                   }}
                 >
-                  <SelectTrigger className="w-32" data-testid={`par-cond-operator-${idx}`}>
+                  <SelectTrigger
+                    className="w-32"
+                    data-testid={`par-cond-operator-${idx}`}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {operatorsForField(cond.field).map((op) => (
-                      <SelectItem key={op.value} value={op.value}>{op.label}</SelectItem>
+                      <SelectItem key={op.value} value={op.value}>
+                        {op.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -299,7 +337,9 @@ export function PotAllocationRuleBuilderSheet({
                 <Input
                   className="flex-1"
                   value={cond.value}
-                  onChange={(e) => updateCondition(cond.key, { value: e.target.value })}
+                  onChange={(e) =>
+                    updateCondition(cond.key, { value: e.target.value })
+                  }
                   placeholder="Value"
                   data-testid={`par-cond-value-${idx}`}
                 />
@@ -316,7 +356,12 @@ export function PotAllocationRuleBuilderSheet({
                 </Button>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={addCondition} data-testid="par-add-condition">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addCondition}
+              data-testid="par-add-condition"
+            >
               <Plus className="mr-1 h-4 w-4" />
               Condition
             </Button>
@@ -326,17 +371,26 @@ export function PotAllocationRuleBuilderSheet({
           <div className="space-y-2">
             <Label>Pot Actions</Label>
             {actions.map((action, idx) => (
-              <div key={action.key} className="flex items-center gap-2" data-testid={`par-action-row-${idx}`}>
+              <div
+                key={action.key}
+                className="flex items-center gap-2"
+                data-testid={`par-action-row-${idx}`}
+              >
                 <Select
                   value={action.potId}
                   onValueChange={(v) => updateAction(action.key, { potId: v })}
                 >
-                  <SelectTrigger className="flex-1" data-testid={`par-action-pot-${idx}`}>
+                  <SelectTrigger
+                    className="flex-1"
+                    data-testid={`par-action-pot-${idx}`}
+                  >
                     <SelectValue placeholder="Select pot..." />
                   </SelectTrigger>
                   <SelectContent>
                     {pots.map((p) => (
-                      <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        {p.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -347,7 +401,11 @@ export function PotAllocationRuleBuilderSheet({
                   min="0.01"
                   step="0.01"
                   value={action.allocationValue}
-                  onChange={(e) => updateAction(action.key, { allocationValue: e.target.value })}
+                  onChange={(e) =>
+                    updateAction(action.key, {
+                      allocationValue: e.target.value,
+                    })
+                  }
                   placeholder="Amount"
                   data-testid={`par-action-amount-${idx}`}
                 />
@@ -364,7 +422,12 @@ export function PotAllocationRuleBuilderSheet({
                 </Button>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={addAction} data-testid="par-add-pot">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addAction}
+              data-testid="par-add-pot"
+            >
               <Plus className="mr-1 h-4 w-4" />
               Add Pot
             </Button>
@@ -372,7 +435,11 @@ export function PotAllocationRuleBuilderSheet({
 
           {/* Footer buttons */}
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={onCancel} data-testid="par-builder-cancel">
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              data-testid="par-builder-cancel"
+            >
               Cancel
             </Button>
             <Button

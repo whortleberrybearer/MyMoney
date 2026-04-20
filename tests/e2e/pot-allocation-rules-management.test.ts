@@ -33,14 +33,20 @@ async function createTestAccount() {
   await addBtn.waitForClickable({ timeout: 10_000 });
   await addBtn.click();
 
-  await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 10_000 });
+  await (
+    await find('[data-slot="sheet-title"]')
+  ).waitForDisplayed({ timeout: 10_000 });
 
   await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
   await (await find("button*=Manage")).click();
-  await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="dialog-title"]')
+  ).waitForExist({ timeout: 5_000 });
 
   await (await find("button*=Add Institution")).click();
-  await (await find("input[placeholder='Institution name']")).setValue("Test Bank");
+  await (
+    await find("input[placeholder='Institution name']")
+  ).setValue("Test Bank");
   await (await find("button[aria-label='Save']")).click();
   await (await find("span=Test Bank")).waitForExist({ timeout: 5_000 });
 
@@ -64,7 +70,9 @@ async function createTestPot() {
   await addPotBtn.waitForClickable({ timeout: 10_000 });
   await addPotBtn.click();
 
-  await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 10_000 });
+  await (
+    await find('[data-slot="sheet-title"]')
+  ).waitForDisplayed({ timeout: 10_000 });
   await (await find("#pot-name")).setValue("Savings Pot");
   await (await find("#pot-opening-date")).setValue("2024-01-01");
   await (await find("button=Save")).click();
@@ -77,23 +85,35 @@ async function navigateToRulesTab() {
   await accountLink.waitForClickable({ timeout: 10_000 });
   await accountLink.click();
 
-  await (await find('[data-testid="add-transaction-btn"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="add-transaction-btn"]')
+  ).waitForExist({ timeout: 10_000 });
 
   const rulesTab = await find('[data-testid="tab-rules"]');
   await rulesTab.waitForClickable({ timeout: 10_000 });
   await rulesTab.click();
 
-  await (await find('[data-testid="par-new-rule-button"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="par-new-rule-button"]')
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function openRuleBuilder() {
   await (await find('[data-testid="par-new-rule-button"]')).click();
-  await (await find('[data-testid="par-name-input"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="par-name-input"]')
+  ).waitForExist({ timeout: 10_000 });
 }
 
-async function fillRuleForm(name: string, conditionValue: string, amount: string) {
+async function fillRuleForm(
+  name: string,
+  conditionValue: string,
+  amount: string,
+) {
   await (await find('[data-testid="par-name-input"]')).setValue(name);
-  await (await find('[data-testid="par-cond-value-0"]')).setValue(conditionValue);
+  await (
+    await find('[data-testid="par-cond-value-0"]')
+  ).setValue(conditionValue);
 
   // Select the pot via Radix Select
   const potTrigger = await find('[data-testid="par-action-pot-0"]');
@@ -124,19 +144,25 @@ describe("Pot Allocation Rules Tab — navigation", () => {
     const accountLink = await find("button*=Test Account");
     await accountLink.waitForClickable({ timeout: 10_000 });
     await accountLink.click();
-    await (await find('[data-testid="tab-rules"]')).waitForExist({ timeout: 10_000 });
+    await (
+      await find('[data-testid="tab-rules"]')
+    ).waitForExist({ timeout: 10_000 });
     await expect(await find('[data-testid="tab-rules"]')).toBeExisting();
   });
 
   it("shows empty state when no rules exist", async () => {
     const rulesTab = await find('[data-testid="tab-rules"]');
     await rulesTab.click();
-    await (await find('[data-testid="par-empty-state"]')).waitForExist({ timeout: 10_000 });
+    await (
+      await find('[data-testid="par-empty-state"]')
+    ).waitForExist({ timeout: 10_000 });
     await expect(await find('[data-testid="par-empty-state"]')).toBeExisting();
   });
 
   it("shows New Rule button on the rules tab", async () => {
-    await expect(await find('[data-testid="par-new-rule-button"]')).toBeExisting();
+    await expect(
+      await find('[data-testid="par-new-rule-button"]'),
+    ).toBeExisting();
   });
 });
 
@@ -170,7 +196,9 @@ describe("Pot Allocation Rules Tab — create rule", () => {
     await saveBtn.click();
 
     // Rule should appear in the list
-    await (await find('[data-testid^="par-rule-row-"]')).waitForExist({ timeout: 10_000 });
+    await (
+      await find('[data-testid^="par-rule-row-"]')
+    ).waitForExist({ timeout: 10_000 });
     const rows = await findAll('[data-testid^="par-rule-row-"]');
     expect(rows.length).toBe(1);
     expect(await rows[0].getText()).toContain("Salary Split");
@@ -201,7 +229,9 @@ describe("Pot Allocation Rules Tab — toggle and delete", () => {
     const saveBtn = await find('[data-testid="par-builder-save"]');
     await saveBtn.waitForEnabled({ timeout: 5_000 });
     await saveBtn.click();
-    await (await find('[data-testid^="par-rule-row-"]')).waitForExist({ timeout: 10_000 });
+    await (
+      await find('[data-testid^="par-rule-row-"]')
+    ).waitForExist({ timeout: 10_000 });
   });
 
   it("new rule is active by default (shows Active label)", async () => {
@@ -234,7 +264,9 @@ describe("Pot Allocation Rules Tab — toggle and delete", () => {
     await cancelBtn.click();
 
     // Rule still exists
-    await (await find('[data-testid^="par-rule-row-"]')).waitForExist({ timeout: 5_000 });
+    await (
+      await find('[data-testid^="par-rule-row-"]')
+    ).waitForExist({ timeout: 5_000 });
   });
 
   it("confirming delete removes the rule and shows empty state", async () => {
@@ -246,7 +278,9 @@ describe("Pot Allocation Rules Tab — toggle and delete", () => {
     await confirmBtn.waitForClickable({ timeout: 5_000 });
     await confirmBtn.click();
 
-    await (await find('[data-testid="par-empty-state"]')).waitForExist({ timeout: 10_000 });
+    await (
+      await find('[data-testid="par-empty-state"]')
+    ).waitForExist({ timeout: 10_000 });
   });
 });
 
@@ -263,13 +297,19 @@ describe("Pot Allocation Rules Tab — drag to reorder", () => {
     // Create two rules to reorder
     await openRuleBuilder();
     await fillRuleForm("Rule A", "AAA", "50");
-    await (await find('[data-testid="par-builder-save"]')).waitForEnabled({ timeout: 5_000 });
+    await (
+      await find('[data-testid="par-builder-save"]')
+    ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="par-builder-save"]')).click();
-    await (await find('[data-testid^="par-rule-row-"]')).waitForExist({ timeout: 10_000 });
+    await (
+      await find('[data-testid^="par-rule-row-"]')
+    ).waitForExist({ timeout: 10_000 });
 
     await openRuleBuilder();
     await fillRuleForm("Rule B", "BBB", "50");
-    await (await find('[data-testid="par-builder-save"]')).waitForEnabled({ timeout: 5_000 });
+    await (
+      await find('[data-testid="par-builder-save"]')
+    ).waitForEnabled({ timeout: 5_000 });
     await (await find('[data-testid="par-builder-save"]')).click();
     await browser.waitUntil(
       async () => (await findAll('[data-testid^="par-rule-row-"]').length) >= 2,
