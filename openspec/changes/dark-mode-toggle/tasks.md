@@ -11,6 +11,6 @@
 
 ## 3. Settings Screen
 
-- [ ] 3.1 Add shadcn/ui `ToggleGroup` / `ToggleGroupItem` to the project (copy component files into `src/components/ui/` per shadcn/ui convention)
+- [x] 3.1 Add shadcn/ui `ToggleGroup` / `ToggleGroupItem` to the project (copy component files into `src/components/ui/` per shadcn/ui convention)
 - [ ] 3.2 Add an "Appearance" section to `SettingsScreen.tsx` above the "Categories" section, containing a `ToggleGroup` with Light / Dark / System options
 - [ ] 3.3 Wire the `ToggleGroup` to `useTheme()` — read current preference for the selected value, call `setThemePreference` on change
