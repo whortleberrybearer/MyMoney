@@ -156,6 +156,61 @@ export async function listTransactions(
 }
 
 // ---------------------------------------------------------------------------
+// listPotTransactions
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns all non-void transactions for a pot, with optional sorting.
+ */
+export async function listPotTransactions(
+  potId: number,
+  sort: TransactionSort = "date-desc",
+): Promise<TransactionRow[]> {
+  const db = getDb();
+
+  let orderBy;
+  switch (sort) {
+    case "date-asc":
+      orderBy = [asc(transaction.date), asc(transaction.id)];
+      break;
+    case "amount-asc":
+      orderBy = [asc(transaction.amount), asc(transaction.id)];
+      break;
+    case "amount-desc":
+      orderBy = [desc(transaction.amount), asc(transaction.id)];
+      break;
+    case "date-desc":
+    default:
+      orderBy = [desc(transaction.date), asc(transaction.id)];
+      break;
+  }
+
+  const rows = await db
+    .select({
+      id: transaction.id,
+      accountId: transaction.accountId,
+      potId: transaction.potId,
+      transferId: transaction.transferId,
+      date: transaction.date,
+      payee: transaction.payee,
+      notes: transaction.notes,
+      reference: transaction.reference,
+      amount: transaction.amount,
+      categoryId: transaction.categoryId,
+      categoryName: sql<string | null>`${category.name}`.as("categoryName"),
+      runningBalance: transaction.runningBalance,
+      type: transaction.type,
+      isVoid: transaction.isVoid,
+    })
+    .from(transaction)
+    .leftJoin(category, eq(transaction.categoryId, category.id))
+    .where(and(eq(transaction.potId, potId), eq(transaction.isVoid, 0)))
+    .orderBy(...orderBy);
+
+  return rows;
+}
+
+// ---------------------------------------------------------------------------
 // createTransaction
 // ---------------------------------------------------------------------------
 

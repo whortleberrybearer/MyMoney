@@ -24,11 +24,11 @@
 ## 3. Frontend: pot assignment query and data
 
 - [x] 3.1 Add a query helper (e.g. `getPotsForAccount(accountId)`) or reuse the existing pots query to expose the active pots for a given account to the transaction list view
-- [ ] 3.2 Pass the active pots list into the transaction list component (or fetch via React Query alongside the transactions query)
+- [x] 3.2 Pass the active pots list into the transaction list component (or fetch via React Query alongside the transactions query)
 
 ## 4. Frontend: PotAssignmentSelect component
 
-- [ ] 4.1 Create `src/components/PotAssignmentSelect.tsx` — a `Select` (shadcn/ui) that renders: main account as first option, then each active pot; current assignment selected by default; calls `reassignTransaction` on change and invalidates the transaction query
+- [x] 4.1 Create `src/components/PotAssignmentSelect.tsx` — a `Select` (shadcn/ui) that renders: main account as first option, then each active pot; current assignment selected by default; calls `reassignTransaction` on change and invalidates the transaction query
 - [ ] 4.2 Add unit tests for `PotAssignmentSelect` in `tests/unit/PotAssignmentSelect.test.tsx`:
   - Renders account option and pot options
   - Current assignment is pre-selected
@@ -37,7 +37,7 @@
 
 ## 5. Frontend: integrate assignment column into transaction list
 
-- [ ] 5.1 Add a Pot column to the account transaction list screen — shown only when the account has at least one active pot; hidden for virtual-transfer rows; renders `PotAssignmentSelect`
+- [x] 5.1 Add a Pot column to the account transaction list screen — shown only when the account has at least one active pot; hidden for virtual-transfer rows; renders `PotAssignmentSelect`
 - [ ] 5.2 Add a Pot column to the pot transaction list screen — shown on non-virtual-transfer rows; renders `PotAssignmentSelect`
 - [ ] 5.3 Update `tests/unit/TransactionListScreen.test.tsx` (or equivalent) to cover:
   - Pot column is visible when account has active pots
