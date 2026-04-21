@@ -52,6 +52,7 @@ interface AccountsScreenProps {
   tagId?: number | null;
   onTagCreated?: (tag: Tag) => void;
   onNavigateToTransactions?: (accountId: number, accountName: string) => void;
+  onNavigateToPotTransactions?: (potId: number, potName: string, accountId: number, accountName: string) => void;
 }
 
 type PotDeleteTarget = { pot: PotRow; accountName: string };
@@ -61,6 +62,7 @@ export function AccountsScreen({
   tagId = null,
   onTagCreated,
   onNavigateToTransactions,
+  onNavigateToPotTransactions,
 }: AccountsScreenProps = {}) {
   const [accounts, setAccounts] = useState<AccountRow[]>([]);
   const [showInactive, setShowInactive] = useState(false);
@@ -324,7 +326,17 @@ export function AccountsScreen({
                         <TableCell />
                         <TableCell className="pl-8 text-sm">
                           <span className="text-muted-foreground mr-1">↳</span>
-                          {pot.name}
+                          {onNavigateToPotTransactions ? (
+                            <button
+                              className="hover:underline text-left"
+                              onClick={() => onNavigateToPotTransactions(pot.id, pot.name, row.id, row.name)}
+                              data-testid="pot-name-link"
+                            >
+                              {pot.name}
+                            </button>
+                          ) : (
+                            pot.name
+                          )}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">

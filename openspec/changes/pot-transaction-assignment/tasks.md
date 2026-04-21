@@ -38,7 +38,7 @@
 ## 5. Frontend: integrate assignment column into transaction list
 
 - [x] 5.1 Add a Pot column to the account transaction list screen — shown only when the account has at least one active pot; hidden for virtual-transfer rows; renders `PotAssignmentSelect`
-- [ ] 5.2 Add a Pot column to the pot transaction list screen — shown on non-virtual-transfer rows; renders `PotAssignmentSelect`
+- [x] 5.2 Add a Pot column to the pot transaction list screen — shown on non-virtual-transfer rows; renders `PotAssignmentSelect`
 - [ ] 5.3 Update `tests/unit/TransactionListScreen.test.tsx` (or equivalent) to cover:
   - Pot column is visible when account has active pots
   - Pot column is hidden when account has no active pots
