@@ -29,7 +29,7 @@
 ## 4. Frontend: PotAssignmentSelect component
 
 - [x] 4.1 Create `src/components/PotAssignmentSelect.tsx` — a `Select` (shadcn/ui) that renders: main account as first option, then each active pot; current assignment selected by default; calls `reassignTransaction` on change and invalidates the transaction query
-- [ ] 4.2 Add unit tests for `PotAssignmentSelect` in `tests/unit/PotAssignmentSelect.test.tsx`:
+- [x] 4.2 Add unit tests for `PotAssignmentSelect` in `tests/unit/PotAssignmentSelect.test.tsx`:
   - Renders account option and pot options
   - Current assignment is pre-selected
   - Does not render when account has no active pots
