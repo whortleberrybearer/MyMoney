@@ -10,6 +10,8 @@ import {
   type TransactionSort,
 } from "@/lib/transactions";
 import { listCategories, type Category } from "@/lib/reference-data";
+import { getPotsForAccount, type PotSummary } from "@/lib/pots";
+import { PotAssignmentSelect } from "./PotAssignmentSelect";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,6 +61,7 @@ type SortCol = "date" | "amount";
 export function TransactionListScreen({ accountId, accountName, onBack }: Props) {
   const [transactions, setTransactions] = useState<TransactionRow[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [pots, setPots] = useState<PotSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Sort state
@@ -82,6 +85,7 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
 
   useEffect(() => {
     loadCategories();
+    loadPots();
   }, []);
 
   useEffect(() => {
@@ -90,6 +94,10 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
 
   async function loadCategories() {
     setCategories(await listCategories());
+  }
+
+  async function loadPots() {
+    setPots(await getPotsForAccount(accountId));
   }
 
   async function load() {
@@ -332,6 +340,7 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
                 <TableHead className="text-right">Balance</TableHead>
                 <TableHead>Reference</TableHead>
                 <TableHead>Type</TableHead>
+                {pots.length > 0 && <TableHead data-testid="col-pot">Pot</TableHead>}
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
@@ -360,6 +369,20 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
                   </TableCell>
                   <TableCell className="text-sm">{tx.reference ?? ""}</TableCell>
                   <TableCell>{typeBadge(tx.type)}</TableCell>
+                  {pots.length > 0 && (
+                    <TableCell>
+                      {tx.type !== "virtual_transfer" && (
+                        <PotAssignmentSelect
+                          transactionId={tx.id}
+                          currentPotId={tx.potId}
+                          accountId={accountId}
+                          accountName={accountName}
+                          pots={pots}
+                          onReassigned={load}
+                        />
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

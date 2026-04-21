@@ -10,10 +10,11 @@ interface DashboardShellProps {
   onNavigateToSettings: () => void;
   onNavigateToImport: () => void;
   onNavigateToTransactions: (accountId: number, accountName: string) => void;
+  onNavigateToPotTransactions: (potId: number, potName: string, accountId: number, accountName: string) => void;
   onNavigateToRules: () => void;
 }
 
-export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNavigateToTransactions, onNavigateToRules }: DashboardShellProps) {
+export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNavigateToTransactions, onNavigateToPotTransactions, onNavigateToRules }: DashboardShellProps) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
 
@@ -70,6 +71,7 @@ export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNav
           tagId={selectedTagId}
           onTagCreated={handleTagCreated}
           onNavigateToTransactions={onNavigateToTransactions}
+          onNavigateToPotTransactions={onNavigateToPotTransactions}
         />
       </ErrorBoundary>
     </div>

@@ -1,4 +1,4 @@
-import { and, asc, eq, max, sql, sum } from "drizzle-orm";
+import { and, asc, eq, max, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { category, pot, transaction } from "./db/schema";
 import { getPotAllocationRules, type PotAllocationRule } from "./pot-allocation-rules";
@@ -256,45 +256,6 @@ async function recalculateAccountRunningBalance(accountId: number, fromDate: str
 }
 
 async function recalculatePotRunningBalance(potId: number, fromDate: string): Promise<void> {
-  const db = getDb();
-
-  const [potRow] = await db
-    .select({ openingBalance: pot.openingBalance })
-    .from(pot)
-    .where(eq(pot.id, potId));
-
-  if (!potRow) return;
-
-  const [priorTotal] = await db
-    .select({ total: sum(transaction.amount) })
-    .from(transaction)
-    .where(
-      and(
-        eq(transaction.potId, potId),
-        eq(transaction.isVoid, 0),
-        sql`${transaction.date} < ${fromDate}`,
-      ),
-    );
-
-  let running = potRow.openingBalance + Number(priorTotal?.total ?? 0);
-
-  const toUpdate = await db
-    .select({ id: transaction.id, amount: transaction.amount })
-    .from(transaction)
-    .where(
-      and(
-        eq(transaction.potId, potId),
-        eq(transaction.isVoid, 0),
-        sql`${transaction.date} >= ${fromDate}`,
-      ),
-    )
-    .orderBy(asc(transaction.date), asc(transaction.id));
-
-  for (const row of toUpdate) {
-    running += row.amount;
-    await db
-      .update(transaction)
-      .set({ runningBalance: running })
-      .where(eq(transaction.id, row.id));
-  }
+  const { recalculatePotRunningBalance: recalc } = await import("./transactions");
+  await recalc(potId, fromDate);
 }

@@ -12,6 +12,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { MigrationErrorScreen } from "@/components/MigrationErrorScreen";
 import { SettingsScreen } from "@/components/SettingsScreen";
 import { TransactionListScreen } from "@/components/TransactionListScreen";
+import { PotTransactionListScreen } from "@/components/PotTransactionListScreen";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
 import "./App.css";
 
@@ -97,6 +98,16 @@ function AppScreens() {
               accountName,
             })
           }
+          onNavigateToPotTransactions={(potId, potName, accountId, accountName) =>
+            navigate({
+              screen: "pot-transaction-list",
+              filePath: current.filePath,
+              potId,
+              potName,
+              accountId,
+              accountName,
+            })
+          }
           onNavigateToRules={() =>
             navigate({ screen: "rules", filePath: current.filePath })
           }
@@ -113,6 +124,19 @@ function AppScreens() {
     case "transaction-list":
       return (
         <TransactionListScreen
+          accountId={current.accountId}
+          accountName={current.accountName}
+          onBack={() =>
+            navigate({ screen: "dashboard", filePath: current.filePath })
+          }
+        />
+      );
+
+    case "pot-transaction-list":
+      return (
+        <PotTransactionListScreen
+          potId={current.potId}
+          potName={current.potName}
           accountId={current.accountId}
           accountName={current.accountName}
           onBack={() =>

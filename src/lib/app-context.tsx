@@ -22,6 +22,7 @@ export type AppScreen =
   | { screen: "import"; filePath: string }
   | { screen: "import-result"; filePath: string; result: import("./import").ImportResult }
   | { screen: "transaction-list"; filePath: string; accountId: number; accountName: string }
+  | { screen: "pot-transaction-list"; filePath: string; potId: number; potName: string; accountId: number; accountName: string }
   | { screen: "rules"; filePath: string };
 
 // ---------------------------------------------------------------------------
