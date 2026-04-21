@@ -13,7 +13,7 @@
   - Update `account_id` / `pot_id` on the transaction row
   - Recalculate running balance for the source container from the transaction's date
   - Recalculate running balance for the destination container from the transaction's date
-- [ ] 2.2 Add unit tests for `reassignTransaction` in `tests/unit/transactions.test.ts`:
+- [x] 2.2 Add unit tests for `reassignTransaction` in `tests/unit/transactions.test.ts`:
   - Reassign from account to pot — balances recalculated for both
   - Reassign from pot back to account — balances recalculated for both
   - Reassign from one pot to another — balances recalculated for both
