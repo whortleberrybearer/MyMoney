@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { TransactionListScreen } from "@/components/TransactionListScreen";
 import * as transactionsLib from "@/lib/transactions";
 import * as referenceData from "@/lib/reference-data";
+import * as potsLib from "@/lib/pots";
 
 vi.mock("@/lib/transactions", () => ({
   listTransactions: vi.fn(),
@@ -10,6 +11,7 @@ vi.mock("@/lib/transactions", () => ({
   createTransaction: vi.fn(),
   updateTransaction: vi.fn(),
   recalculateRunningBalance: vi.fn(),
+  reassignTransaction: vi.fn(),
 }));
 
 vi.mock("@/lib/reference-data", () => ({
@@ -17,7 +19,12 @@ vi.mock("@/lib/reference-data", () => ({
   listTags: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("@/lib/pots", () => ({
+  getPotsForAccount: vi.fn().mockResolvedValue([]),
+}));
+
 const mockListTransactions = vi.mocked(transactionsLib.listTransactions);
+const mockGetPotsForAccount = vi.mocked(potsLib.getPotsForAccount);
 
 const BASE_TX: transactionsLib.TransactionRow = {
   id: 1,
@@ -39,6 +46,7 @@ const BASE_TX: transactionsLib.TransactionRow = {
 beforeEach(() => {
   mockListTransactions.mockResolvedValue([]);
   vi.mocked(referenceData.listCategories).mockResolvedValue([]);
+  mockGetPotsForAccount.mockResolvedValue([]);
 });
 
 describe("TransactionListScreen — empty state", () => {
@@ -151,5 +159,57 @@ describe("TransactionListScreen — transaction rows", () => {
 
     const row = screen.getByTestId(`tx-row-${importedTx.id}`);
     expect(row.className).not.toContain("italic");
+  });
+});
+
+describe("TransactionListScreen — Pot column", () => {
+  it("shows Pot column when account has active pots", async () => {
+    mockGetPotsForAccount.mockResolvedValue([
+      { id: 10, name: "Holiday Fund" },
+    ]);
+    mockListTransactions.mockResolvedValue([BASE_TX]);
+
+    render(
+      <TransactionListScreen accountId={10} accountName="My Account" onBack={vi.fn()} />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("col-pot")).toBeInTheDocument();
+    });
+  });
+
+  it("hides Pot column when account has no active pots", async () => {
+    mockGetPotsForAccount.mockResolvedValue([]);
+    mockListTransactions.mockResolvedValue([BASE_TX]);
+
+    render(
+      <TransactionListScreen accountId={10} accountName="My Account" onBack={vi.fn()} />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`tx-row-${BASE_TX.id}`)).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("col-pot")).not.toBeInTheDocument();
+  });
+
+  it("does not render PotAssignmentSelect on virtual transfer rows", async () => {
+    mockGetPotsForAccount.mockResolvedValue([
+      { id: 10, name: "Holiday Fund" },
+    ]);
+    const transferTx: transactionsLib.TransactionRow = {
+      ...BASE_TX,
+      id: 5,
+      type: "virtual_transfer",
+    };
+    mockListTransactions.mockResolvedValue([transferTx]);
+
+    render(
+      <TransactionListScreen accountId={10} accountName="My Account" onBack={vi.fn()} />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`tx-row-${transferTx.id}`)).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId(`pot-assignment-${transferTx.id}`)).not.toBeInTheDocument();
   });
 });
