@@ -46,7 +46,7 @@
 
 ## 6. E2E tests
 
-- [ ] 6.1 Add e2e test file `tests/e2e/pot-transaction-assignment.test.ts`:
+- [x] 6.1 Add e2e test file `tests/e2e/pot-transaction-assignment.test.ts`:
   - Reassign a transaction from main account to a pot and verify it appears in the pot transaction list
   - Reassign a transaction from a pot back to the main account and verify it appears in the account transaction list
   - Reassign a transaction from one pot to another and verify it appears only in the destination pot
