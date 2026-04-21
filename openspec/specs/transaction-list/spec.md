@@ -14,6 +14,7 @@ Columns displayed:
 | Running Balance | Persisted running balance for the account |
 | Reference | Payment reference |
 | Type | `imported`, `manual`, or `virtual-transfer` — visually distinct |
+| Pot | Assignment dropdown — only shown when the account has at least one active pot; hidden for virtual-transfer rows |
 
 Virtual transfer rows SHALL be visually distinct (e.g., italic or badge) from imported and manual rows.
 
@@ -33,7 +34,7 @@ Default sort: date descending (newest first), with id ascending as tiebreaker wi
 └────────────┴──────────────┴──────────────┴──────────┴──────────┴─────────┴──────┘
 ```
 
-shadcn/ui components: `DataTable` (TanStack Table), `Button`, `Badge` (type), `Select` (filters), `Input` (text filters).
+shadcn/ui components: `DataTable` (TanStack Table), `Button`, `Badge` (type), `Select` (filters and pot assignment), `Input` (text filters).
 
 #### Scenario: User navigates to transaction list from dashboard
 - **GIVEN** the dashboard is displayed with at least one account row
@@ -57,6 +58,16 @@ shadcn/ui components: `DataTable` (TanStack Table), `Button`, `Badge` (type), `S
 - **GIVEN** the transaction list screen is displayed
 - **WHEN** the user clicks the back button
 - **THEN** the app navigates back to the dashboard
+
+#### Scenario: Pot assignment column shown when account has active pots
+- **GIVEN** the account has at least one active pot
+- **WHEN** the transaction list screen is displayed
+- **THEN** a Pot assignment column is shown with a Select dropdown on each non-virtual-transfer row
+
+#### Scenario: Pot assignment column hidden when account has no active pots
+- **GIVEN** the account has no active pots
+- **WHEN** the transaction list screen is displayed
+- **THEN** no Pot assignment column is shown
 
 ---
 
