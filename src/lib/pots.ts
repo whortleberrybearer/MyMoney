@@ -79,6 +79,24 @@ export async function listPots(
   return results;
 }
 
+export type PotSummary = {
+  id: number;
+  name: string;
+};
+
+/**
+ * Returns the id and name of all active pots for an account.
+ * Used to populate assignment dropdowns where balance is not needed.
+ */
+export async function getPotsForAccount(accountId: number): Promise<PotSummary[]> {
+  const db = getDb();
+  return db
+    .select({ id: pot.id, name: pot.name })
+    .from(pot)
+    .where(and(eq(pot.accountId, accountId), eq(pot.isActive, 1)))
+    .orderBy(asc(pot.name));
+}
+
 export async function createPot(input: CreatePotInput): Promise<void> {
   const db = getDb();
   const trimmedName = input.name.trim();

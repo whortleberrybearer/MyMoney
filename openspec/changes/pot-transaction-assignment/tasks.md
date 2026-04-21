@@ -23,7 +23,7 @@
 
 ## 3. Frontend: pot assignment query and data
 
-- [ ] 3.1 Add a query helper (e.g. `getPotsForAccount(accountId)`) or reuse the existing pots query to expose the active pots for a given account to the transaction list view
+- [x] 3.1 Add a query helper (e.g. `getPotsForAccount(accountId)`) or reuse the existing pots query to expose the active pots for a given account to the transaction list view
 - [ ] 3.2 Pass the active pots list into the transaction list component (or fetch via React Query alongside the transactions query)
 
 ## 4. Frontend: PotAssignmentSelect component
