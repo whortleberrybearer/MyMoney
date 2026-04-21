@@ -266,6 +266,96 @@ export async function deleteTransaction(transactionId: number): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// reassignTransaction
+// ---------------------------------------------------------------------------
+
+/**
+ * Moves a transaction to a different container (main account or pot).
+ * Updates account_id/pot_id, then recalculates running balances for both
+ * the source and destination containers from the transaction's date.
+ *
+ * Only imported and manual transactions may be reassigned.
+ * The target pot (if any) must belong to the same parent account.
+ */
+export async function reassignTransaction(
+  transactionId: number,
+  target: { accountId: number } | { potId: number },
+): Promise<void> {
+  const db = getDb();
+
+  const [existing] = await db
+    .select({
+      id: transaction.id,
+      accountId: transaction.accountId,
+      potId: transaction.potId,
+      date: transaction.date,
+      type: transaction.type,
+      isVoid: transaction.isVoid,
+    })
+    .from(transaction)
+    .where(eq(transaction.id, transactionId));
+
+  if (!existing) throw new Error(`Transaction ${transactionId} not found`);
+  if (existing.isVoid) throw new Error(`Cannot reassign a void transaction`);
+  if (existing.type === "virtual_transfer") {
+    throw new Error(`Cannot reassign a virtual transfer transaction`);
+  }
+
+  // Resolve the parent account id for the existing transaction
+  let parentAccountId: number;
+  if (existing.accountId !== null) {
+    parentAccountId = existing.accountId;
+  } else if (existing.potId !== null) {
+    const [potRow] = await db
+      .select({ accountId: pot.accountId })
+      .from(pot)
+      .where(eq(pot.id, existing.potId));
+    if (!potRow) throw new Error(`Pot ${existing.potId} not found`);
+    parentAccountId = potRow.accountId;
+  } else {
+    throw new Error(`Transaction ${transactionId} has no account or pot`);
+  }
+
+  // Validate target pot belongs to same parent account
+  if ("potId" in target) {
+    const [targetPot] = await db
+      .select({ accountId: pot.accountId })
+      .from(pot)
+      .where(eq(pot.id, target.potId));
+    if (!targetPot) throw new Error(`Target pot ${target.potId} not found`);
+    if (targetPot.accountId !== parentAccountId) {
+      throw new Error(`Target pot does not belong to the same account`);
+    }
+  }
+
+  // Apply the reassignment
+  const newValues =
+    "potId" in target
+      ? { accountId: null as number | null, potId: target.potId }
+      : { accountId: target.accountId, potId: null as number | null };
+
+  await db.update(transaction).set(newValues).where(eq(transaction.id, transactionId));
+
+  // Recalculate source container
+  if (existing.accountId !== null) {
+    await recalculateRunningBalance(existing.accountId, existing.date);
+  } else if (existing.potId !== null) {
+    await recalculatePotRunningBalance(existing.potId, existing.date);
+  }
+
+  // Recalculate destination container (only if different from source)
+  if ("potId" in target) {
+    if (target.potId !== existing.potId) {
+      await recalculatePotRunningBalance(target.potId, existing.date);
+    }
+  } else {
+    if (target.accountId !== existing.accountId) {
+      await recalculateRunningBalance(target.accountId, existing.date);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // recalculateRunningBalance / recalculatePotRunningBalance
 // ---------------------------------------------------------------------------
 

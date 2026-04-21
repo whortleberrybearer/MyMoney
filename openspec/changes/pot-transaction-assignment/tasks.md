@@ -6,7 +6,7 @@
 
 ## 2. Backend: `reassignTransaction` function
 
-- [ ] 2.1 Add `reassignTransaction(transactionId: number, target: { accountId: number } | { potId: number })` to `src/lib/transactions.ts`
+- [x] 2.1 Add `reassignTransaction(transactionId: number, target: { accountId: number } | { potId: number })` to `src/lib/transactions.ts`
   - Fetch the transaction; throw if not found, void, or is a virtual-transfer
   - Resolve the parent accountId (from transaction.accountId or pot.accountId if currently in a pot)
   - Validate that the target pot (if any) belongs to the same parent account
