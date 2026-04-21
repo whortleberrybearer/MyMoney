@@ -1,6 +1,6 @@
 ## 1. Refactor: Extract pot running balance recalculation
 
-- [ ] 1.1 Move `recalculatePotRunningBalance` from `src/lib/pot-allocation-engine.ts` to `src/lib/transactions.ts` as an exported function
+- [x] 1.1 Move `recalculatePotRunningBalance` from `src/lib/pot-allocation-engine.ts` to `src/lib/transactions.ts` as an exported function
 - [ ] 1.2 Update `src/lib/pot-allocation-engine.ts` to import `recalculatePotRunningBalance` from `src/lib/transactions.ts`
 - [ ] 1.3 Update `tests/unit/transactions.test.ts` to add unit tests for `recalculatePotRunningBalance` (mirrors the existing `recalculateRunningBalance` test cases but using `pot_id`)
 

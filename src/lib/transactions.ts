@@ -14,7 +14,7 @@
 
 import { and, asc, desc, eq, gte, lte, sql, sum } from "drizzle-orm";
 import { getDb } from "./db";
-import { account, category, transaction } from "./db/schema";
+import { account, category, pot, transaction } from "./db/schema";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -266,7 +266,7 @@ export async function deleteTransaction(transactionId: number): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// recalculateRunningBalance (internal)
+// recalculateRunningBalance / recalculatePotRunningBalance
 // ---------------------------------------------------------------------------
 
 /**
@@ -311,6 +311,60 @@ export async function recalculateRunningBalance(
     .where(
       and(
         eq(transaction.accountId, accountId),
+        eq(transaction.isVoid, 0),
+        gte(transaction.date, fromDate),
+      ),
+    )
+    .orderBy(asc(transaction.date), asc(transaction.id));
+
+  for (const row of toUpdate) {
+    running += row.amount;
+    await db
+      .update(transaction)
+      .set({ runningBalance: running })
+      .where(eq(transaction.id, row.id));
+  }
+}
+
+/**
+ * Recalculates `running_balance` for all non-void transactions on the pot
+ * with date >= fromDate, ordered by date ASC then id ASC.
+ *
+ * The starting balance is: pot.opening_balance + SUM(amount) for all
+ * non-void pot rows with date < fromDate.
+ */
+export async function recalculatePotRunningBalance(
+  potId: number,
+  fromDate: string,
+): Promise<void> {
+  const db = getDb();
+
+  const [potRow] = await db
+    .select({ openingBalance: pot.openingBalance })
+    .from(pot)
+    .where(eq(pot.id, potId));
+
+  if (!potRow) return;
+
+  const [priorTotal] = await db
+    .select({ total: sum(transaction.amount) })
+    .from(transaction)
+    .where(
+      and(
+        eq(transaction.potId, potId),
+        eq(transaction.isVoid, 0),
+        sql`${transaction.date} < ${fromDate}`,
+      ),
+    );
+
+  let running = potRow.openingBalance + Number(priorTotal?.total ?? 0);
+
+  const toUpdate = await db
+    .select({ id: transaction.id, amount: transaction.amount })
+    .from(transaction)
+    .where(
+      and(
+        eq(transaction.potId, potId),
         eq(transaction.isVoid, 0),
         gte(transaction.date, fromDate),
       ),
