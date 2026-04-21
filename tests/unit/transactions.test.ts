@@ -5,10 +5,12 @@ import {
   deleteTransaction,
   listTransactions,
   recalculateRunningBalance,
+  recalculatePotRunningBalance,
+  reassignTransaction,
   updateTransaction,
 } from "@/lib/transactions";
 import { createTestDb } from "./db-helper";
-import { account, category, institution, transaction } from "@/lib/db/schema";
+import { account, category, institution, pot, transaction } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 vi.mock("@/lib/db", () => ({ getDb: vi.fn() }));
@@ -65,6 +67,44 @@ async function seedTransaction(
     isVoid: 0,
   });
   const rows = await db.select().from(transaction).where(eq(transaction.accountId, accountId));
+  return rows[rows.length - 1];
+}
+
+async function seedPot(
+  db: ReturnType<typeof createTestDb>,
+  accountId: number,
+  openingBalance = 0,
+) {
+  await db.insert(pot).values({
+    accountId,
+    name: "Test Pot",
+    openingBalance,
+    openingDate: "2024-01-01",
+    isActive: 1,
+  });
+  const pots = await db.select().from(pot).where(eq(pot.accountId, accountId));
+  return pots[pots.length - 1];
+}
+
+async function seedPotTransaction(
+  db: ReturnType<typeof createTestDb>,
+  potId: number,
+  overrides: Partial<{
+    date: string;
+    amount: number;
+    type: string;
+    runningBalance: number;
+  }> = {},
+) {
+  await db.insert(transaction).values({
+    potId,
+    date: overrides.date ?? "2024-01-15",
+    amount: overrides.amount ?? -10,
+    type: overrides.type ?? "imported",
+    runningBalance: overrides.runningBalance ?? 0,
+    isVoid: 0,
+  });
+  const rows = await db.select().from(transaction).where(eq(transaction.potId, potId));
   return rows[rows.length - 1];
 }
 
@@ -544,5 +584,61 @@ describe("recalculateRunningBalance", () => {
 
     expect(rowT1.runningBalance).toBeCloseTo(100); // unchanged
     expect(rowT3.runningBalance).toBeCloseTo(125); // 100 + 25
+  });
+});
+
+// ---------------------------------------------------------------------------
+// recalculatePotRunningBalance
+// ---------------------------------------------------------------------------
+
+describe("recalculatePotRunningBalance", () => {
+  it("correctly seeds pot balance from opening balance + prior pot transactions", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+    const acc = await seedAccount(db, 0);
+    const p = await seedPot(db, acc.id, 100);
+    await seedPotTransaction(db, p.id, { date: "2024-01-05", amount: -50 });
+    await seedPotTransaction(db, p.id, { date: "2024-01-20", amount: -30 });
+
+    await recalculatePotRunningBalance(p.id, "2024-01-20");
+
+    const rows = await db.select().from(transaction).where(eq(transaction.potId, p.id));
+    const row1 = rows.find((r) => r.date === "2024-01-05")!;
+    const row2 = rows.find((r) => r.date === "2024-01-20")!;
+
+    // row1 not in recalc window — balance unchanged from seed (0)
+    expect(row1.runningBalance).toBe(0);
+    // row2: prior = 100 + (-50) = 50, then -30 = 20
+    expect(row2.runningBalance).toBeCloseTo(20);
+  });
+
+  it("correctly handles backdated pot inserts", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+    const acc = await seedAccount(db, 0);
+    const p = await seedPot(db, acc.id, 100);
+    await seedPotTransaction(db, p.id, { date: "2024-01-01", amount: 0 });
+    await seedPotTransaction(db, p.id, { date: "2024-01-03", amount: 50 });
+    await seedPotTransaction(db, p.id, { date: "2024-01-02", amount: -20 });
+
+    await recalculatePotRunningBalance(p.id, "2024-01-01");
+
+    const rows = await db
+      .select()
+      .from(transaction)
+      .where(eq(transaction.potId, p.id))
+      .orderBy(transaction.date);
+    expect(rows[0].runningBalance).toBeCloseTo(100);  // 100 + 0
+    expect(rows[1].runningBalance).toBeCloseTo(80);   // 100 - 20
+    expect(rows[2].runningBalance).toBeCloseTo(130);  // 80 + 50
+  });
+
+  it("does nothing when pot does not exist", async () => {
+    const db = createTestDb();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockGetDb.mockReturnValue(db as any);
+    await expect(recalculatePotRunningBalance(999, "2024-01-01")).resolves.toBeUndefined();
   });
 });
