@@ -435,7 +435,7 @@ export async function recalculateRunningBalance(
 
   if (!accountRow) throw new Error(`Account ${accountId} not found`);
 
-  // Sum of all non-void transactions strictly before fromDate
+  // Sum of all non-void, non-duplicate-candidate transactions strictly before fromDate
   const [priorTotal] = await db
     .select({ total: sum(transaction.amount) })
     .from(transaction)
@@ -443,6 +443,7 @@ export async function recalculateRunningBalance(
       and(
         eq(transaction.accountId, accountId),
         eq(transaction.isVoid, 0),
+        eq(transaction.isDuplicateCandidate, 0),
         sql`${transaction.date} < ${fromDate}`,
       ),
     );
@@ -457,6 +458,7 @@ export async function recalculateRunningBalance(
       and(
         eq(transaction.accountId, accountId),
         eq(transaction.isVoid, 0),
+        eq(transaction.isDuplicateCandidate, 0),
         gte(transaction.date, fromDate),
       ),
     )

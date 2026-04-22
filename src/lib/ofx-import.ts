@@ -167,5 +167,6 @@ export async function importOfxFile(
     uncategorised,
     potAllocations: allocationResult.allocations,
     allocationFailures: allocationResult.failures,
+    parseErrors: 0,
   };
 }
