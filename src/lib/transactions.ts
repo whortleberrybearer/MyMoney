@@ -88,6 +88,7 @@ export async function listTransactions(
   const conditions = [
     eq(transaction.accountId, accountId),
     eq(transaction.isVoid, 0),
+    eq(transaction.isDuplicateCandidate, 0),
   ];
 
   if (filters.fromDate) {
