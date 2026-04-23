@@ -22,11 +22,11 @@
 
 ## 5. AccountsOverviewScreen
 
-- [ ] 5.1 Create `src/components/AccountsOverviewScreen.tsx` that fetches all active accounts and their pots on mount
-- [ ] 5.2 Implement the account-type-to-category mapping (Current, Savings, Pensions, Mortgages, Loans, Other) and group accounts accordingly
-- [ ] 5.3 Build the `AccountCard` sub-component: coloured top border, account name, bank name, balance (or pots total + pot list if pots exist), tags as badges
-- [ ] 5.4 Build the category section layout: colour dot, uppercase label, account count, 3-column grid of `AccountCard`s
-- [ ] 5.5 Wire account card click to navigate to the `transaction-list` screen for that account
+- [x] 5.1 Create `src/components/AccountsOverviewScreen.tsx` that fetches all active accounts and their pots on mount
+- [x] 5.2 Implement the account-type-to-category mapping (Current, Savings, Pensions, Mortgages, Loans, Other) and group accounts accordingly
+- [x] 5.3 Build the `AccountCard` sub-component: coloured top border, account name, bank name, balance (or pots total + pot list if pots exist), tags as badges
+- [x] 5.4 Build the category section layout: colour dot, uppercase label, account count, 3-column grid of `AccountCard`s
+- [x] 5.5 Wire account card click to navigate to the `transaction-list` screen for that account
 
 ## 6. Integration & Verification
 
