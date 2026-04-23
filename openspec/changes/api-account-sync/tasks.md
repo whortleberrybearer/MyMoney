@@ -9,47 +9,47 @@
 
 ## 2. Rust Dependencies & Keychain Integration
 
-- [ ] 2.1 Add `tauri-plugin-keyring` to `Cargo.toml` and register it in `src-tauri/src/lib.rs`
-- [ ] 2.2 Add `reqwest` (async, with `tokio` runtime) to `Cargo.toml`
-- [ ] 2.3 Implement `get_keychain_secret(key: &str)` and `set_keychain_secret(key: &str, value: &str)` helpers in a new `src-tauri/src/keychain.rs` module
-- [ ] 2.4 Write unit tests for keychain helper using a mock keyring backend
+- [x] 2.1 Add `tauri-plugin-keyring` to `Cargo.toml` and register it in `src-tauri/src/lib.rs`
+- [x] 2.2 Add `reqwest` (async, with `tokio` runtime) to `Cargo.toml`
+- [x] 2.3 Implement `get_keychain_secret(key: &str)` and `set_keychain_secret(key: &str, value: &str)` helpers in a new `src-tauri/src/keychain.rs` module
+- [x] 2.4 Write unit tests for keychain helper using a mock keyring backend
 
 ## 3. Starling API Integration Trait & Handler
 
-- [ ] 3.1 Define `ApiIntegration` Rust trait with `discover_accounts` and `fetch_transactions` methods in `src-tauri/src/api/mod.rs`
-- [ ] 3.2 Implement `StarlingIntegration` struct in `src-tauri/src/api/starling.rs` using `reqwest` for HTTP calls
-- [ ] 3.3 Implement Starling account → MyMoney account mapper (name, currency, account_type)
-- [ ] 3.4 Implement Starling transaction → MyMoney transaction mapper (external_id, date, amount sign, description)
-- [ ] 3.5 Write unit tests for account mapper covering all field translations
-- [ ] 3.6 Write unit tests for transaction mapper covering credit (positive) and debit (negative) amount logic
-- [ ] 3.7 Write unit tests for unknown account type fallback behaviour
+- [x] 3.1 Define `ApiIntegration` Rust trait with `discover_accounts` and `fetch_transactions` methods in `src-tauri/src/api/mod.rs`
+- [x] 3.2 Implement `StarlingIntegration` struct in `src-tauri/src/api/starling.rs` using `reqwest` for HTTP calls
+- [x] 3.3 Implement Starling account → MyMoney account mapper (name, currency, account_type)
+- [x] 3.4 Implement Starling transaction → MyMoney transaction mapper (external_id, date, amount sign, description)
+- [x] 3.5 Write unit tests for account mapper covering all field translations
+- [x] 3.6 Write unit tests for transaction mapper covering credit (positive) and debit (negative) amount logic
+- [x] 3.7 Write unit tests for unknown account type fallback behaviour
 
 ## 4. Sync Tauri Command
 
-- [ ] 4.1 Implement `sync_starling_accounts(connection_id)` Tauri command in `src-tauri/src/commands/`
-- [ ] 4.2 Implement initial sync logic: fetch 1 year of transactions when `last_synced_at` is NULL
-- [ ] 4.3 Implement subsequent sync logic: fetch from `last_synced_at` to now
-- [ ] 4.4 Implement upsert-by-external_id: insert new, overwrite changed (preserving notes/category/tags), skip unchanged
-- [ ] 4.5 Emit `api-sync-progress` Tauri events during sync (per account, with transaction count)
-- [ ] 4.6 Call categorisation rules engine on newly inserted/updated transactions
-- [ ] 4.7 Recalculate running balances for affected accounts after sync
-- [ ] 4.8 Update `institution_api_connection.last_synced_at` on success
-- [ ] 4.9 Register `sync_starling_accounts` in `lib.rs` invoke handler
-- [ ] 4.10 Write unit tests for sync command with mock HTTP responses (new transactions, overwrite, skip unchanged)
-- [ ] 4.11 Write unit test verifying user-defined fields (notes, category) are preserved on overwrite
-- [ ] 4.12 Write integration tests for sync command against a real SQLite test database
+- [x] 4.1 Implement `sync_starling_accounts(connection_id)` Tauri command in `src-tauri/src/commands/`
+- [x] 4.2 Implement initial sync logic: fetch 1 year of transactions when `last_synced_at` is NULL
+- [x] 4.3 Implement subsequent sync logic: fetch from `last_synced_at` to now
+- [x] 4.4 Implement upsert-by-external_id: insert new, overwrite changed (preserving notes/category/tags), skip unchanged
+- [x] 4.5 Emit `api-sync-progress` Tauri events during sync (per account, with transaction count)
+- [x] 4.6 Call categorisation rules engine on newly inserted/updated transactions
+- [x] 4.7 Recalculate running balances for affected accounts after sync
+- [x] 4.8 Update `institution_api_connection.last_synced_at` on success
+- [x] 4.9 Register `sync_starling_accounts` in `lib.rs` invoke handler
+- [x] 4.10 Write unit tests for sync command with mock HTTP responses (new transactions, overwrite, skip unchanged)
+- [x] 4.11 Write unit test verifying user-defined fields (notes, category) are preserved on overwrite
+- [x] 4.12 Write integration tests for sync command against a real SQLite test database
 
 ## 5. Connection Management Tauri Commands
 
-- [ ] 5.1 Implement `create_api_connection(institution_id, api_type, pat)` command: generate `keychain_key`, store PAT in keychain, insert `institution_api_connection` row
-- [ ] 5.2 Implement `update_api_connection_pat(connection_id, new_pat)` command: overwrite keychain entry, update `updated_at`
-- [ ] 5.3 Implement `discover_starling_accounts(connection_id)` command: retrieve PAT from keychain, call Starling API, return account list
-- [ ] 5.4 Implement `create_synced_accounts(connection_id, selected_accounts[])` command: create `account` rows with `is_api_synced = 1` and trigger initial sync
-- [ ] 5.5 Implement `remove_synced_account(account_id)` command: hard-delete account row and all its transactions (only hard-delete path)
-- [ ] 5.6 Register all new commands in `lib.rs` invoke handler
-- [ ] 5.7 Write unit tests for `create_api_connection` (PAT stored in keychain, DB row created, PAT absent from DB)
-- [ ] 5.8 Write unit tests for `remove_synced_account` (account and transactions hard-deleted)
-- [ ] 5.9 Write unit tests for `import_csv_transactions` guard rejecting API-connected institution accounts
+- [x] 5.1 Implement `create_api_connection(institution_id, api_type, pat)` command: generate `keychain_key`, store PAT in keychain, insert `institution_api_connection` row
+- [x] 5.2 Implement `update_api_connection_pat(connection_id, new_pat)` command: overwrite keychain entry, update `updated_at`
+- [x] 5.3 Implement `discover_starling_accounts(connection_id)` command: retrieve PAT from keychain, call Starling API, return account list
+- [x] 5.4 Implement `create_synced_accounts(connection_id, selected_accounts[])` command: create `account` rows with `is_api_synced = 1` and trigger initial sync
+- [x] 5.5 Implement `remove_synced_account(account_id)` command: hard-delete account row and all its transactions (only hard-delete path)
+- [x] 5.6 Register all new commands in `lib.rs` invoke handler
+- [x] 5.7 Write unit tests for `create_api_connection` (PAT stored in keychain, DB row created, PAT absent from DB)
+- [x] 5.8 Write unit tests for `remove_synced_account` (account and transactions hard-deleted)
+- [x] 5.9 Write unit tests for `import_csv_transactions` guard rejecting API-connected institution accounts
 
 ## 6. Startup Sync
 
