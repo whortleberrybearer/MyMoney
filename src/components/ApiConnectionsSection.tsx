@@ -46,7 +46,9 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [discoverConnId, setDiscoverConnId] = useState<number | null>(null);
-  const [discoveredAccounts, setDiscoveredAccounts] = useState<ApiAccount[]>([]);
+  const [discoveredAccounts, setDiscoveredAccounts] = useState<ApiAccount[]>(
+    [],
+  );
   const [updatePatOpen, setUpdatePatOpen] = useState(false);
   const [updatePatConnId, setUpdatePatConnId] = useState<number | null>(null);
   const [removeAccountId, setRemoveAccountId] = useState<number | null>(null);
@@ -55,7 +57,10 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
   async function load() {
     setLoading(true);
     try {
-      const [conns, insts] = await Promise.all([listApiConnections(), listInstitutions()]);
+      const [conns, insts] = await Promise.all([
+        listApiConnections(),
+        listInstitutions(),
+      ]);
       setConnections(conns);
       setInstitutions(insts);
     } finally {
@@ -63,7 +68,9 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function handleConnect(institutionId: number, pat: string) {
     await createApiConnection(institutionId, "starling", pat);
@@ -133,16 +140,24 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
       ) : connections.length === 0 ? (
         <div className="rounded-md border border-dashed p-6 flex flex-col items-center gap-3 text-center">
           <p className="text-sm text-muted-foreground">
-            No institutions connected. Connect a bank to sync accounts and transactions automatically.
+            No institutions connected. Connect a bank to sync accounts and
+            transactions automatically.
           </p>
-          <Button variant="outline" size="sm" onClick={() => setConnectOpen(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setConnectOpen(true)}
+          >
             + Connect an institution
           </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           {connections.map((conn) => (
-            <div key={conn.id} className="rounded-md border p-4 flex flex-col gap-3">
+            <div
+              key={conn.id}
+              className="rounded-md border p-4 flex flex-col gap-3"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-sm">{conn.institutionName}</p>
@@ -154,7 +169,10 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => { setUpdatePatConnId(conn.id); setUpdatePatOpen(true); }}
+                    onClick={() => {
+                      setUpdatePatConnId(conn.id);
+                      setUpdatePatOpen(true);
+                    }}
                   >
                     Update PAT
                   </Button>
@@ -165,7 +183,9 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
                     onClick={() => handleResync(conn.id)}
                     data-testid={`resync-btn-${conn.id}`}
                   >
-                    <RefreshCw className={`h-4 w-4 mr-1 ${syncing.has(conn.id) ? "animate-spin" : ""}`} />
+                    <RefreshCw
+                      className={`h-4 w-4 mr-1 ${syncing.has(conn.id) ? "animate-spin" : ""}`}
+                    />
                     {syncing.has(conn.id) ? "Syncing…" : "Re-sync"}
                   </Button>
                   <Button
@@ -223,11 +243,15 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove synced account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the account and all its transactions. This action cannot be undone.
+              This will permanently delete the account and all its transactions.
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button variant="outline" onClick={() => setRemoveConfirmOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setRemoveConfirmOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={confirmRemove}>
