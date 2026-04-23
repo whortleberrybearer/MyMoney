@@ -25,6 +25,7 @@ export type AccountRow = {
   openingDate: string;
   notes: string | null;
   isActive: number;
+  isApiSynced: number;
   tagId: number | null;
   tagName: string | null;
   pots?: PotRow[];
@@ -74,6 +75,7 @@ export async function listAccounts(
       openingDate: account.openingDate,
       notes: account.notes,
       isActive: account.isActive,
+      isApiSynced: account.isApiSynced,
       tagId: sql<number | null>`${tag.id}`.as("tagId"),
       tagName: sql<string | null>`${tag.name}`.as("tagName"),
     })

@@ -399,13 +399,17 @@ export function TransactionListScreen({ accountId, accountName, onBack }: Props)
                         <DropdownMenuItem onClick={() => openEdit(tx)}>
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => setDeleteTarget(tx)}
-                        >
-                          Delete
-                        </DropdownMenuItem>
+                        {tx.type !== "api_sync" && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteTarget(tx)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

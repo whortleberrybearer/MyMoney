@@ -60,6 +60,8 @@ const EMPTY_FORM: FormState = {
 };
 
 export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onTagCreated }: Props) {
+  const isApiSynced = editAccount?.isApiSynced === 1;
+
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -166,6 +168,12 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
               <p className="text-sm text-destructive">{saveError}</p>
             )}
 
+            {isApiSynced && (
+              <p className="text-sm text-muted-foreground rounded-md border bg-muted px-3 py-2" data-testid="api-synced-notice">
+                This account is managed by an API connection and cannot be edited.
+              </p>
+            )}
+
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="acc-name">Name *</Label>
               <Input
@@ -173,6 +181,8 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
                 value={form.name}
                 onChange={(e) => set("name", e.target.value)}
                 aria-invalid={!!errors.name}
+                disabled={isApiSynced}
+                data-testid="acc-name"
               />
               {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
@@ -180,17 +190,20 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="acc-institution">Institution *</Label>
-                <button
-                  type="button"
-                  className="text-xs text-primary underline-offset-2 hover:underline"
-                  onClick={() => setInstitutionDialogOpen(true)}
-                >
-                  Manage
-                </button>
+                {!isApiSynced && (
+                  <button
+                    type="button"
+                    className="text-xs text-primary underline-offset-2 hover:underline"
+                    onClick={() => setInstitutionDialogOpen(true)}
+                  >
+                    Manage
+                  </button>
+                )}
               </div>
               <Select
                 value={form.institutionId || undefined}
                 onValueChange={(v) => set("institutionId", v)}
+                disabled={isApiSynced}
               >
                 <SelectTrigger id="acc-institution" aria-invalid={!!errors.institutionId}>
                   <SelectValue placeholder="Select institution" />
@@ -213,6 +226,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
               <Select
                 value={form.accountTypeId || undefined}
                 onValueChange={(v) => set("accountTypeId", v)}
+                disabled={isApiSynced}
               >
                 <SelectTrigger id="acc-type" aria-invalid={!!errors.accountTypeId}>
                   <SelectValue placeholder="Select type" />
@@ -235,6 +249,7 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
               <Select
                 value={form.currency}
                 onValueChange={(v) => set("currency", v)}
+                disabled={isApiSynced}
               >
                 <SelectTrigger id="acc-currency" aria-invalid={!!errors.currency}>
                   <SelectValue placeholder="Select currency" />
@@ -261,6 +276,8 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
                 value={form.openingBalance}
                 onChange={(e) => set("openingBalance", e.target.value)}
                 aria-invalid={!!errors.openingBalance}
+                disabled={isApiSynced}
+                data-testid="acc-opening-balance"
               />
               {errors.openingBalance && (
                 <p className="text-xs text-destructive">{errors.openingBalance}</p>
@@ -275,6 +292,8 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
                 value={form.openingDate}
                 onChange={(e) => set("openingDate", e.target.value)}
                 aria-invalid={!!errors.openingDate}
+                disabled={isApiSynced}
+                data-testid="acc-opening-date"
               />
               {errors.openingDate && (
                 <p className="text-xs text-destructive">{errors.openingDate}</p>
@@ -306,12 +325,14 @@ export function AccountFormSheet({ open, onOpenChange, editAccount, onSaved, onT
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+              <Button variant="outline" onClick={() => onOpenChange(false)} data-testid="cancel-btn">
+                {isApiSynced ? "Close" : "Cancel"}
               </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? "Saving…" : "Save"}
-              </Button>
+              {!isApiSynced && (
+                <Button onClick={handleSave} disabled={saving}>
+                  {saving ? "Saving…" : "Save"}
+                </Button>
+              )}
             </div>
           </div>
         </SheetContent>

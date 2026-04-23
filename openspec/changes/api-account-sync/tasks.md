@@ -70,12 +70,12 @@
 
 ## 8. Read-Only Enforcement in Account & Transaction UI
 
-- [ ] 8.1 In `AccountFormSheet.tsx`, detect `is_api_synced = 1` and disable name, institution, account type, currency, opening balance, opening date fields
-- [ ] 8.2 In `AccountFormSheet.tsx`, hide delete/deactivate action for API-synced accounts
-- [ ] 8.3 In `TransactionFormSheet.tsx`, detect `transaction_type = 'api_sync'` and disable date, description, amount fields
-- [ ] 8.4 In `TransactionFormSheet.tsx`, hide void action for API-synced transactions
-- [ ] 8.5 Write unit tests for `AccountFormSheet` verifying disabled fields when `is_api_synced = 1`
-- [ ] 8.6 Write unit tests for `TransactionFormSheet` verifying disabled fields for `transaction_type = 'api_sync'`
+- [x] 8.1 In `AccountFormSheet.tsx`, detect `is_api_synced = 1` and disable name, institution, account type, currency, opening balance, opening date fields
+- [x] 8.2 In `AccountFormSheet.tsx`, hide delete/deactivate action for API-synced accounts
+- [x] 8.3 In `TransactionFormSheet.tsx`, detect `transaction_type = 'api_sync'` and disable date, description, amount fields
+- [x] 8.4 In `TransactionFormSheet.tsx`, hide void action for API-synced transactions
+- [x] 8.5 Write unit tests for `AccountFormSheet` verifying disabled fields when `is_api_synced = 1`
+- [x] 8.6 Write unit tests for `TransactionFormSheet` verifying disabled fields for `transaction_type = 'api_sync'`
 
 ## 9. CSV Import Guard
 
