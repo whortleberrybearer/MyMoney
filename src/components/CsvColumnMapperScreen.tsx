@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Papa from "papaparse";
 import { ColumnMapping, SUPPORTED_DATE_FORMATS } from "@/lib/csv-types";
 import { saveInstitutionColumnMapping } from "@/lib/csv-column-mapping";
@@ -54,6 +54,25 @@ export function CsvColumnMapperScreen({
   const colLabels = headerRow
     ? headerRow
     : Array.from({ length: columnCount }, (_, i) => `Col ${i}`);
+
+  function findHeaderIndex(candidates: string[]): number | null {
+    if (!headerRow) return null;
+    const normalized = headerRow.map((h) => String(h ?? "").trim().toLowerCase());
+    for (const candidate of candidates) {
+      const idx = normalized.findIndex((h) => h === candidate);
+      if (idx >= 0) return idx;
+    }
+    return null;
+  }
+
+  // UX: when the CSV has headers, default the Payee mapping if present.
+  // This keeps duplicate detection useful without forcing the user to map it.
+  useEffect(() => {
+    if (!hasHeaderRow) return;
+    if (payeeCol !== null) return;
+    const idx = findHeaderIndex(["payee", "merchant", "description", "name"]);
+    if (idx !== null) setPayeeCol(idx);
+  }, [hasHeaderRow, headerRow, payeeCol]);
 
   function colOptions(includeIgnore = true) {
     const opts = colLabels.map((label, i) => ({ value: String(i), label }));
