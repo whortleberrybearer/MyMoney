@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { openDb } from "./db";
+import { syncAllConnections, type SyncProgress } from "./api-sync";
 import {
   createContext,
   useCallback,
@@ -34,6 +35,8 @@ const LAST_OPENED_KEY = "lastOpenedFilePath";
 interface AppContextValue {
   current: AppScreen;
   navigate: (next: AppScreen) => void;
+  syncProgress: SyncProgress[];
+  syncErrors: string[];
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -49,7 +52,9 @@ export function useApp(): AppContextValue {
 // ---------------------------------------------------------------------------
 
 function useStartupRouting(
-  setCurrent: (screen: AppScreen) => void
+  setCurrent: (screen: AppScreen) => void,
+  setSyncProgress: (fn: (prev: SyncProgress[]) => SyncProgress[]) => void,
+  setSyncErrors: (fn: (prev: string[]) => string[]) => void,
 ): void {
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +85,31 @@ function useStartupRouting(
             }
             return;
           }
-          if (!cancelled) setCurrent({ screen: "dashboard", filePath: storedPath });
+          if (!cancelled) {
+            setCurrent({ screen: "dashboard", filePath: storedPath });
+            // Fire-and-forget startup sync — failures must not block navigation
+            syncAllConnections((progress) => {
+              setSyncProgress((prev) => {
+                const idx = prev.findIndex(
+                  (p) => p.connectionId === progress.connectionId && p.accountName === progress.accountName,
+                );
+                if (idx >= 0) {
+                  const updated = [...prev];
+                  updated[idx] = progress;
+                  return updated;
+                }
+                return [...prev, progress];
+              });
+              if (progress.error) {
+                setSyncErrors((prev) => [
+                  ...prev,
+                  `Sync failed for ${progress.accountName}: ${progress.error}`,
+                ]);
+              }
+            }).catch((err) => {
+              setSyncErrors((prev) => [...prev, `Startup sync error: ${String(err)}`]);
+            });
+          }
         } else {
           setCurrent({ screen: "file-not-found", missingPath: storedPath });
         }
@@ -103,19 +132,21 @@ function useStartupRouting(
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [current, setCurrentRaw] = useState<AppScreen>({ screen: "loading" });
+  const [syncProgress, setSyncProgress] = useState<SyncProgress[]>([]);
+  const [syncErrors, setSyncErrors] = useState<string[]>([]);
 
   const setCurrent = useCallback((screen: AppScreen) => {
     setCurrentRaw(screen);
   }, []);
 
-  useStartupRouting(setCurrent);
+  useStartupRouting(setCurrent, setSyncProgress, setSyncErrors);
 
   const navigate = useCallback((next: AppScreen) => {
     setCurrentRaw(next);
   }, []);
 
   return (
-    <AppContext.Provider value={{ current, navigate }}>
+    <AppContext.Provider value={{ current, navigate, syncProgress, syncErrors }}>
       {children}
     </AppContext.Provider>
   );

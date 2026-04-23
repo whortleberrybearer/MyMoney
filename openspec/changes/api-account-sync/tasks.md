@@ -53,20 +53,20 @@
 
 ## 6. Startup Sync
 
-- [ ] 6.1 On app startup (after DB open), query all `institution_api_connection` rows and call `sync_starling_accounts` for each in parallel
-- [ ] 6.2 Ensure startup sync failure surfaces an error notification without blocking app launch
+- [x] 6.1 On app startup (after DB open), query all `institution_api_connection` rows and call `sync_starling_accounts` for each in parallel
+- [x] 6.2 Ensure startup sync failure surfaces an error notification without blocking app launch
 
 ## 7. API Connections Settings UI
 
-- [ ] 7.1 Create `ApiConnectionsSection` React component displaying connected institutions list with last synced time
-- [ ] 7.2 Add empty state to `ApiConnectionsSection` when no connections exist
-- [ ] 7.3 Create `ConnectInstitutionDialog` React component (PAT input form using shadcn/ui `Dialog` + `Form` + `Input`)
-- [ ] 7.4 Create `DiscoverAccountsDialog` React component (checkbox list of discovered accounts, shadcn/ui `Dialog` + `Checkbox`)
-- [ ] 7.5 Create `UpdatePatDialog` React component for updating the PAT
-- [ ] 7.6 Wire "Re-sync" button to call `sync_starling_accounts` and show per-institution progress indicator (disable button during sync)
-- [ ] 7.7 Wire "Remove" button per account to call `remove_synced_account` with confirmation dialog
-- [ ] 7.8 Add `ApiConnectionsSection` to `SettingsScreen.tsx` below existing content
-- [ ] 7.9 Subscribe to `api-sync-progress` Tauri events and update progress state in the UI
+- [x] 7.1 Create `ApiConnectionsSection` React component displaying connected institutions list with last synced time
+- [x] 7.2 Add empty state to `ApiConnectionsSection` when no connections exist
+- [x] 7.3 Create `ConnectInstitutionDialog` React component (PAT input form using shadcn/ui `Dialog` + `Form` + `Input`)
+- [x] 7.4 Create `DiscoverAccountsDialog` React component (checkbox list of discovered accounts, shadcn/ui `Dialog` + `Checkbox`)
+- [x] 7.5 Create `UpdatePatDialog` React component for updating the PAT
+- [x] 7.6 Wire "Re-sync" button to call `sync_starling_accounts` and show per-institution progress indicator (disable button during sync)
+- [x] 7.7 Wire "Remove" button per account to call `remove_synced_account` with confirmation dialog
+- [x] 7.8 Add `ApiConnectionsSection` to `SettingsScreen.tsx` below existing content
+- [x] 7.9 Subscribe to `api-sync-progress` Tauri events and update progress state in the UI
 
 ## 8. Read-Only Enforcement in Account & Transaction UI
 
