@@ -30,7 +30,7 @@
 
 ## 6. Integration & Verification
 
-- [ ] 6.1 Verify sidebar navigation works end-to-end: Dashboard → AccountsOverview → Settings and back
-- [ ] 6.2 Verify dark mode: toggle to dark in Settings and confirm sidebar, top bar, and AccountsOverviewScreen all use the `--ds-*` dark tokens
-- [ ] 6.3 Verify existing screens (TransactionList, Import, Rules, PotTransactionList) still function correctly inside the new AppLayout shell
-- [ ] 6.4 Verify ProfileSelector still filters accounts on the Dashboard screen
+- [x] 6.1 Verify sidebar navigation works end-to-end: Dashboard → AccountsOverview → Settings and back
+- [x] 6.2 Verify dark mode: toggle to dark in Settings and confirm sidebar, top bar, and AccountsOverviewScreen all use the `--ds-*` dark tokens
+- [x] 6.3 Verify existing screens (TransactionList, Import, Rules, PotTransactionList) still function correctly inside the new AppLayout shell
+- [x] 6.4 Verify ProfileSelector still filters accounts on the Dashboard screen
