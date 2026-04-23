@@ -78,6 +78,7 @@ export function TransactionFormSheet({
 
   const isEditMode = editTransaction !== undefined;
   const isImported = editTransaction?.type === "imported";
+  const isApiSynced = editTransaction?.type === "api_sync";
 
   useEffect(() => {
     if (open) {
@@ -213,6 +214,12 @@ export function TransactionFormSheet({
         </SheetHeader>
 
         <div className="mt-6 flex flex-col gap-4 px-1">
+          {isApiSynced && (
+            <p className="text-sm text-muted-foreground rounded-md border bg-muted px-3 py-2" data-testid="api-synced-tx-notice">
+              This transaction is managed by an API connection. Only the category can be changed.
+            </p>
+          )}
+
           {/* Date */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="tx-date">Date *</Label>
@@ -221,8 +228,8 @@ export function TransactionFormSheet({
               type="date"
               value={form.date}
               onChange={(e) => setField("date", e.target.value)}
-              readOnly={isImported}
-              aria-readonly={isImported}
+              readOnly={isImported || isApiSynced}
+              aria-readonly={isImported || isApiSynced}
               data-testid="tx-date"
             />
             {errors.date && (
@@ -240,8 +247,8 @@ export function TransactionFormSheet({
               placeholder="e.g. -12.50 or 500"
               value={form.amount}
               onChange={(e) => setField("amount", e.target.value)}
-              readOnly={isImported}
-              aria-readonly={isImported}
+              readOnly={isImported || isApiSynced}
+              aria-readonly={isImported || isApiSynced}
               data-testid="tx-amount"
             />
             {errors.amount && (
@@ -257,6 +264,8 @@ export function TransactionFormSheet({
               placeholder="e.g. Starbucks"
               value={form.payee}
               onChange={(e) => setField("payee", e.target.value)}
+              readOnly={isApiSynced}
+              aria-readonly={isApiSynced}
               data-testid="tx-payee"
             />
           </div>
@@ -269,6 +278,8 @@ export function TransactionFormSheet({
               placeholder="Bank description or your notes"
               value={form.notes}
               onChange={(e) => setField("notes", e.target.value)}
+              readOnly={isApiSynced}
+              aria-readonly={isApiSynced}
               data-testid="tx-notes"
             />
           </div>

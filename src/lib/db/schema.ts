@@ -57,6 +57,7 @@ export const account = sqliteTable("account", {
   notes: text("notes"),
   isActive: integer("is_active").notNull().default(1),
   isDeleted: integer("is_deleted").notNull().default(0),
+  isApiSynced: integer("is_api_synced").notNull().default(0),
 });
 
 export const accountTag = sqliteTable(
@@ -112,6 +113,7 @@ export const transaction = sqliteTable("transaction", {
   type: text("type").notNull(),
   isVoid: integer("is_void").notNull().default(0),
   isDuplicateCandidate: integer("is_duplicate_candidate").notNull().default(0),
+  externalId: text("external_id"),
 });
 
 export const transactionFitid = sqliteTable(
@@ -185,4 +187,16 @@ export const ruleAction = sqliteTable("rule_action", {
   actionType: text("action_type").notNull(),
   categoryId: integer("category_id").references(() => category.id),
   note: text("note"),
+});
+
+export const institutionApiConnection = sqliteTable("institution_api_connection", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  institutionId: integer("institution_id")
+    .notNull()
+    .references(() => institution.id),
+  apiType: text("api_type").notNull(),
+  keychainKey: text("keychain_key").notNull(),
+  lastSyncedAt: text("last_synced_at"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
 });

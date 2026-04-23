@@ -10,6 +10,7 @@ import migration0005 from "@/lib/db/migrations/0005_colossal_tarantula.sql?raw";
 import migration0006 from "@/lib/db/migrations/0006_pot_allocation_rules.sql?raw";
 import migration0007 from "@/lib/db/migrations/0007_csv_import_tables.sql?raw";
 import migration0008 from "@/lib/db/migrations/0008_duplicate_candidate.sql?raw";
+import migration0009 from "@/lib/db/migrations/0009_api_account_sync.sql?raw";
 
 /**
  * Creates an isolated in-memory SQLite database with all migrations applied.
@@ -22,7 +23,7 @@ export function createTestDb() {
   const sqlite = new BetterSQLite(":memory:");
 
   // Apply each migration the same way the runtime runner does
-  for (const sql of [migration0000, migration0001, migration0002, migration0003, migration0004, migration0005, migration0006, migration0007, migration0008]) {
+  for (const sql of [migration0000, migration0001, migration0002, migration0003, migration0004, migration0005, migration0006, migration0007, migration0008, migration0009]) {
     const statements = sql
       .split("--> statement-breakpoint")
       .map((s) => s.trim())

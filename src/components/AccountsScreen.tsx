@@ -299,18 +299,24 @@ export function AccountsScreen({
                             <DropdownMenuItem onClick={() => openEdit(row)}>
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleToggleActive(row)}
-                            >
-                              {row.isActive === 1 ? "Deactivate" : "Reactivate"}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => setDeleteTarget(row)}
-                            >
-                              Delete
-                            </DropdownMenuItem>
+                            {row.isApiSynced !== 1 && (
+                              <DropdownMenuItem
+                                onClick={() => handleToggleActive(row)}
+                              >
+                                {row.isActive === 1 ? "Deactivate" : "Reactivate"}
+                              </DropdownMenuItem>
+                            )}
+                            {row.isApiSynced !== 1 && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={() => setDeleteTarget(row)}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
+                              </>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

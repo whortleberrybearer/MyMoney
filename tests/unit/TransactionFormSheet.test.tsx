@@ -46,6 +46,14 @@ const IMPORTED_TX: TransactionRow = {
   type: "imported",
 };
 
+const API_SYNCED_TX: TransactionRow = {
+  ...BASE_TX,
+  id: 3,
+  type: "api_sync",
+  payee: "Starling transfer",
+  notes: "Bank-provided description",
+};
+
 beforeEach(() => {
   vi.mocked(categoriesLib.listCategories).mockResolvedValue([]);
   vi.mocked(transactionsLib.createTransaction).mockResolvedValue(undefined);
@@ -296,5 +304,78 @@ describe("TransactionFormSheet — category combobox", () => {
         expect.objectContaining({ categoryId: 1 }),
       );
     });
+  });
+});
+
+describe("TransactionFormSheet — API-synced transaction (read-only)", () => {
+  function renderApiSynced() {
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        editTransaction={API_SYNCED_TX}
+        onSaved={vi.fn()}
+      />,
+    );
+  }
+
+  it("shows the API-synced notice", async () => {
+    renderApiSynced();
+    await waitFor(() => screen.getByTestId("api-synced-tx-notice"));
+    expect(screen.getByTestId("api-synced-tx-notice")).toBeInTheDocument();
+  });
+
+  it("makes the date field read-only", async () => {
+    renderApiSynced();
+    await waitFor(() => screen.getByTestId("tx-date"));
+    expect(screen.getByTestId("tx-date")).toHaveAttribute("readonly");
+  });
+
+  it("makes the amount field read-only", async () => {
+    renderApiSynced();
+    await waitFor(() => screen.getByTestId("tx-amount"));
+    expect(screen.getByTestId("tx-amount")).toHaveAttribute("readonly");
+  });
+
+  it("makes the payee field read-only", async () => {
+    renderApiSynced();
+    await waitFor(() => screen.getByTestId("tx-payee"));
+    expect(screen.getByTestId("tx-payee")).toHaveAttribute("readonly");
+  });
+
+  it("makes the notes field read-only", async () => {
+    renderApiSynced();
+    await waitFor(() => screen.getByTestId("tx-notes"));
+    expect(screen.getByTestId("tx-notes")).toHaveAttribute("readonly");
+  });
+
+  it("does not show the notice for a normal manual transaction", async () => {
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        editTransaction={BASE_TX}
+        onSaved={vi.fn()}
+      />,
+    );
+    await waitFor(() => screen.getByTestId("tx-date"));
+    expect(screen.queryByTestId("api-synced-tx-notice")).not.toBeInTheDocument();
+  });
+
+  it("date and amount are editable for a normal manual transaction", async () => {
+    render(
+      <TransactionFormSheet
+        open={true}
+        onOpenChange={vi.fn()}
+        accountId={10}
+        editTransaction={BASE_TX}
+        onSaved={vi.fn()}
+      />,
+    );
+    await waitFor(() => screen.getByTestId("tx-date"));
+    expect(screen.getByTestId("tx-date")).not.toHaveAttribute("readonly");
+    expect(screen.getByTestId("tx-amount")).not.toHaveAttribute("readonly");
   });
 });

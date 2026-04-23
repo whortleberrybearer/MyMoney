@@ -9,6 +9,7 @@ import migration0005 from "./migrations/0005_colossal_tarantula.sql?raw";
 import migration0006 from "./migrations/0006_pot_allocation_rules.sql?raw";
 import migration0007 from "./migrations/0007_csv_import_tables.sql?raw";
 import migration0008 from "./migrations/0008_duplicate_candidate.sql?raw";
+import migration0009 from "./migrations/0009_api_account_sync.sql?raw";
 
 // ---------------------------------------------------------------------------
 // Inline migration list
@@ -60,6 +61,11 @@ const MIGRATIONS: Array<{ when: number; hash: string; sql: string }> = [
     when: 1776718800000,
     hash: "c0f3cfd7478c7670a359f1c5e747675cca8b10bf2a23d0f32b6654dac3a12db8",
     sql: migration0008,
+  },
+  {
+    when: 1776805200000,
+    hash: "5e4a25a91f2d8ea88dbcf001d91bebedb8218dd6d6f0971d8c8e21bcb6583353",
+    sql: migration0009,
   },
 ];
 

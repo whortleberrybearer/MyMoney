@@ -52,8 +52,16 @@ const EDIT_ACCOUNT: accountsLib.AccountRow = {
   openingDate: "2023-06-15",
   notes: "Some notes",
   isActive: 1,
+  isApiSynced: 0,
   tagId: 1,
   tagName: "Personal",
+};
+
+const API_SYNCED_ACCOUNT: accountsLib.AccountRow = {
+  ...EDIT_ACCOUNT,
+  id: 20,
+  name: "Starling Current",
+  isApiSynced: 1,
 };
 
 function renderSheet(props: Partial<Parameters<typeof AccountFormSheet>[0]> = {}) {
@@ -223,6 +231,56 @@ describe("AccountFormSheet — edit mode", () => {
         }),
       );
     });
+  });
+});
+
+describe("AccountFormSheet — API-synced account (read-only)", () => {
+  it("shows the API-synced notice when isApiSynced = 1", async () => {
+    renderSheet({ editAccount: API_SYNCED_ACCOUNT });
+    await waitFor(() => screen.getByTestId("api-synced-notice"));
+    expect(screen.getByTestId("api-synced-notice")).toBeInTheDocument();
+  });
+
+  it("disables the name input when isApiSynced = 1", async () => {
+    renderSheet({ editAccount: API_SYNCED_ACCOUNT });
+    await waitFor(() => screen.getByTestId("acc-name"));
+    expect(screen.getByTestId("acc-name")).toBeDisabled();
+  });
+
+  it("disables the opening balance input when isApiSynced = 1", async () => {
+    renderSheet({ editAccount: API_SYNCED_ACCOUNT });
+    await waitFor(() => screen.getByTestId("acc-opening-balance"));
+    expect(screen.getByTestId("acc-opening-balance")).toBeDisabled();
+  });
+
+  it("disables the opening date input when isApiSynced = 1", async () => {
+    renderSheet({ editAccount: API_SYNCED_ACCOUNT });
+    await waitFor(() => screen.getByTestId("acc-opening-date"));
+    expect(screen.getByTestId("acc-opening-date")).toBeDisabled();
+  });
+
+  it("hides the Save button when isApiSynced = 1", async () => {
+    renderSheet({ editAccount: API_SYNCED_ACCOUNT });
+    await waitFor(() => screen.getByTestId("api-synced-notice"));
+    expect(screen.queryByRole("button", { name: /save/i })).not.toBeInTheDocument();
+  });
+
+  it("shows a Close button instead of Cancel when isApiSynced = 1", async () => {
+    renderSheet({ editAccount: API_SYNCED_ACCOUNT });
+    await waitFor(() => screen.getByTestId("cancel-btn"));
+    expect(screen.getByTestId("cancel-btn")).toHaveTextContent("Close");
+  });
+
+  it("does not show the API-synced notice for a normal editable account", async () => {
+    renderSheet({ editAccount: EDIT_ACCOUNT });
+    await waitFor(() => screen.getByLabelText(/name \*/i));
+    expect(screen.queryByTestId("api-synced-notice")).not.toBeInTheDocument();
+  });
+
+  it("shows the Save button for a normal editable account", async () => {
+    renderSheet({ editAccount: EDIT_ACCOUNT });
+    await waitFor(() => screen.getByRole("button", { name: /save/i }));
+    expect(screen.getByRole("button", { name: /save/i })).toBeInTheDocument();
   });
 });
 

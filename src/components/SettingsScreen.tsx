@@ -3,7 +3,9 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CategoryManagementDialog } from "@/components/CategoryManagementDialog";
+import { ApiConnectionsSection } from "@/components/ApiConnectionsSection";
 import { useTheme, type ThemePreference } from "@/lib/theme-context";
+import { useApp } from "@/lib/app-context";
 
 interface SettingsScreenProps {
   filePath: string;
@@ -18,6 +20,9 @@ export function SettingsScreen({
 }: SettingsScreenProps) {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const { preference, setThemePreference } = useTheme();
+  const { syncProgress, syncErrors } = useApp();
+
+  const activeSyncs = syncProgress.filter((p) => !p.done);
 
   return (
     <div className="flex h-screen flex-col">
@@ -27,7 +32,7 @@ export function SettingsScreen({
         </Button>
         <span className="font-semibold">Settings</span>
       </header>
-      <main className="flex flex-col gap-6 p-6 max-w-xl">
+      <main className="flex flex-col gap-6 p-6 max-w-xl overflow-y-auto">
         <section className="flex flex-col gap-2">
           <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
             Data file
@@ -81,6 +86,29 @@ export function SettingsScreen({
             Manage Categories
           </Button>
         </section>
+
+        {activeSyncs.length > 0 && (
+          <section className="flex flex-col gap-2">
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Sync in progress
+            </h2>
+            {activeSyncs.map((p) => (
+              <p key={`${p.connectionId}-${p.accountName}`} className="text-sm text-muted-foreground">
+                Syncing {p.accountName}… ({p.transactionsSynced} transactions)
+              </p>
+            ))}
+          </section>
+        )}
+
+        {syncErrors.length > 0 && (
+          <section className="flex flex-col gap-1">
+            {syncErrors.map((err, i) => (
+              <p key={i} className="text-sm text-destructive">{err}</p>
+            ))}
+          </section>
+        )}
+
+        <ApiConnectionsSection />
       </main>
 
       <CategoryManagementDialog

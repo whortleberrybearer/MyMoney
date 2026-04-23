@@ -74,9 +74,10 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
         result = await importOfxFile(Number(selectedAccountId), fileContents);
       } else {
         // CSV — check for existing mapping
-        const selectedAccount = accounts.find(a => a.id === Number(selectedAccountId));
         if (!selectedAccount) throw new Error("Account not found");
-        const mapping = await getInstitutionColumnMapping(selectedAccount.institutionId);
+        const mapping = await getInstitutionColumnMapping(
+          selectedAccount.institutionId,
+        );
         if (!mapping) {
           // No mapping — show mapper screen
           setIsImporting(false);
@@ -94,14 +95,20 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
     }
   }
 
+  const selectedAccount = accounts.find(
+    (a) => a.id === Number(selectedAccountId),
+  );
+  const isApiSyncedAccount = selectedAccount?.isApiSynced === 1;
+
   const canProceed =
     selectedAccountId !== "" &&
     fileContents !== "" &&
     fileTypeError === "" &&
-    !isImporting;
+    !isImporting &&
+    !isApiSyncedAccount;
 
   if (showCsvMapper) {
-    const selectedAccount = accounts.find(a => a.id === Number(selectedAccountId))!;
+    if (!selectedAccount) return null;
     return (
       <CsvColumnMapperScreen
         accountId={Number(selectedAccountId)}
@@ -181,6 +188,16 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
               </p>
             )}
           </div>
+
+          {isApiSyncedAccount && (
+            <p
+              className="rounded-md border border-muted bg-muted p-3 text-sm text-muted-foreground"
+              data-testid="api-synced-import-warning"
+            >
+              This account is managed by an API connection. CSV import is
+              disabled — use the Settings page to re-sync.
+            </p>
+          )}
 
           {importError && (
             <p

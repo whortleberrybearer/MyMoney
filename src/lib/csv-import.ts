@@ -9,7 +9,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import Papa from "papaparse";
 import { getDb } from "./db";
-import { account, transaction } from "./db/schema";
+import { account, institutionApiConnection, transaction } from "./db/schema";
 import type { ImportResult } from "./import";
 import { applyPotAllocationRules } from "./pot-allocation-engine";
 import { applyRules } from "./rules";
@@ -190,14 +190,31 @@ export async function importCsvFile(
 ): Promise<ImportResult> {
   const db = getDb();
 
-  // Look up the account's institution ID
+  // Look up the account's institution ID and API sync status
   const [accountRow] = await db
-    .select({ institutionId: account.institutionId })
+    .select({ institutionId: account.institutionId, isApiSynced: account.isApiSynced })
     .from(account)
     .where(eq(account.id, accountId));
 
   if (!accountRow) {
     throw new Error(`Account ${accountId} not found`);
+  }
+
+  if (accountRow.isApiSynced === 1) {
+    throw new Error(
+      "CSV import is not available for API-connected accounts. Use the Settings page to re-sync.",
+    );
+  }
+
+  // Also check the institution-level API connection
+  const [apiConn] = await db
+    .select({ id: institutionApiConnection.id })
+    .from(institutionApiConnection)
+    .where(eq(institutionApiConnection.institutionId, accountRow.institutionId));
+  if (apiConn) {
+    throw new Error(
+      "CSV import is disabled for institutions connected via API. Use the Settings page to re-sync.",
+    );
   }
 
   // Load the institution column mapping

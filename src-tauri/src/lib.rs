@@ -1,3 +1,7 @@
+mod api;
+mod commands;
+mod keychain;
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -64,7 +68,24 @@ pub fn run() {
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .invoke_handler(tauri::generate_handler![greet, file_exists, create_empty_file, run_startup_backup])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            file_exists,
+            create_empty_file,
+            run_startup_backup,
+            commands::store_keychain_secret,
+            commands::get_keychain_secret,
+            commands::delete_keychain_secret,
+            commands::create_api_connection,
+            commands::update_api_connection_pat,
+            commands::discover_starling_accounts,
+            commands::discover_starling_accounts_by_key,
+            commands::fetch_starling_transactions,
+            commands::fetch_starling_transactions_by_key,
+            commands::create_synced_accounts,
+            commands::remove_synced_account,
+            commands::sync_starling_accounts,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
