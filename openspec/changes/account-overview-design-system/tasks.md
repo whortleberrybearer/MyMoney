@@ -10,9 +10,9 @@
 
 ## 3. AppScreen & Navigation Wiring
 
-- [ ] 3.1 Add `accounts-overview` variant to the `AppScreen` union in `src/lib/app-context.tsx`
-- [ ] 3.2 Add `onNavigateToAccountsOverview` callback to `App.tsx` and wire it to the new screen case
-- [ ] 3.3 In `App.tsx`, wrap the authenticated screen cases (dashboard, settings, import, rules, transaction-list, pot-transaction-list) with `AppLayout`, passing the correct `activeScreen` prop and navigation callbacks
+- [x] 3.1 Add `accounts-overview` variant to the `AppScreen` union in `src/lib/app-context.tsx`
+- [x] 3.2 Add `onNavigateToAccountsOverview` callback to `App.tsx` and wire it to the new screen case
+- [x] 3.3 In `App.tsx`, wrap the authenticated screen cases (dashboard, settings, import, rules, transaction-list, pot-transaction-list) with `AppLayout`, passing the correct `activeScreen` prop and navigation callbacks
 
 ## 4. DashboardShell Refactor
 

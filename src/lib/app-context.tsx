@@ -19,6 +19,7 @@ export type AppScreen =
   | { screen: "file-not-found"; missingPath: string }
   | { screen: "migration-error"; filePath: string; error: string }
   | { screen: "dashboard"; filePath: string }
+  | { screen: "accounts-overview"; filePath: string }
   | { screen: "settings"; filePath: string }
   | { screen: "import"; filePath: string }
   | { screen: "import-result"; filePath: string; result: import("./import").ImportResult }
