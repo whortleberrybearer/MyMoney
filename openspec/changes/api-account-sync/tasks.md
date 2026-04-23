@@ -1,11 +1,11 @@
 ## 1. Database Schema & Migration
 
-- [ ] 1.1 Add Drizzle schema for `institution_api_connection` table (id, institution_id, api_type, keychain_key, last_synced_at, created_at, updated_at)
-- [ ] 1.2 Add `is_api_synced INTEGER NOT NULL DEFAULT 0` column to Drizzle `account` schema
-- [ ] 1.3 Add `external_id TEXT` (nullable) column to Drizzle `transaction` schema
-- [ ] 1.4 Add `api_sync` seed value to `transaction_type` reference data
-- [ ] 1.5 Generate Drizzle migration and add it to the inlined migrations array in `src/lib/db/index.ts`
-- [ ] 1.6 Write integration tests verifying the migration runs cleanly on a fresh and existing database
+- [x] 1.1 Add Drizzle schema for `institution_api_connection` table (id, institution_id, api_type, keychain_key, last_synced_at, created_at, updated_at)
+- [x] 1.2 Add `is_api_synced INTEGER NOT NULL DEFAULT 0` column to Drizzle `account` schema
+- [x] 1.3 Add `external_id TEXT` (nullable) column to Drizzle `transaction` schema
+- [x] 1.4 Add `api_sync` seed value to `transaction_type` reference data
+- [x] 1.5 Generate Drizzle migration and add it to the inlined migrations array in `src/lib/db/index.ts`
+- [x] 1.6 Write integration tests verifying the migration runs cleanly on a fresh and existing database
 
 ## 2. Rust Dependencies & Keychain Integration
 
