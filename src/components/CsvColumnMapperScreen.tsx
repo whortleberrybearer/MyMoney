@@ -31,7 +31,9 @@ export function CsvColumnMapperScreen({
   onCancel,
 }: CsvColumnMapperScreenProps) {
   const [hasHeaderRow, setHasHeaderRow] = useState(true);
-  const [amountConvention, setAmountConvention] = useState<"single" | "split">("single");
+  const [amountConvention, setAmountConvention] = useState<"single" | "split">(
+    "single",
+  );
   const [dateCol, setDateCol] = useState<number | null>(null);
   const [dateFormat, setDateFormat] = useState<string>("");
   const [payeeCol, setPayeeCol] = useState<number | null>(null);
@@ -57,7 +59,11 @@ export function CsvColumnMapperScreen({
 
   function findHeaderIndex(candidates: string[]): number | null {
     if (!headerRow) return null;
-    const normalized = headerRow.map((h) => String(h ?? "").trim().toLowerCase());
+    const normalized = headerRow.map((h) =>
+      String(h ?? "")
+        .trim()
+        .toLowerCase(),
+    );
     for (const candidate of candidates) {
       const idx = normalized.findIndex((h) => h === candidate);
       if (idx >= 0) return idx;
@@ -164,7 +170,8 @@ export function CsvColumnMapperScreen({
       <div className="w-full max-w-3xl rounded-lg border p-6">
         <h1 className="mb-1 text-xl font-semibold">Map CSV Columns</h1>
         <p className="mb-6 text-sm text-muted-foreground">
-          Configure column mapping for <span className="font-medium">{institutionName}</span>
+          Configure column mapping for{" "}
+          <span className="font-medium">{institutionName}</span>
         </p>
 
         <div className="space-y-6">
@@ -248,7 +255,10 @@ export function CsvColumnMapperScreen({
                   Date Format <span className="text-destructive">*</span>
                 </label>
                 <Select value={dateFormat} onValueChange={setDateFormat}>
-                  <SelectTrigger className="w-full" data-testid="date-format-select">
+                  <SelectTrigger
+                    className="w-full"
+                    data-testid="date-format-select"
+                  >
                     <SelectValue placeholder="Select format" />
                   </SelectTrigger>
                   <SelectContent>
