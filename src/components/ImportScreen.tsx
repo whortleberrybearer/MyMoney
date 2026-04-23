@@ -104,6 +104,7 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
     !isApiSyncedAccount;
 
   if (showCsvMapper) {
+    if (!selectedAccount) return null;
     return (
       <CsvColumnMapperScreen
         accountId={Number(selectedAccountId)}

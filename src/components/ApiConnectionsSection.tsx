@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RefreshCw, Trash2 } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import {
   listApiConnections,
   discoverStarlingAccounts,
@@ -107,11 +107,6 @@ export function ApiConnectionsSection({ onConnectionsChanged }: Props) {
     await updateApiConnectionPat(connectionId, newPat);
     setUpdatePatOpen(false);
     await load();
-  }
-
-  function promptRemove(accountId: number) {
-    setRemoveAccountId(accountId);
-    setRemoveConfirmOpen(true);
   }
 
   async function confirmRemove() {
