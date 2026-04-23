@@ -1,6 +1,6 @@
 ## 1. Design Tokens
 
-- [ ] 1.1 Add `--ds-*` CSS custom properties to `src/App.css` in `:root` (light) and `.dark` blocks as specified in the app-layout spec
+- [x] 1.1 Add `--ds-*` CSS custom properties to `src/App.css` in `:root` (light) and `.dark` blocks as specified in the app-layout spec
 
 ## 2. AppLayout Component
 

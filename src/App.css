@@ -75,6 +75,18 @@
 }
 
 :root {
+  --ds-navy: #1A1A2E;
+  --ds-bg: #FAFAF8;
+  --ds-surface: #FFFFFF;
+  --ds-teal: #4A9E8A;
+  --ds-teal-light: #E8F4F1;
+  --ds-border: #E2DDD6;
+  --ds-text: #1A1A2E;
+  --ds-text-mid: #B8B0A4;
+  --ds-text-dim: #8C8478;
+  --ds-red: #C94040;
+  --ds-green: #2E8A5A;
+
   --radius: 0.375rem;
   --background: oklch(1.0000 0 0);
   --foreground: oklch(0.3211 0 0);
@@ -131,6 +143,18 @@
 }
 
 .dark {
+  --ds-navy: #1A1D2C;
+  --ds-bg: #0E1017;
+  --ds-surface: #181B2A;
+  --ds-teal: #5BBFAB;
+  --ds-teal-light: #142620;
+  --ds-border: #252838;
+  --ds-text: #E2DFFA;
+  --ds-text-mid: #44475A;
+  --ds-text-dim: #8888A8;
+  --ds-red: #E06868;
+  --ds-green: #4AAA70;
+
   --radius: 0.375rem;
   --background: oklch(0.2046 0 0);
   --foreground: oklch(0.9219 0 0);
