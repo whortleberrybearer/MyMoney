@@ -4,9 +4,9 @@
 
 ## 2. AppLayout Component
 
-- [ ] 2.1 Create `src/components/AppLayout.tsx` with the dark navy sidebar (200px), logo/branding header, "Pinned Accounts" static placeholder section, and nav links (Dashboard, Accounts, Settings)
-- [ ] 2.2 Wire the active-link highlight in `AppLayout`: accept `activeScreen` prop and apply teal left border + teal icon colour to the matching nav item
-- [ ] 2.3 Add a `TopBar` sub-component inside `AppLayout` (or as a separate file) that renders the page title and a search placeholder input
+- [x] 2.1 Create `src/components/AppLayout.tsx` with the dark navy sidebar (200px), logo/branding header, "Pinned Accounts" static placeholder section, and nav links (Dashboard, Accounts, Settings)
+- [x] 2.2 Wire the active-link highlight in `AppLayout`: accept `activeScreen` prop and apply teal left border + teal icon colour to the matching nav item
+- [x] 2.3 Add a `TopBar` sub-component inside `AppLayout` (or as a separate file) that renders the page title and a search placeholder input
 
 ## 3. AppScreen & Navigation Wiring
 
