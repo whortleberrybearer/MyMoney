@@ -16,9 +16,9 @@
 
 ## 4. DashboardShell Refactor
 
-- [ ] 4.1 Remove the horizontal header (`<header>` element with logo, ProfileSelector, icon buttons) from `DashboardShell.tsx`
-- [ ] 4.2 Move the Import, Rules, and Settings icon buttons to be passed as navigation callbacks through `AppLayout` (already handled by App.tsx wiring in task 3.3)
-- [ ] 4.3 Render the `ProfileSelector` inside the `DashboardShell` content area (above `AccountsScreen`), not in a header
+- [x] 4.1 Remove the horizontal header (`<header>` element with logo, ProfileSelector, icon buttons) from `DashboardShell.tsx`
+- [x] 4.2 Move the Import, Rules, and Settings icon buttons to be passed as navigation callbacks through `AppLayout` (already handled by App.tsx wiring in task 3.3)
+- [x] 4.3 Render the `ProfileSelector` inside the `DashboardShell` content area (above `AccountsScreen`), not in a header
 
 ## 5. AccountsOverviewScreen
 
