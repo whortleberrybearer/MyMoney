@@ -79,8 +79,8 @@
 
 ## 9. CSV Import Guard
 
-- [ ] 9.1 In the CSV import UI entry point, check if the account's institution has an active `institution_api_connection` and disable/hide the import action with an explanatory tooltip if so
-- [ ] 9.2 Add a guard in the `import_csv_transactions` Tauri command rejecting accounts from API-connected institutions
+- [x] 9.1 In the CSV import UI entry point, check if the account's institution has an active `institution_api_connection` and disable/hide the import action with an explanatory tooltip if so
+- [x] 9.2 Add a guard in the `import_csv_transactions` Tauri command rejecting accounts from API-connected institutions
 
 ## 10. E2E Tests (Playwright)
 
