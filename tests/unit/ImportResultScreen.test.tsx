@@ -11,6 +11,7 @@ const RESULT: ImportResult = {
   uncategorised: 5,
   potAllocations: 3,
   allocationFailures: [],
+  parseErrors: 0,
 };
 
 describe("ImportResultScreen — counts", () => {
@@ -30,7 +31,7 @@ describe("ImportResultScreen — counts", () => {
     const onDone = vi.fn();
     render(
       <ImportResultScreen
-        result={{ total: 0, imported: 0, duplicateCandidates: 0, categorised: 0, uncategorised: 0, potAllocations: 0, allocationFailures: [] }}
+        result={{ total: 0, imported: 0, duplicateCandidates: 0, categorised: 0, uncategorised: 0, potAllocations: 0, allocationFailures: [], parseErrors: 0 }}
         onDone={onDone}
       />,
     );

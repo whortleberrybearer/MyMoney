@@ -38,6 +38,12 @@ export function ImportResultScreen({ result, onDone }: ImportResultScreenProps) 
             <span className="text-muted-foreground">Pot allocations</span>
             <span data-testid="result-pot-allocations">{result.potAllocations}</span>
           </div>
+          {result.parseErrors > 0 && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Parse errors</span>
+              <span data-testid="result-parse-errors">{result.parseErrors}</span>
+            </div>
+          )}
         </div>
 
         {result.allocationFailures.length > 0 && (

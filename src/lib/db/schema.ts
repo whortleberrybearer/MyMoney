@@ -28,6 +28,20 @@ export const institution = sqliteTable("institution", {
   name: text("name").notNull().unique(),
 });
 
+export const institutionColumnMapping = sqliteTable(
+  "institution_column_mapping",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    institutionId: integer("institution_id")
+      .notNull()
+      .references(() => institution.id),
+    mappingJson: text("mapping_json").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("institution_column_mapping_institution_id_idx").on(t.institutionId)],
+);
+
 export const account = sqliteTable("account", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
@@ -97,6 +111,7 @@ export const transaction = sqliteTable("transaction", {
   runningBalance: real("running_balance").notNull().default(0),
   type: text("type").notNull(),
   isVoid: integer("is_void").notNull().default(0),
+  isDuplicateCandidate: integer("is_duplicate_candidate").notNull().default(0),
 });
 
 export const transactionFitid = sqliteTable(

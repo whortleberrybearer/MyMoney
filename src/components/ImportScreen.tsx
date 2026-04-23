@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { listAccounts, type AccountRow } from "@/lib/accounts";
 import { detectFileType, type ImportResult } from "@/lib/import";
 import { importOfxFile } from "@/lib/ofx-import";
+import { importCsvFile } from "@/lib/csv-import";
+import { getInstitutionColumnMapping } from "@/lib/csv-column-mapping";
+import { CsvColumnMapperScreen } from "./CsvColumnMapperScreen";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -24,6 +27,7 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
   const [fileTypeError, setFileTypeError] = useState<string>("");
   const [importError, setImportError] = useState<string>("");
   const [isImporting, setIsImporting] = useState(false);
+  const [showCsvMapper, setShowCsvMapper] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -69,16 +73,18 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
       if (fileType === "ofx") {
         result = await importOfxFile(Number(selectedAccountId), fileContents);
       } else {
-        // CSV handler stub — to be implemented with issue #38
-        result = {
-          total: 0,
-          imported: 0,
-          duplicateCandidates: 0,
-          categorised: 0,
-          uncategorised: 0,
-          potAllocations: 0,
-          allocationFailures: [],
-        };
+        // CSV — check for existing mapping
+        const selectedAccount = accounts.find(a => a.id === Number(selectedAccountId));
+        if (!selectedAccount) throw new Error("Account not found");
+        const mapping = await getInstitutionColumnMapping(selectedAccount.institutionId);
+        if (!mapping) {
+          // No mapping — show mapper screen
+          setIsImporting(false);
+          setShowCsvMapper(true);
+          return;
+        }
+        // Mapping exists — import directly
+        result = await importCsvFile(Number(selectedAccountId), fileContents);
       }
       onDone(result);
     } catch (err) {
@@ -93,6 +99,20 @@ export function ImportScreen({ onDone, onCancel }: ImportScreenProps) {
     fileContents !== "" &&
     fileTypeError === "" &&
     !isImporting;
+
+  if (showCsvMapper) {
+    const selectedAccount = accounts.find(a => a.id === Number(selectedAccountId))!;
+    return (
+      <CsvColumnMapperScreen
+        accountId={Number(selectedAccountId)}
+        institutionId={selectedAccount.institutionId}
+        institutionName={selectedAccount.institutionName}
+        fileContents={fileContents}
+        onDone={onDone}
+        onCancel={() => setShowCsvMapper(false)}
+      />
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col items-center justify-center">

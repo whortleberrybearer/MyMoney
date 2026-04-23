@@ -16,6 +16,7 @@ export type ImportResult = {
   uncategorised: number;
   potAllocations: number;
   allocationFailures: AllocationFailure[];
+  parseErrors: number;
 };
 
 /**
