@@ -30,10 +30,11 @@ async function navigateBackToDashboard() {
 }
 
 async function navigateToTransactionsForAccount(accountName: string) {
-  const row = await find(`//tr[.//td[normalize-space(.)="${accountName}"]]`);
-  await row.waitForExist({ timeout: 10_000 });
-  await row.click();
-  await (await find("button*=Add Transaction")).waitForExist({ timeout: 10_000 });
+  // The account name is the actual clickable element (not the <tr>)
+  const accountBtn = await find(`//button[normalize-space(.)=${toXpathLiteral(accountName)}]`);
+  await accountBtn.waitForClickable({ timeout: 10_000 });
+  await accountBtn.click();
+  await (await find("[data-testid='add-transaction-btn']")).waitForExist({ timeout: 10_000 });
 }
 
 async function openImportScreen() {
@@ -211,10 +212,17 @@ describe("API Account Sync — read-only transaction form (10.7)", () => {
   });
 
   it("does not show a Delete option in the transaction actions menu", async () => {
-    // Close the form first
-    await browser.keys("Escape");
+    // Close the form first (Escape can be flaky with WebView2 focus traps)
+    const sheet = await find('[data-slot="sheet-content"]');
+    await sheet.waitForExist({ timeout: 10_000 });
+    const closeBtn = await sheet.$('[data-slot="sheet-close"]');
+    await closeBtn.waitForClickable({ timeout: 10_000 });
+    await closeBtn.click();
+    await sheet.waitForExist({ reverse: true, timeout: 10_000 });
 
-    const actionsBtn = await find('//tr[.//td[contains(normalize-space(.), "-25")]]//button');
+    const actionsBtn = await find(
+      '//tr[.//td[contains(normalize-space(.), "-25")]]//button[@aria-label="Transaction actions"]',
+    );
     await actionsBtn.waitForClickable({ timeout: 10_000 });
     await actionsBtn.click();
 
@@ -293,12 +301,11 @@ describe("API Account Sync — remove synced account (10.9)", () => {
 
     const menu = await find('[data-slot="dropdown-menu-content"]');
     await menu.waitForDisplayed({ timeout: 5_000 });
-    const items = await menu.$$('[data-slot="dropdown-menu-item"]');
-    const itemTexts = await Promise.all(items.map((i) => i.getText()));
+    const menuText = await menu.getText();
 
-    expect(itemTexts).not.toContain("Delete");
-    expect(itemTexts).not.toContain("Deactivate");
-    expect(itemTexts).toContain("Edit");
+    expect(menuText).not.toContain("Delete");
+    expect(menuText).not.toContain("Deactivate");
+    expect(menuText).toContain("Edit");
 
     await browser.keys("Escape");
   });

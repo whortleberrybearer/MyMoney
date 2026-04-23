@@ -9,6 +9,12 @@ import { fileURLToPath } from "url";
 const THIS_DIR = dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = resolve(THIS_DIR, "../../src/lib/db/migrations");
 
+const MIGRATIONS_TABLE = "__drizzle_migrations";
+
+// Keep in sync with the `when` values in `src/lib/db/index.ts`.
+// We only need the latest value so the app's migrator will skip already-applied migrations.
+const DRIZZLE_LATEST_MIGRATION_WHEN = 1776805200000;
+
 const MIGRATION_FILES = [
   "0000_pale_fixer.sql",
   "0001_cynical_the_watchers.sql",
@@ -50,6 +56,20 @@ function applyMigrations(sqlite: BetterSQLite.Database) {
       sqlite.exec(stmt);
     }
   }
+
+  // Mark migrations as already applied so the in-app migrator (which only checks
+  // the latest `created_at`) does not attempt to re-run CREATE/ALTER statements.
+  sqlite.exec(
+    `CREATE TABLE IF NOT EXISTS \`${MIGRATIONS_TABLE}\` (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      hash TEXT NOT NULL,
+      created_at NUMERIC
+    )`,
+  );
+  sqlite.exec(
+    `INSERT INTO \`${MIGRATIONS_TABLE}\` (hash, created_at)
+     VALUES ('e2e-seed', ${DRIZZLE_LATEST_MIGRATION_WHEN})`,
+  );
 }
 
 /**
