@@ -9,7 +9,10 @@
  */
 
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
-import { initializeAppWithFreshDb, initializeAppWithApiSyncedDb } from "./e2e-app";
+import {
+  initializeAppWithFreshDb,
+  initializeAppWithApiSyncedDb,
+} from "./e2e-app";
 
 // ---------------------------------------------------------------------------
 // Navigation helpers
@@ -19,7 +22,9 @@ async function navigateToSettings() {
   const settingsBtn = await find('button[aria-label="Settings"]');
   await settingsBtn.waitForClickable({ timeout: 10_000 });
   await settingsBtn.click();
-  await (await find("button*=Manage Categories")).waitForExist({ timeout: 10_000 });
+  await (
+    await find("button*=Manage Categories")
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function navigateBackToDashboard() {
@@ -31,23 +36,36 @@ async function navigateBackToDashboard() {
 
 async function navigateToTransactionsForAccount(accountName: string) {
   // The account name is the actual clickable element (not the <tr>)
-  const accountBtn = await find(`//button[normalize-space(.)=${toXpathLiteral(accountName)}]`);
+  const accountBtn = await find(
+    `//button[normalize-space(.)=${toXpathLiteral(accountName)}]`,
+  );
   await accountBtn.waitForClickable({ timeout: 10_000 });
   await accountBtn.click();
-  await (await find("[data-testid='add-transaction-btn']")).waitForExist({ timeout: 10_000 });
+  await (
+    await find("[data-testid='add-transaction-btn']")
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function openImportScreen() {
   const importBtn = await find('button[aria-label="Import"]');
   await importBtn.waitForClickable({ timeout: 10_000 });
   await importBtn.click();
-  await (await find('[data-testid="account-select"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="account-select"]')
+  ).waitForExist({ timeout: 10_000 });
 }
 
 function toXpathLiteral(value: string): string {
   if (!value.includes("'")) return `'${value}'`;
   if (!value.includes('"')) return `"${value}"`;
-  return "concat(" + value.split("'").map((p) => `'${p}'`).join(`, "'", `) + ")";
+  return (
+    "concat(" +
+    value
+      .split("'")
+      .map((p) => `'${p}'`)
+      .join(`, "'", `) +
+    ")"
+  );
 }
 
 async function selectByTestId(testId: string, optionText: string) {
@@ -187,7 +205,9 @@ describe("API Account Sync — read-only transaction form (10.7)", () => {
 
   it("opens the transaction form and shows the read-only notice", async () => {
     // Open actions menu for the transaction
-    const actionsBtn = await find('//tr[.//td[contains(normalize-space(.), "-25")]]//button');
+    const actionsBtn = await find(
+      '//tr[.//td[contains(normalize-space(.), "-25")]]//button',
+    );
     await actionsBtn.waitForClickable({ timeout: 10_000 });
     await actionsBtn.click();
 
