@@ -1,3 +1,5 @@
+## MODIFIED Requirements
+
 ### Requirement: Dashboard shell is displayed after a file is loaded
 The app SHALL display the dashboard shell as the main screen once a data file has been successfully opened. The dashboard shell SHALL render the `AccountsScreen` inside the `AppLayout` shell (sidebar + top bar). The application header is removed; navigation is provided by the `AppLayout` sidebar.
 

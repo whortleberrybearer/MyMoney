@@ -9,7 +9,7 @@
  */
 
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
-import { initializeAppWithFreshDb } from "./e2e-app";
+import { ensureOnDashboard, initializeAppWithFreshDb } from "./e2e-app";
 
 // ---------------------------------------------------------------------------
 // Navigation helpers
@@ -20,7 +20,9 @@ async function loadDashboard() {
 }
 
 async function navigateToSettings() {
-  const settingsBtn = await find('button[aria-label="Settings"]');
+  const settingsBtn = await find(
+    "//button[.//span[normalize-space()='Settings']]",
+  );
   await settingsBtn.waitForClickable({ timeout: 10_000 });
   await settingsBtn.click();
   await (
@@ -311,7 +313,9 @@ describe("Category management — in-use deletion flow", () => {
     const backBtn = await find('button[aria-label="Back"]');
     await backBtn.waitForClickable({ timeout: 5_000 });
     await backBtn.click();
-    await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
+
+    // Back now lands on Accounts Overview; ensure we are on Dashboard before continuing.
+    await ensureOnDashboard();
 
     await navigateToSettings();
     await openCategoryDialog();

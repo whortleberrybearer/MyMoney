@@ -30,6 +30,11 @@ const MIGRATION_FILES = [
 
 const E2E_RUN_DIR = process.env.MY_MONEY_E2E_RUN_DIR;
 
+const ACCOUNTS_OVERVIEW_SUBTITLE_SELECTOR = "span*=All your financial accounts";
+const DASHBOARD_ADD_ACCOUNT_SELECTOR = "button*=Add Account";
+const SIDEBAR_DASHBOARD_BUTTON_XPATH =
+  "//button[.//span[normalize-space()='Dashboard']]";
+
 function ensureRunDir() {
   const runDir = E2E_RUN_DIR ?? join(tmpdir(), "my-money-e2e");
   mkdirSync(runDir, { recursive: true });
@@ -129,7 +134,7 @@ export async function initializeAppWithFreshDb() {
 
   await browser.refresh();
 
-  await (await find("button*=Add Account")).waitForExist({ timeout: 20_000 });
+  await ensureOnDashboard();
 
   return dbPath;
 }
@@ -148,7 +153,34 @@ export async function initializeAppWithApiSyncedDb() {
 
   await browser.refresh();
 
-  await (await find("button*=Add Account")).waitForExist({ timeout: 20_000 });
+  await ensureOnDashboard();
 
   return dbPath;
+}
+
+export async function waitForAccountsOverviewReady(timeout = 20_000) {
+  await (
+    await find(ACCOUNTS_OVERVIEW_SUBTITLE_SELECTOR)
+  ).waitForExist({ timeout });
+}
+
+export async function ensureOnDashboard(timeout = 20_000) {
+  await browser.waitUntil(
+    async () =>
+      (await (await find(DASHBOARD_ADD_ACCOUNT_SELECTOR)).isExisting()) ||
+      (await (await find(ACCOUNTS_OVERVIEW_SUBTITLE_SELECTOR)).isExisting()),
+    {
+      timeout,
+      timeoutMsg:
+        "Expected app to show either the Dashboard (Add Account) or Accounts Overview (All your financial accounts)",
+    },
+  );
+
+  if (await (await find(ACCOUNTS_OVERVIEW_SUBTITLE_SELECTOR)).isExisting()) {
+    const dashboardNavBtn = await find(SIDEBAR_DASHBOARD_BUTTON_XPATH);
+    await dashboardNavBtn.waitForClickable({ timeout: 10_000 });
+    await dashboardNavBtn.click();
+  }
+
+  await (await find(DASHBOARD_ADD_ACCOUNT_SELECTOR)).waitForExist({ timeout });
 }

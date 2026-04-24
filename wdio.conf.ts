@@ -17,21 +17,23 @@ process.env.MY_MONEY_E2E_RUN_DIR = E2E_RUN_DIR;
 export const config = defineConfig({
   runner: "local",
   specs: ["./tests/e2e/**/*.test.ts"],
+  // Stop the run after the first failing test.
+  bail: 1,
+  specFileRetries: 0,
   maxInstances: 1,
   capabilities: [
     {
-      maxInstances: 1,
       "tauri:options": {
         application: ".",
       },
-    },
+    } as any,
   ],
   services: [
     [
       "@wdio/tauri-service",
       {
         commandTimeout: 30000,
-        debug: true,
+        debug: false,
       },
     ],
   ],
@@ -39,6 +41,7 @@ export const config = defineConfig({
   reporters: ["spec"],
   mochaOpts: {
     timeout: 60000,
+    bail: true,
   },
   onComplete: () => {
     // Clean up temp DB files created by *this* e2e run.

@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { ArrowDownToLine, Settings, Tags } from "lucide-react";
+import { ArrowDownToLine, Tags } from "lucide-react";
 import { listTags, Tag } from "@/lib/reference-data";
 import { Button } from "@/components/ui/button";
+import { TopBar } from "@/components/AppLayout";
 import { AccountsScreen } from "./AccountsScreen";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ProfileSelector } from "./ProfileSelector";
 
 interface DashboardShellProps {
-  onNavigateToSettings: () => void;
   onNavigateToImport: () => void;
   onNavigateToTransactions: (accountId: number, accountName: string) => void;
   onNavigateToPotTransactions: (potId: number, potName: string, accountId: number, accountName: string) => void;
   onNavigateToRules: () => void;
 }
 
-export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNavigateToTransactions, onNavigateToPotTransactions, onNavigateToRules }: DashboardShellProps) {
+export function DashboardShell({ onNavigateToImport, onNavigateToTransactions, onNavigateToPotTransactions, onNavigateToRules }: DashboardShellProps) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
 
@@ -31,14 +31,15 @@ export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNav
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-3">
-        <span className="font-semibold">My Money</span>
+    <div className="flex h-full flex-col">
+      <TopBar title="Dashboard" />
+      <div className="flex items-center gap-2 border-b px-5 py-2" style={{ borderColor: "var(--ds-border)", background: "var(--ds-surface)" }}>
         <ProfileSelector
           tags={tags}
           value={selectedTagId}
           onChange={setSelectedTagId}
         />
+        <div className="flex-1" />
         <Button
           variant="ghost"
           size="icon"
@@ -57,15 +58,7 @@ export function DashboardShell({ onNavigateToSettings, onNavigateToImport, onNav
         >
           <Tags className="h-5 w-5" />
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onNavigateToSettings}
-          aria-label="Settings"
-        >
-          <Settings className="h-5 w-5" />
-        </Button>
-      </header>
+      </div>
       <ErrorBoundary>
         <AccountsScreen
           tagId={selectedTagId}
