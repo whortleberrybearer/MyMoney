@@ -32,7 +32,8 @@ const E2E_RUN_DIR = process.env.MY_MONEY_E2E_RUN_DIR;
 
 const ACCOUNTS_OVERVIEW_SUBTITLE_SELECTOR = "span*=All your financial accounts";
 const DASHBOARD_ADD_ACCOUNT_SELECTOR = "button*=Add Account";
-const SIDEBAR_DASHBOARD_BUTTON_XPATH = "//button[.//span[normalize-space()='Dashboard']]";
+const SIDEBAR_DASHBOARD_BUTTON_XPATH =
+  "//button[.//span[normalize-space()='Dashboard']]";
 
 function ensureRunDir() {
   const runDir = E2E_RUN_DIR ?? join(tmpdir(), "my-money-e2e");
@@ -158,7 +159,9 @@ export async function initializeAppWithApiSyncedDb() {
 }
 
 export async function waitForAccountsOverviewReady(timeout = 20_000) {
-  await (await find(ACCOUNTS_OVERVIEW_SUBTITLE_SELECTOR)).waitForExist({ timeout });
+  await (
+    await find(ACCOUNTS_OVERVIEW_SUBTITLE_SELECTOR)
+  ).waitForExist({ timeout });
 }
 
 export async function ensureOnDashboard(timeout = 20_000) {

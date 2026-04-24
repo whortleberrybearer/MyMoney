@@ -78,14 +78,20 @@ async function createTestAccount() {
   await addBtn.waitForClickable({ timeout: 10_000 });
   await addBtn.click();
 
-  await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 10_000 });
+  await (
+    await find('[data-slot="sheet-title"]')
+  ).waitForDisplayed({ timeout: 10_000 });
 
   await (await find("button*=Manage")).waitForExist({ timeout: 5_000 });
   await (await find("button*=Manage")).click();
-  await (await find('[data-slot="dialog-title"]')).waitForExist({ timeout: 5_000 });
+  await (
+    await find('[data-slot="dialog-title"]')
+  ).waitForExist({ timeout: 5_000 });
 
   await (await find("button*=Add Institution")).click();
-  await (await find("input[placeholder='Institution name']")).setValue("Test Bank");
+  await (
+    await find("input[placeholder='Institution name']")
+  ).setValue("Test Bank");
   await (await find("button[aria-label='Save']")).click();
   await (await find("span=Test Bank")).waitForExist({ timeout: 5_000 });
 
@@ -99,18 +105,24 @@ async function createTestAccount() {
   await (await find("#acc-opening-date")).setValue("2024-01-01");
   await (await find("button=Save")).click();
 
-  await (await find("button*=Import Account")).waitForExist({ timeout: 10_000 });
+  await (
+    await find("button*=Import Account")
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function createTestPot() {
   await ensureOnDashboard();
-  const addPotBtn = await find("button[aria-label='Add pot to Import Account']");
+  const addPotBtn = await find(
+    "button[aria-label='Add pot to Import Account']",
+  );
   await addPotBtn.waitForExist({ timeout: 10_000 });
   await addPotBtn.scrollIntoView();
   await addPotBtn.waitForClickable({ timeout: 10_000 });
   await addPotBtn.click();
 
-  await (await find('[data-slot="sheet-title"]')).waitForDisplayed({ timeout: 10_000 });
+  await (
+    await find('[data-slot="sheet-title"]')
+  ).waitForDisplayed({ timeout: 10_000 });
   await (await find("#pot-name")).setValue("Savings Pot");
   await (await find("#pot-opening-date")).setValue("2024-01-01");
   await (await find("button=Save")).click();
@@ -123,20 +135,28 @@ async function navigateToRulesTab() {
   await accountLink.waitForClickable({ timeout: 10_000 });
   await accountLink.click();
 
-  await (await find('[data-testid="add-transaction-btn"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="add-transaction-btn"]')
+  ).waitForExist({ timeout: 10_000 });
 
   const rulesTab = await find('[data-testid="tab-rules"]');
   await rulesTab.waitForClickable({ timeout: 10_000 });
   await rulesTab.click();
 
-  await (await find('[data-testid="par-new-rule-button"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="par-new-rule-button"]')
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function createPotAllocationRule(allocationAmount: string) {
   await (await find('[data-testid="par-new-rule-button"]')).click();
-  await (await find('[data-testid="par-name-input"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid="par-name-input"]')
+  ).waitForExist({ timeout: 10_000 });
 
-  await (await find('[data-testid="par-name-input"]')).setValue("Salary Allocation");
+  await (
+    await find('[data-testid="par-name-input"]')
+  ).setValue("Salary Allocation");
 
   // Change condition field to "Amount"
   await selectRadixByTestId("par-cond-field-0", "Amount");
@@ -157,13 +177,17 @@ async function createPotAllocationRule(allocationAmount: string) {
   await options[0].click();
 
   // Set allocation amount
-  await (await find('[data-testid="par-action-amount-0"]')).setValue(allocationAmount);
+  await (
+    await find('[data-testid="par-action-amount-0"]')
+  ).setValue(allocationAmount);
 
   const saveBtn = await find('[data-testid="par-builder-save"]');
   await saveBtn.waitForEnabled({ timeout: 5_000 });
   await saveBtn.click();
 
-  await (await find('[data-testid^="par-rule-row-"]')).waitForExist({ timeout: 10_000 });
+  await (
+    await find('[data-testid^="par-rule-row-"]')
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function navigateBackToDashboard() {
@@ -177,7 +201,9 @@ async function openImportScreen() {
   const importBtn = await find('[data-testid="import-button"]');
   await importBtn.waitForClickable({ timeout: 10_000 });
   await importBtn.click();
-  await (await find("h1*=Import Transactions")).waitForExist({ timeout: 10_000 });
+  await (
+    await find("h1*=Import Transactions")
+  ).waitForExist({ timeout: 10_000 });
 }
 
 async function selectImportAccount(accountName: string) {
@@ -220,9 +246,13 @@ async function runImport(accountName: string, filePath: string) {
   await openImportScreen();
   await selectImportAccount(accountName);
   await setImportFile(filePath);
-  await (await find('[data-testid="next-button"]')).waitForEnabled({ timeout: 5_000 });
+  await (
+    await find('[data-testid="next-button"]')
+  ).waitForEnabled({ timeout: 5_000 });
   await (await find('[data-testid="next-button"]')).click();
-  await (await find('[data-testid="done-button"]')).waitForExist({ timeout: 60_000 });
+  await (
+    await find('[data-testid="done-button"]')
+  ).waitForExist({ timeout: 60_000 });
 }
 
 // ---------------------------------------------------------------------------
@@ -282,7 +312,9 @@ describe("Pot Allocation Import — virtual transfers created in transaction lis
     const accountLink = await find("button*=Import Account");
     await accountLink.waitForClickable({ timeout: 10_000 });
     await accountLink.click();
-    await (await find('[data-testid="add-transaction-btn"]')).waitForExist({ timeout: 10_000 });
+    await (
+      await find('[data-testid="add-transaction-btn"]')
+    ).waitForExist({ timeout: 10_000 });
   });
 
   it("shows virtual_transfer type transactions in the account", async () => {

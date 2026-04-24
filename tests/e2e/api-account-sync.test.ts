@@ -20,7 +20,9 @@ import {
 // ---------------------------------------------------------------------------
 
 async function navigateToSettings() {
-  const settingsBtn = await find("//button[.//span[normalize-space()='Settings']]");
+  const settingsBtn = await find(
+    "//button[.//span[normalize-space()='Settings']]",
+  );
   await settingsBtn.waitForClickable({ timeout: 10_000 });
   await settingsBtn.click();
   await (
