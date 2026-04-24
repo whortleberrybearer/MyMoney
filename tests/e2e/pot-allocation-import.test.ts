@@ -7,7 +7,7 @@
 import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
-import { initializeAppWithFreshDb } from "./e2e-app";
+import { ensureOnDashboard, initializeAppWithFreshDb } from "./e2e-app";
 
 const THIS_DIR = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = resolve(THIS_DIR, "fixtures");
@@ -19,6 +19,10 @@ const OFX_VALID_3TX = join(FIXTURES_DIR, "valid-3tx.ofx");
 
 async function loadDashboard() {
   await initializeAppWithFreshDb();
+}
+
+async function navigateToDashboardFromAccountsOverview() {
+  await ensureOnDashboard();
 }
 
 function toXpathLiteral(value: string): string {
@@ -68,20 +72,8 @@ async function selectRadixByTestId(testId: string, optionText: string) {
   await option.click();
 }
 
-async function selectOption(triggerId: string, optionText: string) {
-  await (await find(`#${triggerId}`)).click();
-  await (await find('[role="listbox"]')).waitForExist({ timeout: 5_000 });
-  const options = await findAll('[role="option"]');
-  for (const opt of options) {
-    if ((await opt.getText()).includes(optionText)) {
-      await opt.click();
-      return;
-    }
-  }
-  throw new Error(`Select option "${optionText}" not found`);
-}
-
 async function createTestAccount() {
+  await ensureOnDashboard();
   const addBtn = await find("button*=Add Account");
   await addBtn.waitForClickable({ timeout: 10_000 });
   await addBtn.click();
@@ -102,15 +94,16 @@ async function createTestAccount() {
   await dialog.waitForExist({ reverse: true, timeout: 10_000 });
 
   await (await find("#acc-name")).setValue("Import Account");
-  await selectOption("acc-institution", "Test Bank");
-  await selectOption("acc-type", "Current");
+  await selectRadixOption("acc-institution", "Test Bank");
+  await selectRadixOption("acc-type", "Current");
   await (await find("#acc-opening-date")).setValue("2024-01-01");
   await (await find("button=Save")).click();
 
-  await (await find("td*=Import Account")).waitForExist({ timeout: 10_000 });
+  await (await find("button*=Import Account")).waitForExist({ timeout: 10_000 });
 }
 
 async function createTestPot() {
+  await ensureOnDashboard();
   const addPotBtn = await find("button[aria-label='Add pot to Import Account']");
   await addPotBtn.waitForExist({ timeout: 10_000 });
   await addPotBtn.scrollIntoView();
@@ -122,7 +115,7 @@ async function createTestPot() {
   await (await find("#pot-opening-date")).setValue("2024-01-01");
   await (await find("button=Save")).click();
 
-  await (await find("td*=Savings Pot")).waitForExist({ timeout: 10_000 });
+  await (await find("button*=Savings Pot")).waitForExist({ timeout: 10_000 });
 }
 
 async function navigateToRulesTab() {
@@ -177,7 +170,7 @@ async function navigateBackToDashboard() {
   const backBtn = await find("button[aria-label='Back']");
   await backBtn.waitForClickable({ timeout: 10_000 });
   await backBtn.click();
-  await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
+  await navigateToDashboardFromAccountsOverview();
 }
 
 async function openImportScreen() {
@@ -265,7 +258,7 @@ describe("Pot Allocation Import — rule matches and allocation is shown", () =>
     const doneBtn = await find('[data-testid="done-button"]');
     await doneBtn.waitForClickable({ timeout: 10_000 });
     await doneBtn.click();
-    await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
+    await navigateToDashboardFromAccountsOverview();
   });
 });
 
@@ -284,7 +277,7 @@ describe("Pot Allocation Import — virtual transfers created in transaction lis
     await runImport("Import Account", OFX_VALID_3TX);
     // Click Done then navigate to transaction list
     await (await find('[data-testid="done-button"]')).click();
-    await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
+    await navigateToDashboardFromAccountsOverview();
     // Navigate to Import Account transaction list
     const accountLink = await find("button*=Import Account");
     await accountLink.waitForClickable({ timeout: 10_000 });

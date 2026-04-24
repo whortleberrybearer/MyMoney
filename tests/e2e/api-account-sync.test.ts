@@ -8,10 +8,11 @@
  * unless STARLING_MOCK_URL is set in the environment.
  */
 
-import { browser, $ as find, $$ as findAll, expect } from "@wdio/globals";
+import { browser, $ as find, expect } from "@wdio/globals";
 import {
   initializeAppWithFreshDb,
   initializeAppWithApiSyncedDb,
+  ensureOnDashboard,
 } from "./e2e-app";
 
 // ---------------------------------------------------------------------------
@@ -19,7 +20,7 @@ import {
 // ---------------------------------------------------------------------------
 
 async function navigateToSettings() {
-  const settingsBtn = await find('button[aria-label="Settings"]');
+  const settingsBtn = await find("//button[.//span[normalize-space()='Settings']]");
   await settingsBtn.waitForClickable({ timeout: 10_000 });
   await settingsBtn.click();
   await (
@@ -31,7 +32,7 @@ async function navigateBackToDashboard() {
   const backBtn = await find('button[aria-label="Back"]');
   await backBtn.waitForClickable({ timeout: 10_000 });
   await backBtn.click();
-  await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
+  await ensureOnDashboard();
 }
 
 async function navigateToTransactionsForAccount(accountName: string) {

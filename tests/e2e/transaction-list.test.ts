@@ -70,7 +70,8 @@ async function createTestAccount() {
   await (await find("#acc-opening-date")).setValue("2024-01-01");
   await (await find("button=Save")).click();
 
-  await (await find("td*=Test Account")).waitForExist({ timeout: 10_000 });
+  // Dashboard restyle: account rows are buttons/cards, not table cells.
+  await (await find("button*=Test Account")).waitForExist({ timeout: 10_000 });
 }
 
 /**
@@ -186,7 +187,10 @@ describe("Transaction list — navigation", () => {
     const backBtn = await find("button[aria-label='Back']");
     await backBtn.waitForClickable({ timeout: 10_000 });
     await backBtn.click();
-    await (await find("button*=Add Account")).waitForExist({ timeout: 20_000 });
+    // The Back button now returns to the Accounts Overview screen.
+    await (
+      await find("span*=All your financial accounts")
+    ).waitForExist({ timeout: 20_000 });
   });
 
   it("clicking an account row navigates to the transaction list screen", async () => {
@@ -201,11 +205,13 @@ describe("Transaction list — navigation", () => {
     expect(rowCount).toBe(3);
   });
 
-  it("back button returns to the dashboard", async () => {
+  it("back button returns to accounts overview", async () => {
     const backBtn = await find("button[aria-label='Back']");
     await backBtn.waitForClickable({ timeout: 5_000 });
     await backBtn.click();
-    await (await find("button*=Add Account")).waitForExist({ timeout: 10_000 });
+    await (
+      await find("span*=All your financial accounts")
+    ).waitForExist({ timeout: 10_000 });
   });
 });
 
